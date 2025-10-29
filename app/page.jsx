@@ -31,8 +31,7 @@ export default function Home() {
           </span>
         </h1>
         <p className="mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg text-zinc-800 dark:text-zinc-400 mx-auto">
-          Join us in our mission to create sustainable impact through education,
-          empowerment, and empathy.
+          Be part of a movement that transforms lives through education, empowerment, and empathy.
         </p>
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
           <Link href="/membership">
