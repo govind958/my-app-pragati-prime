@@ -87,7 +87,7 @@ export default function Footer() {
         <div className="mt-6 sm:mt-8 border-t border-border pt-6 sm:pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm text-muted-foreground">
-              © 2024 Pragati Prime. All rights reserved.
+              © 2025 Pragati Prime. All rights reserved.
             </p>
             <div className="flex space-x-6">
               <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
