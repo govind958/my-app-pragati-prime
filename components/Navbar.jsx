@@ -11,6 +11,7 @@ export default function Navbar() {
           <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
           <Link href="/team" className="text-foreground/80 hover:text-primary transition-colors">Team</Link>
           <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
+           <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Login</Link>
           <Link href="/membership" className="text-foreground/80 hover:text-primary transition-colors">Membership</Link>
         </nav>
         <div className="md:hidden">
