@@ -13,7 +13,7 @@ export async function GET(request) {
   try {
     if (code) {
       // For PKCE or OAuth-style links
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
       if (error) throw error
       console.log('✅ Code exchange success')
       redirect(next)
