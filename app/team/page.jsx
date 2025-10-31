@@ -71,7 +71,7 @@ export default function TeamPage() {
             <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">Our Core Team</span>
           </h1>
           <p className="mt-4 sm:mt-6 text-base sm:text-lg text-zinc-800 dark:text-zinc-400">
-            The people behind Pragati Prime's mission—leading programs, partnerships, and impact.
+            The people behind Pragati Prime&apos;s mission—leading programs, partnerships, and impact.
           </p>
         </div>
       </section>

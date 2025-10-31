@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -10,13 +10,14 @@ import { getArticles } from "@/lib/articles";
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Load articles from localStorage
-    const loadedArticles = getArticles();
-    setArticles(loadedArticles);
-    setLoading(false);
+    const id = setTimeout(() => {
+      setArticles(getArticles());
+      setIsMounted(true);
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   return (
@@ -53,23 +54,27 @@ export default function ArticlesPage() {
               </span>
               <span className="mt-3 block h-1 w-16 sm:w-24 rounded-full bg-primary/70" />
             </h2>
-            <Link href="/articles/admin">
-              <Button variant="outline" size="sm" className="rounded-full">
-                Admin Panel
-              </Button>
-            </Link>
           </div>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-zinc-600 dark:text-zinc-400">Loading articles...</p>
+          {!isMounted ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <Card key={idx} className="rounded-2xl overflow-hidden animate-pulse">
+                  <div className="h-48 w-full bg-zinc-200 dark:bg-zinc-800" />
+                  <CardHeader>
+                    <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 mb-2 rounded" />
+                    <div className="h-6 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-4 w-full bg-zinc-200 dark:bg-zinc-800 mb-2 rounded" />
+                    <div className="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           ) : articles.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-zinc-600 dark:text-zinc-400 mb-4">No articles found.</p>
-              <Link href="/articles/admin">
-                <Button className="rounded-full">Create Your First Article</Button>
-              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
