@@ -134,7 +134,7 @@ export default function TeamPage() {
           Passionate about impact? Volunteer or join our programs to help drive change.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
-          <Link href="/membership">
+          <Link href="/login">
             <Button size="lg" variant="secondary" className="rounded-full bg-black text-white w-full sm:w-auto">
               Become a Member
             </Button>

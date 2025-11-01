@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { logout } from "@/app/logout/action";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   return (
     <header className="w-full border-b border-border bg-linear-to-r from-primary/10 to-secondary/20 backdrop-blur supports-backdrop-filter:bg-linear-to-r supports-backdrop-filter:from-primary/10 supports-backdrop-filter:to-secondary/20 sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
@@ -11,8 +15,14 @@ export default function Navbar() {
           <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
           <Link href="/team" className="text-foreground/80 hover:text-primary transition-colors">Team</Link>
           <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
-          <Link href="/membership" className="text-foreground/80 hover:text-primary transition-colors">Membership</Link>
-          <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Login</Link>
+          {
+            user ? (
+              <button onClick={logout} className="text-foreground/80 hover:text-primary transition-colors
+               cursor-pointer">Logout</button>
+            ) : (
+              <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Login</Link>
+            )
+          }
         </nav>
         <div className="md:hidden">
           <button className="text-foreground/80 hover:text-primary transition-colors">

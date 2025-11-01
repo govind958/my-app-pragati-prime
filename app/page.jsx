@@ -34,7 +34,7 @@ export default function Home() {
           Be part of a movement that transforms lives through education, empowerment, and empathy.
         </p>
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
-          <Link href="/membership">
+          <Link href="/login">
             <Button size="lg" className="rounded-full w-full sm:w-auto">
               Become a Member
             </Button>
@@ -278,7 +278,7 @@ export default function Home() {
           <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-white/70" />
         </h2>
         <p className="mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto">Become a part of our growing community of changemakers.</p>
-        <Link href="/membership">
+        <Link href="/login">
           <Button size="lg" variant="secondary" className="rounded-full bg-white text-blue-600 w-full sm:w-auto">
             Join Now
           </Button>
