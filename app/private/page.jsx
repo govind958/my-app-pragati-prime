@@ -24,7 +24,7 @@ export default async function MemberPage() {
       <div className="p-8 text-center">
         <h2 className="text-xl font-bold mb-2">Welcome, {user.email}</h2>
         <p className="text-gray-600">No membership record found.</p>
-        <a href="/register" className="text-blue-500 underline">
+        <a href="/register-membership" className="text-blue-500 underline">
           Complete your membership registration →
         </a>
       </div>
