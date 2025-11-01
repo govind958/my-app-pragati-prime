@@ -314,7 +314,7 @@ export default function About() {
           Together, we can create lasting change and build stronger communities. Your support makes our work possible.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
-          <Link href="/membership">
+          <Link href="/login">
             <Button size="lg" variant="secondary" className="rounded-full bg-black text-white w-full sm:w-auto">
               Become a Member
             </Button>

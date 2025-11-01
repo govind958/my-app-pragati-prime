@@ -38,7 +38,6 @@ export default function RegisterMembershipPage() {
     const { error } = await supabase.from("members").insert([
       {
         user_id: user.id,
-        email: user.email,
         full_name: form.full_name,
         contact: form.contact,
         membership_type: form.membership_type,

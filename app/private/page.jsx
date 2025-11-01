@@ -63,9 +63,53 @@ export default async function MemberPage() {
             ✅ Access granted to premium articles and updates!
           </div>
         ) : (
-          <div className="p-4 border rounded bg-yellow-50 text-yellow-800">
-            ⚠️ You are on a Free Membership. Upgrade to access premium content.
-          </div>
+          <>
+            <div className="p-4 border rounded bg-yellow-50 text-yellow-800 mb-6">
+              ⚠️ You are on a Free Membership. Upgrade to access premium content.
+            </div>
+            
+            {/* Premium Membership Upgrade Card */}
+            <div className="border-2 border-blue-500 rounded-xl bg-white shadow-lg p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Upgrade to Premium</h3>
+                <p className="text-gray-600">Unlock all premium content and exclusive benefits</p>
+              </div>
+              
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6">
+                <div className="text-center">
+                  <h3 className="font-semibold text-gray-800 text-lg">Premium Plan</h3>
+                  <p className="text-sm text-gray-500 mt-1 mb-3">Unlock all premium content</p>
+                  <p className="text-3xl font-bold text-blue-600">₹499 <span className="text-base font-normal text-gray-600">/ year</span></p>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 text-xl">✓</span>
+                  <span className="text-gray-700">Access to all premium articles</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 text-xl">✓</span>
+                  <span className="text-gray-700">Member-only updates and announcements</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 text-xl">✓</span>
+                  <span className="text-gray-700">Unique Membership ID</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2 text-xl">✓</span>
+                  <span className="text-gray-700">Priority support</span>
+                </li>
+              </ul>
+
+              <a
+                href="/register-membership"
+                className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow-md transition-all text-center"
+              >
+                Upgrade to Premium
+              </a>
+            </div>
+          </>
         )}
       </div>
     </div>
