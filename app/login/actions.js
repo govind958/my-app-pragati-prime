@@ -2,45 +2,31 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-
 import { createClient } from '@/utils/supabase/server'
 
-export async function login(formData) {
+export async function loginWithMagicLink(formData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') ,
-    password: formData.get('password') ,
+  const email = formData.get('email')
+
+  if (!email) {
+    redirect('/error') // or handle invalid input gracefully
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+  // Send magic link email
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+    },
+  })
 
   if (error) {
+    console.error('Magic link error:', error)
     redirect('/error')
   }
 
+  // No immediate session; user must check their email
   revalidatePath('/', 'layout')
-  redirect('/')
-}
-
-export async function signup(formData) {
-  const supabase = await createClient()
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') ,
-    password: formData.get('password') ,
-  }
-
-  const { error } = await supabase.auth.signUp(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/private') // You can create a page telling user to check inbox
 }
