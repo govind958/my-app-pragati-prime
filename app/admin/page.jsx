@@ -526,7 +526,7 @@ function SettingsPanel({ supabase }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     loadSettings();
