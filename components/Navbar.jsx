@@ -5,6 +5,18 @@ import { createClient } from "@/utils/supabase/server";
 export default async function Navbar() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  
+  // Check if user is a member
+  let isMember = false
+  if (user) {
+    const { data: member } = await supabase
+      .from("members")
+      .select("profile_id")
+      .eq("profile_id", user.id)
+      .single()
+    isMember = !!member
+  }
+  
   return (
     <header className="w-full border-b border-border bg-linear-to-r from-primary/10 to-secondary/20 backdrop-blur supports-backdrop-filter:bg-linear-to-r supports-backdrop-filter:from-primary/10 supports-backdrop-filter:to-secondary/20 sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
@@ -17,8 +29,15 @@ export default async function Navbar() {
           <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
           {
             user ? (
-              <button onClick={logout} className="text-foreground/80 hover:text-primary transition-colors
-               cursor-pointer">Logout</button>
+              <>
+                {isMember && (
+                  <>
+                    <Link href="/private" className="text-foreground/80 hover:text-primary transition-colors">Dashboard</Link>
+                    <Link href="/profile" className="text-foreground/80 hover:text-primary transition-colors">Profile</Link>
+                  </>
+                )}
+                <button onClick={logout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer">Logout</button>
+              </>
             ) : (
               <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Login</Link>
             )

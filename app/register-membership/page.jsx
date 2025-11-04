@@ -8,10 +8,12 @@ export default function RegisterMembershipPage() {
   const supabase = createClient()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
   const [form, setForm] = useState({
     full_name: "",
     contact: "",
-    membership_type: "free"
+    membership_type: "member"
   })
 
   const handleChange = (e) => {
@@ -21,6 +23,8 @@ export default function RegisterMembershipPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
+    setMessage(null)
 
     const {
       data: { user },
@@ -32,26 +36,46 @@ export default function RegisterMembershipPage() {
       return
     }
 
-    // Generate Membership ID
+    // This variable name is fine
     const membership_id = `MEM${Math.floor(Math.random() * 1000000)}`
 
-    const { error } = await supabase.from("members").insert([
+    // Query 1: Insert the new membership record
+    const memberInsert = supabase.from("members").insert([
       {
-        user_id: user.id,
-        full_name: form.full_name,
-        contact: form.contact,
+        profile_id: user.id,
+        member_id: membership_id, // Changed from 'membership_id'
         membership_type: form.membership_type,
-        membership_id
       }
     ])
+    
+    // Query 2: Update the user's profile with their full name
+    const profileUpdate = supabase
+      .from("profiles")
+      .update({ name: form.full_name, contact: form.contact})
+      .eq("id", user.id)
+
+    // Run both queries in parallel
+    const [memberResult, profileResult] = await Promise.all([
+      memberInsert,
+      profileUpdate
+    ])
+    
+    // --- END OF UPDATED QUERIES ---
 
     setLoading(false)
 
-    if (error) {
-      alert(error.message)
+    // Check if either query failed
+    if (memberResult.error || profileResult.error) {
+      const memberError = memberResult.error?.message || ""
+      const profileError = profileResult.error?.message || ""
+      setError(`Registration Error: ${memberError} ${profileError}`)
     } else {
-      alert("Membership registration successful!")
-      router.push("/member")
+      // Success!
+      setMessage("Membership registration successful!")
+      // Redirect to the private page after a short delay
+      setTimeout(() => {
+        router.push("/private")
+      }, 1500)
     }
   }
 
@@ -105,11 +129,11 @@ export default function RegisterMembershipPage() {
               {/* Free Plan */}
               <div
                 className={`border-2 rounded-xl p-4 cursor-pointer text-center transition-all ${
-                  form.membership_type === "free"
+                  form.membership_type === "member"
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200"
                 }`}
-                onClick={() => setForm({ ...form, membership_type: "free" })}
+                onClick={() => setForm({ ...form, membership_type: "member" })}
               >
                 <h3 className="font-semibold text-gray-800">Free Plan</h3>
                 <p className="text-sm text-gray-500 mt-1">
@@ -132,9 +156,28 @@ export default function RegisterMembershipPage() {
                   Unlock all premium content
                 </p>
                 <p className="text-lg font-semibold mt-2">₹499 / year</p>
+
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="p-4 text-center text-red-700 bg-red-50 border border-red-200 rounded-lg">
+              <svg className="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              {error}
+            </div>
+          )}
+
+          {message && (
+            <div className="p-4 text-center text-green-700 bg-green-50 border border-green-200 rounded-lg">
+              <svg className="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {message}
+            </div>
+          )}
 
           <button
             type="submit"
@@ -152,7 +195,7 @@ export default function RegisterMembershipPage() {
         <p className="text-center text-gray-500 text-sm mt-6">
           Already a member?{" "}
           <a
-            href="/member"
+            href="/private"
             className="text-blue-600 font-medium hover:underline"
           >
             Go to Dashboard →
@@ -162,3 +205,4 @@ export default function RegisterMembershipPage() {
     </div>
   )
 }
+

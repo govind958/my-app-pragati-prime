@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/Footer"; // Assuming this exists
 import { createClient } from "@/utils/supabase/client"; // Import Supabase client
@@ -26,8 +25,6 @@ export default function ArticleDetailPage() {
       setError(null);
 
       // Fetch the single article.
-      // We only need to check for 'published' = true.
-      // Your RLS policies will automatically handle paid/free access.
       const { data, error } = await supabase
         .from("articles")
         .select("id, title, content, is_paid, created_at, published")
@@ -37,8 +34,7 @@ export default function ArticleDetailPage() {
 
       if (error) {
         console.error("Error fetching article:", error.message);
-        // This error can happen if the article doesn't exist OR
-        // if RLS policy denies access (e.g., free user on paid article)
+
         setError("Article not found or you do not have permission to view it.");
       } else {
         setArticle(data);
@@ -47,7 +43,7 @@ export default function ArticleDetailPage() {
     };
 
     fetchArticle();
-  }, [id]); // Re-run when the 'id' from the URL changes
+  }, [id]);
 
   // Loading State
   if (loading) {

@@ -20,11 +20,6 @@ export default function ArticlesPage() {
     const fetchArticles = async () => {
       setLoading(true);
       
-      // Fetch only published articles
-      // Your RLS policies will automatically handle showing
-      // 'paid' articles to the correct users (paid vs. free)
-      //
-      // Select only columns that exist in the 'articles' table
       const { data, error } = await supabase
         .from("articles")
         .select("id, title, content, is_paid, created_at")
@@ -42,7 +37,6 @@ export default function ArticlesPage() {
     // Call the function
     fetchArticles();
     
-    // We only want this to run once on mount, so empty dependency array
   }, []);
 
   return (
@@ -82,7 +76,7 @@ export default function ArticlesPage() {
             </h2>
           </div>
 
-          {loading ? ( // Use 'loading' state instead of 'isMounted'
+          {loading ? ( 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
               {Array.from({ length: 3 }).map((_, idx) => (
                 <Card key={idx} className="rounded-2xl overflow-hidden animate-pulse">
@@ -125,7 +119,6 @@ export default function ArticlesPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-3">
-                      {/* Create a description from the first 100 chars of content */}
                       {article.content ? article.content.substring(0, 100) + '...' : 'No description available.'}
                     </p>
                     {/* Link to the article using its 'id' as a fallback */}
