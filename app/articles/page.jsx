@@ -3,21 +3,40 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
-import { getArticles } from "@/lib/articles";
+import { Card, CardHeader, CardContent } from "@/components/ui/card"; // Assuming these exist
+import { Button } from "@/components/ui/button"; // Assuming this exists
+import Footer from "@/components/Footer"; // Assuming this exists
+import { createClient } from "@/utils/supabase/client"; // Import Supabase client
+
+// Initialize Supabase Client
+const supabase = createClient();
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading=true
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      setArticles(getArticles());
-      setIsMounted(true);
-    }, 0);
-    return () => clearTimeout(id);
+    // Define an async function to fetch articles
+    const fetchArticles = async () => {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from("articles")
+        .select("id, title, content, is_paid, created_at")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching articles:", error.message);
+      } else {
+        setArticles(data || []);
+      }
+      setLoading(false);
+    };
+
+    // Call the function
+    fetchArticles();
+    
   }, []);
 
   return (
@@ -32,6 +51,7 @@ export default function ArticlesPage() {
             sizes="100vw"
             className="object-cover opacity-40 dark:opacity-30"
             priority
+            onError={(e) => e.currentTarget.style.display = 'none'} // Hide on error
           />
         </div>
         <div className="relative z-10 max-w-3xl">
@@ -56,7 +76,7 @@ export default function ArticlesPage() {
             </h2>
           </div>
 
-          {!isMounted ? (
+          {loading ? ( 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
               {Array.from({ length: 3 }).map((_, idx) => (
                 <Card key={idx} className="rounded-2xl overflow-hidden animate-pulse">
@@ -80,22 +100,17 @@ export default function ArticlesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
               {articles.map((article) => (
                 <Card key={article.id} className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                  {article.image && (
-                    <div className="relative h-48 w-full bg-zinc-100 dark:bg-zinc-800">
-                      <Image
-                        src={article.image}
-                        alt={article.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
+                  {/* Placeholder for image, since 'image_url' is not in the table */}
+                  <div className="relative h-48 w-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                    <span className="text-zinc-400 text-sm">No Image Available</span>
+                  </div>
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-primary font-medium">{article.category || "General"}</span>
+                      <span className={`text-xs font-medium ${article.is_paid ? 'text-yellow-600' : 'text-primary'}`}>
+                        {article.is_paid ? "Premium" : "Free"}
+                      </span>
                       <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        {new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
                     <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 line-clamp-2">
@@ -104,9 +119,10 @@ export default function ArticlesPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-3">
-                      {article.description}
+                      {article.content ? article.content.substring(0, 100) + '...' : 'No description available.'}
                     </p>
-                    <Link href={`/articles/${article.slug}`}>
+                    {/* Link to the article using its 'id' as a fallback */}
+                    <Link href={`/articles/${article.id}`}>
                       <Button variant="ghost" size="sm" className="text-primary hover:underline p-0">
                         Read more →
                       </Button>

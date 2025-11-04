@@ -13,10 +13,15 @@ export default async function MemberPage() {
 
   // 2️⃣ Fetch member profile from "members" table
   const { data: member, error: memberError } = await supabase
-    .from("members")
-    .select("*")
-    .eq("user_id", user.id)
-    .single()
+  .from("members")
+  .select(`
+    *,
+    profiles:profile_id (
+      contact
+    )
+  `)
+  .eq("profile_id", user.id)
+  .single();
 
   // 3️⃣ Handle missing member data
   if (memberError || !member) {
@@ -39,7 +44,7 @@ export default async function MemberPage() {
       </h1>
 
       <div className="border p-4 rounded-lg shadow-sm bg-gray-50">
-        <p><strong>Membership ID:</strong> {member.membership_id}</p>
+        <p><strong>Membership ID:</strong> {member.member_id}</p>
         <p>
           <strong>Type:</strong>{" "}
           <span
@@ -53,7 +58,7 @@ export default async function MemberPage() {
           </span>
         </p>
         <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Contact:</strong> {member.contact || "N/A"}</p>
+        <p><strong>Contact:</strong> {member.profiles?.contact || "N/A"}</p>
       </div>
 
       <div className="mt-8">
