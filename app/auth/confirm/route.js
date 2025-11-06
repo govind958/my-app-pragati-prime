@@ -27,5 +27,21 @@ export async function GET(request) {
   }
 
   // ✅ Success — user is now logged in
-  redirect('/private')
+  // Check user's role and redirect accordingly
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    if (profile?.role === 'admin') {
+      redirect('/admin')
+    } else {
+      redirect('/private')
+    }
+  } else {
+    redirect('/private')
+  }
 }

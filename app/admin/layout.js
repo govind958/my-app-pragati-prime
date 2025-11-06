@@ -11,23 +11,22 @@ export default async function AdminLayout({ children }) {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    // 👇 THE FIX IS HERE
     // Redirect to the new, unprotected login page
-    redirect("/admin-login")
+    redirect("/login")
   }
 
   // 2. Check if user is an admin
-  const { data: adminData, error: adminError } = await supabase
-    .from("admins")
-    .select("user_id")
-    .eq("user_id", user.id)
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
     .single()
 
   // 3. The Security Check
-  if (adminError || !adminData) {
+  if (profileError || !profile || profile.role !== "admin") {
     // If they are logged in but NOT an admin,
-    // send them to the regular user dashboard.
-    redirect("/admin-login")
+    // send them to the public home page.
+    redirect("/")
   }
 
   // 4. If all checks pass, render the protected admin page
