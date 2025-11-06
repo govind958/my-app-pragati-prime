@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }) {
 
   if (authError || !user) {
     // Redirect to the new, unprotected login page
-    redirect("/admin-login")
+    redirect("/login")
   }
 
   // 2. Check if user is an admin

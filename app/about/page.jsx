@@ -1,14 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Footer from "@/components/Footer";
+import AuthActionButton from "@/components/ui/AuthActionButton";
+
 
 export default function About() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
+
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center text-center py-20 px-4 sm:py-32 sm:px-6 md:py-40 md:px-16">
         <div className="absolute inset-0 z-0">
@@ -314,20 +315,7 @@ export default function About() {
           Together, we can create lasting change and build stronger communities. Your support makes our work possible.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
-          <Link href="/login">
-            <Button size="lg" variant="secondary" className="rounded-full bg-black text-white w-full sm:w-auto">
-              Become a Member
-            </Button>
-          </Link>
-          <Link href="/team">
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-full border-white text-blue-600 hover:bg-white/10 w-full sm:w-auto"
-            >
-              Meet Our Team
-            </Button>
-          </Link>
+        <AuthActionButton />
         </div>
       </section>
       

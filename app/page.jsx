@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Footer from "@/components/Footer";
+import AuthActionButton from "@/components/ui/AuthActionButton";
 
 export default function Home() {
   return (
@@ -34,20 +35,7 @@ export default function Home() {
           Be part of a movement that transforms lives through education, empowerment, and empathy.
         </p>
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
-          <Link href="/login">
-            <Button size="lg" className="rounded-full w-full sm:w-auto">
-              Become a Member
-            </Button>
-          </Link>
-          <Link href="/about">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full border-zinc-300 dark:border-zinc-700 w-full sm:w-auto"
-            >
-              Learn More
-            </Button>
-          </Link>
+        <AuthActionButton />
         </div>
         </div>
       </section>
