@@ -36,10 +36,10 @@ export default async function Navbar() {
           <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
           <Link href="/team" className="text-foreground/80 hover:text-primary transition-colors">Team</Link>
           <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
-          <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
           {
             user ? (
               <>
+                <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
                 {isMember && (
                   <>
                     <Link href="/profile" className="text-foreground/80 hover:text-primary transition-colors">Profile</Link>
@@ -47,7 +47,9 @@ export default async function Navbar() {
                 )}
                 <Link href="/private" className="text-foreground/80 hover:text-primary transition-colors">Dashboard</Link>
                 {/* Admin link removed from navbar */}
-                <button onClick={logout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer">Logout</button>
+                <form action={logout}>
+                  <button type="submit" className="text-foreground/80 hover:text-primary transition-colors cursor-pointer bg-transparent border-none">Logout</button>
+                </form>
               </>
             ) : (
               <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Member Login</Link>
