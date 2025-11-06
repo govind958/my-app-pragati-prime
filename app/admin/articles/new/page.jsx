@@ -140,7 +140,14 @@ export default function NewArticlePage() {
               disabled={loading}
               className="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition font-medium disabled:opacity-50"
             >
-              {loading ? "Creating..." : "Create Article"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creating...
+                </span>
+              ) : (
+                "Create Article"
+              )}
             </button>
           </div>
         </form>

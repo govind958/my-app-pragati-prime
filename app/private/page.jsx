@@ -2,6 +2,12 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/server"
 import BuyNowButton from "@/components/BuyNowButton"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { BookOpen, Crown, Lock, ArrowRight, Sparkles, FileText } from "lucide-react"
 
 export default async function MemberPage() {
   // Create a Supabase server client (reads cookies for auth)
@@ -15,125 +21,328 @@ export default async function MemberPage() {
 
   // 2️⃣ Fetch member profile from "members" table
   const { data: member, error: memberError } = await supabase
-  .from("members")
-  .select(`
-    *,
-    profiles:profile_id (
-      contact
-    )
-  `)
-  .eq("profile_id", user.id)
-  .single();
+    .from("members")
+    .select(`
+      *,
+      profiles:profile_id (
+        contact
+      )
+    `)
+    .eq("profile_id", user.id)
+    .single()
 
   const { data: profile } = await supabase
-  .from("profiles")
-  .select("name, contact")
-  .eq("id", user.id)
-  .single();
+    .from("profiles")
+    .select("name, contact")
+    .eq("id", user.id)
+    .single()
 
   // 3️⃣ Handle missing member data
   if (memberError || !member) {
     return (
-      <div className="p-8 text-center">
-        <h2 className="text-xl font-bold mb-2">Welcome, {user.email}</h2>
-        <p className="text-gray-600">No membership record found.</p>
-        <a href="/register-membership" className="text-blue-500 underline">
-          Complete your membership registration →
-        </a>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Welcome, {user.email}</CardTitle>
+            <CardDescription>No membership record found.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/register-membership">
+                Complete your membership registration
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
-  // 4️⃣ Render member dashboard with sidebar and Articles tab
+  const isPremium = member.membership_type === "paid"
+  const userName = profile?.name || user.email?.split("@")[0] || "Member"
+  const userInitials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
+
+  // 4️⃣ Render beautiful member dashboard
   return (
-    <div className="p-6 md:p-8">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Sidebar */}
-        <aside className="md:col-span-3 lg:col-span-3 border rounded-lg bg-white shadow-sm">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">Member Dashboard</h2>
-            <p className="text-sm text-gray-500 mt-1">Welcome, {profile.name || user.email}</p>
-          </div>
-          <nav className="p-2">
-            <a className="block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">Articles</a>
-          </nav>
-          <div className="p-4 border-t text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Membership</span>
-              <span className={
-                member.membership_type === "paid"
-                  ? "text-green-600 font-semibold"
-                  : "text-gray-700 font-semibold"
-              }>
-                {member.membership_type.toUpperCase()}
-              </span>
-            </div>
-            <div className="mt-2 text-gray-500 truncate">{user.email}</div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="md:col-span-9 lg:col-span-9">
-          {/* Articles Tab */}
-          <div className="border rounded-lg bg-white shadow-sm">
-            <div className="p-4 border-b">
-              <h3 className="text-xl font-semibold">Articles</h3>
-              <p className="text-sm text-gray-500">Browse free and premium content</p>
-            </div>
-
-            <div className="p-4 space-y-10">
-              {/* Free Articles Section */}
-              <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-lg font-semibold">Free Articles</h4>
-                  <Link href="/articles" className="text-sm text-blue-600 hover:underline">View all</Link>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100">
+      <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Beautiful Sidebar */}
+          <aside className="lg:col-span-3">
+            <Card className="sticky top-6">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <Avatar className="h-16 w-16 border-2 border-primary">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-lg font-semibold">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg truncate">{userName}</CardTitle>
+                    <CardDescription className="truncate">{user.email}</CardDescription>
+                  </div>
                 </div>
-                <div className="grid gap-3">
-                  <Link href="/articles" className="block p-3 border rounded hover:bg-gray-50 transition">
-                    <div className="font-medium">All community posts</div>
-                    <div className="text-sm text-gray-500">General updates, programs, and stories</div>
-                  </Link>
+                <Separator />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">Membership</span>
+                    <Badge 
+                      variant={isPremium ? "default" : "secondary"}
+                      className={isPremium ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white" : ""}
+                    >
+                      {isPremium ? (
+                        <>
+                          <Crown className="mr-1 h-3 w-3" />
+                          Premium
+                        </>
+                      ) : (
+                        "Free"
+                      )}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Member ID</span>
+                    <span className="font-mono text-xs">{member.member_id}</span>
+                  </div>
                 </div>
-              </section>
+                <Separator />
+                <nav className="space-y-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <Link href="/articles">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Articles
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <Link href="/profile">
+                      <FileText className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </Button>
+                </nav>
+              </CardContent>
+            </Card>
+          </aside>
 
-              {/* Premium Articles Section */}
-              <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-lg font-semibold">Premium Articles</h4>
-                  {member.membership_type === "paid" ? (
-                    <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">Included</span>
-                  ) : (
-                    <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">Upgrade to access</span>
+          {/* Main Content */}
+          <main className="lg:col-span-9 space-y-6">
+            {/* Welcome Header */}
+            <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl md:text-3xl mb-2">
+                      Welcome back, {userName}! 👋
+                    </CardTitle>
+                    <CardDescription className="text-blue-100">
+                      {isPremium 
+                        ? "You have access to all premium content and features."
+                        : "Explore our community and upgrade to unlock premium features."
+                      }
+                    </CardDescription>
+                  </div>
+                  {isPremium && (
+                    <div className="hidden md:block">
+                      <Sparkles className="h-12 w-12 text-yellow-300" />
+                    </div>
                   )}
                 </div>
+              </CardHeader>
+            </Card>
 
-                {member.membership_type === "paid" ? (
-                  <div className="grid gap-3">
-                    <Link href="/articles" className="block p-3 border rounded hover:bg-gray-50 transition">
-                      <div className="font-medium">Premium insights</div>
-                      <div className="text-sm text-gray-500">Exclusive reports and member-only analyses</div>
+            {/* Articles Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
+                      Articles & Content
+                    </CardTitle>
+                    <CardDescription>Browse free and premium content</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/articles">
+                      View All
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                {/* Free Articles Section */}
+                <section>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-blue-600" />
+                      Free Articles
+                    </h3>
+                    <Link 
+                      href="/articles" 
+                      className="text-sm text-primary hover:underline flex items-center gap-1"
+                    >
+                      View all
+                      <ArrowRight className="h-3 w-3" />
                     </Link>
                   </div>
-                ) : (
-                  <div className="border rounded p-4 bg-yellow-50 text-yellow-800">
-                    <div className="font-medium">Premium content is locked</div>
-                    <p className="text-sm mt-1">Upgrade your membership to unlock all premium articles.</p>
-                    <div className="mt-4">
-                      <BuyNowButton
-                        amount={499}
-                        userDetails={{
-                          name: profile.name,
-                          email: user.email,
-                          contact: profile.contact,
-                        }}
-                      />
-                    </div>
+                  <div className="grid gap-4">
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer border-2 hover:border-primary/50">
+                      <Link href="/articles">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold mb-1">All Community Posts</h4>
+                              <p className="text-sm text-muted-foreground">
+                                General updates, programs, and stories from our community
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="ml-2">Free</Badge>
+                          </div>
+                        </CardContent>
+                      </Link>
+                    </Card>
                   </div>
-                )}
-              </section>
+                </section>
+
+                <Separator />
+
+                {/* Premium Articles Section */}
+                <section>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      {isPremium ? (
+                        <>
+                          <Crown className="h-4 w-4 text-yellow-500" />
+                          Premium Articles
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4 text-muted-foreground" />
+                          Premium Articles
+                        </>
+                      )}
+                    </h3>
+                    {isPremium && (
+                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                        <Sparkles className="mr-1 h-3 w-3" />
+                        Included
+                      </Badge>
+                    )}
+                  </div>
+
+                  {isPremium ? (
+                    <div className="grid gap-4">
+                      <Card className="hover:shadow-md transition-shadow cursor-pointer border-2 border-yellow-200 hover:border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50">
+                        <Link href="/articles">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-semibold">Premium Insights</h4>
+                                  <Crown className="h-4 w-4 text-yellow-600" />
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  Exclusive reports and member-only analyses
+                                </p>
+                              </div>
+                              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                                Premium
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Link>
+                      </Card>
+                    </div>
+                  ) : (
+                    <Card className="border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50">
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-yellow-100 rounded-full">
+                            <Lock className="h-6 w-6 text-yellow-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                              Premium Content Locked
+                              <Crown className="h-5 w-5 text-yellow-600" />
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Upgrade your membership to unlock all premium articles, exclusive insights, and member-only content.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                              <BuyNowButton
+                                amount={499}
+                                userDetails={{
+                                  name: profile?.name || "",
+                                  email: user.email || "",
+                                  contact: profile?.contact || "",
+                                }}
+                              />
+                              <Button variant="outline" asChild>
+                                <Link href="/payment">
+                                  Learn More
+                                  <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </section>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-lg">Your Profile</CardTitle>
+                  <CardDescription>Manage your account settings</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/profile">
+                      Go to Profile
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-lg">Payment Options</CardTitle>
+                  <CardDescription>Upgrade or manage your subscription</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/payment">
+                      View Plans
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   )
