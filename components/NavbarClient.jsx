@@ -98,18 +98,11 @@ export default function NavbarClient() {
                 <Link href="/profile" className="text-foreground/80 hover:text-primary transition-colors">Profile</Link>
               )}
               <Link href="/private" className="text-foreground/80 hover:text-primary transition-colors">Dashboard</Link>
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="text-foreground/80 hover:text-primary transition-colors"
-                >
-                  Admin
-                </Link>
-              )}
+              {/* Admin link removed from navbar */}
               <button onClick={handleLogout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer">Logout</button>
             </>
           ) : (
-            <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Login</Link>
+            <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Memberlogin</Link>
           )}
         </nav>
 
@@ -201,7 +194,7 @@ export default function NavbarClient() {
                 className="text-foreground/80 hover:text-primary transition-colors py-2"
                 onClick={closeMobileMenu}
               >
-                Login
+               Member login
               </Link>
             )}
           </nav>

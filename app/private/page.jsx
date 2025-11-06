@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { createClient } from "@/utils/supabase/server"
 import BuyNowButton from "@/components/BuyNowButton"
 
@@ -43,93 +44,96 @@ export default async function MemberPage() {
     )
   }
 
-  // 4️⃣ Render member info
+  // 4️⃣ Render member dashboard with sidebar and Articles tab
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">
-        Welcome, {profile.name || user.email}
-      </h1>
-
-      <div className="border p-4 rounded-lg shadow-sm bg-gray-50">
-        <p><strong>Membership ID:</strong> {member.member_id}</p>
-        <p>
-          <strong>Type:</strong>{" "}
-          <span
-            className={
-              member.membership_type === "paid"
-                ? "text-green-600 font-semibold"
-                : "text-gray-700 font-semibold"
-            }
-          >
-            {member.membership_type.toUpperCase()}
-          </span>
-        </p>
-        <p><strong>Email:</strong> {user.email}</p>
-      </div>
-
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-2">Member Dashboard</h2>
-        {member.membership_type === "paid" ? (
-          <div className="p-4 border rounded bg-green-50 text-green-800">
-            ✅ Access granted to premium articles and updates!
+    <div className="p-6 md:p-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Sidebar */}
+        <aside className="md:col-span-3 lg:col-span-3 border rounded-lg bg-white shadow-sm">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-semibold">Member Dashboard</h2>
+            <p className="text-sm text-gray-500 mt-1">Welcome, {profile.name || user.email}</p>
           </div>
-        ) : (
-          <>
-            <div className="p-4 border rounded bg-yellow-50 text-yellow-800 mb-6">
-              ⚠️ You are on a Free Membership. Upgrade to access premium content.
+          <nav className="p-2">
+            <a className="block px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">Articles</a>
+          </nav>
+          <div className="p-4 border-t text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Membership</span>
+              <span className={
+                member.membership_type === "paid"
+                  ? "text-green-600 font-semibold"
+                  : "text-gray-700 font-semibold"
+              }>
+                {member.membership_type.toUpperCase()}
+              </span>
             </div>
-            
-            {/* Premium Membership Upgrade Card */}
-            <div className="border-2 border-blue-500 rounded-xl bg-white shadow-lg p-6">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Upgrade to Premium</h3>
-                <p className="text-gray-600">Unlock all premium content and exclusive benefits</p>
-              </div>
-              
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6">
-                <div className="text-center">
-                  <h3 className="font-semibold text-gray-800 text-lg">Premium Plan</h3>
-                  <p className="text-sm text-gray-500 mt-1 mb-3">Unlock all premium content</p>
-                  <p className="text-3xl font-bold text-blue-600">₹499 <span className="text-base font-normal text-gray-600">/ year</span></p>
+            <div className="mt-2 text-gray-500 truncate">{user.email}</div>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="md:col-span-9 lg:col-span-9">
+          {/* Articles Tab */}
+          <div className="border rounded-lg bg-white shadow-sm">
+            <div className="p-4 border-b">
+              <h3 className="text-xl font-semibold">Articles</h3>
+              <p className="text-sm text-gray-500">Browse free and premium content</p>
+            </div>
+
+            <div className="p-4 space-y-10">
+              {/* Free Articles Section */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-lg font-semibold">Free Articles</h4>
+                  <Link href="/articles" className="text-sm text-blue-600 hover:underline">View all</Link>
                 </div>
-              </div>
+                <div className="grid gap-3">
+                  <Link href="/articles" className="block p-3 border rounded hover:bg-gray-50 transition">
+                    <div className="font-medium">All community posts</div>
+                    <div className="text-sm text-gray-500">General updates, programs, and stories</div>
+                  </Link>
+                </div>
+              </section>
 
-              <ul className="space-y-3 mb-6">
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2 text-xl">✓</span>
-                  <span className="text-gray-700">Access to all premium articles</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2 text-xl">✓</span>
-                  <span className="text-gray-700">Member-only updates and announcements</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2 text-xl">✓</span>
-                  <span className="text-gray-700">Unique Membership ID</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2 text-xl">✓</span>
-                  <span className="text-gray-700">Priority support</span>
-                </li>
-              </ul>
+              {/* Premium Articles Section */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-lg font-semibold">Premium Articles</h4>
+                  {member.membership_type === "paid" ? (
+                    <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">Included</span>
+                  ) : (
+                    <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">Upgrade to access</span>
+                  )}
+                </div>
 
-              {/* <a
-                href="/register-membership"
-                className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow-md transition-all text-center"
-              >
-                Upgrade to Premium
-              </a> */}
-              <BuyNowButton
-              amount={499} // ₹499 in paise
-              userDetails={{
-                name: profile.name,
-                email: user.email, // replace with user email from supabase if available
-                contact: profile.contact,
-              }}
-            />
+                {member.membership_type === "paid" ? (
+                  <div className="grid gap-3">
+                    <Link href="/articles" className="block p-3 border rounded hover:bg-gray-50 transition">
+                      <div className="font-medium">Premium insights</div>
+                      <div className="text-sm text-gray-500">Exclusive reports and member-only analyses</div>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="border rounded p-4 bg-yellow-50 text-yellow-800">
+                    <div className="font-medium">Premium content is locked</div>
+                    <p className="text-sm mt-1">Upgrade your membership to unlock all premium articles.</p>
+                    <div className="mt-4">
+                      <BuyNowButton
+                        amount={499}
+                        userDetails={{
+                          name: profile.name,
+                          email: user.email,
+                          contact: profile.contact,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </section>
             </div>
-          </>
-        )}
+          </div>
+        </main>
       </div>
     </div>
   )

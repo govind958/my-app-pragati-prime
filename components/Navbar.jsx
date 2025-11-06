@@ -8,7 +8,6 @@ export default async function Navbar() {
   
   // Check if user is a member
   let isMember = false
-  let isAdmin = false
   if (user) {
     const { data: member } = await supabase
       .from("members")
@@ -16,17 +15,6 @@ export default async function Navbar() {
       .eq("profile_id", user.id)
       .single()
     isMember = !!member
-
-        // Check if user is an admin (from profiles table)
-        const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-  
-      if (profile?.role === "admin") {
-        isAdmin = true;
-      }
   }
   
   
@@ -49,18 +37,11 @@ export default async function Navbar() {
                   </>
                 )}
                 <Link href="/private" className="text-foreground/80 hover:text-primary transition-colors">Dashboard</Link>
-                {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="text-foreground/80 hover:text-primary transition-colors"
-                >
-                  Admin
-                </Link>
-              )}
+                {/* Admin link removed from navbar */}
                 <button onClick={logout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer">Logout</button>
               </>
             ) : (
-              <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Login</Link>
+              <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Member Login</Link>
             )
           }
         </nav>
