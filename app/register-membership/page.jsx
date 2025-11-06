@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
+import BuyNowButton from "@/components/BuyNowButton" 
 
 export default function RegisterMembershipPage() {
   const supabase = createClient()
@@ -179,17 +180,25 @@ export default function RegisterMembershipPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow-md transition-all"
-          >
-            {loading
-              ? "Processing..."
-              : form.membership_type === "paid"
-              ? "Proceed to Payment"
-              : "Register Membership"}
-          </button>
+          {/* Conditional Button */}
+          {form.membership_type === "paid" ? (
+            <BuyNowButton
+              amount={499} // ₹499 in paise
+              userDetails={{
+                name: form.full_name,
+                email: "", // replace with user email from supabase if available
+                contact: form.contact,
+              }}
+            />
+          ) : (
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow-md transition-all"
+            >
+              {loading ? "Processing..." : "Register Membership"}
+            </button>
+          )}
         </form>
 
         <p className="text-center text-gray-500 text-sm mt-6">

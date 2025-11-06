@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import AuthActionButton from "@/components/ui/AuthActionButton";
 
 const TEAM_MEMBERS = [
   {
@@ -134,11 +135,7 @@ export default function TeamPage() {
           Passionate about impact? Volunteer or join our programs to help drive change.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
-          <Link href="/login">
-            <Button size="lg" variant="secondary" className="rounded-full bg-black text-white w-full sm:w-auto">
-              Become a Member
-            </Button>
-          </Link>
+          <AuthActionButton />
           <Link href="/about">
             <Button
               size="lg"

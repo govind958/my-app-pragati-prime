@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
+import BuyNowButton from "@/components/BuyNowButton"
 
 export default async function MemberPage() {
   // Create a Supabase server client (reads cookies for auth)
@@ -23,6 +24,12 @@ export default async function MemberPage() {
   .eq("profile_id", user.id)
   .single();
 
+  const { data: profile } = await supabase
+  .from("profiles")
+  .select("name, contact")
+  .eq("id", user.id)
+  .single();
+
   // 3️⃣ Handle missing member data
   if (memberError || !member) {
     return (
@@ -40,7 +47,7 @@ export default async function MemberPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">
-        Welcome, {member.full_name || user.email}
+        Welcome, {profile.name || user.email}
       </h1>
 
       <div className="border p-4 rounded-lg shadow-sm bg-gray-50">
@@ -58,7 +65,6 @@ export default async function MemberPage() {
           </span>
         </p>
         <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Contact:</strong> {member.profiles?.contact || "N/A"}</p>
       </div>
 
       <div className="mt-8">
@@ -107,12 +113,20 @@ export default async function MemberPage() {
                 </li>
               </ul>
 
-              <a
+              {/* <a
                 href="/register-membership"
                 className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow-md transition-all text-center"
               >
                 Upgrade to Premium
-              </a>
+              </a> */}
+              <BuyNowButton
+              amount={499} // ₹499 in paise
+              userDetails={{
+                name: profile.name,
+                email: user.email, // replace with user email from supabase if available
+                contact: profile.contact,
+              }}
+            />
             </div>
           </>
         )}
