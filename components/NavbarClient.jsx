@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { logout } from "@/app/logout/action";
 
@@ -79,10 +80,17 @@ export default function NavbarClient() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link 
           href="/" 
-          className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+          className="flex items-center hover:opacity-80 transition-opacity"
           onClick={closeMobileMenu}
         >
-          Pragati Prime
+          <Image 
+            src="/logo1.jpeg" 
+            alt="Pragati Prime Logo" 
+            width={80} 
+            height={80} 
+            className="rounded-full object-contain h-12 w-auto"
+            priority
+          />
         </Link>
         
         {/* Desktop Navigation */}
@@ -90,6 +98,7 @@ export default function NavbarClient() {
           <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
           <Link href="/team" className="text-foreground/80 hover:text-primary transition-colors">Team</Link>
           <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
+          <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
           {loading ? (
             <span className="text-foreground/80">Loading...</span>
           ) : user ? (
@@ -151,6 +160,13 @@ export default function NavbarClient() {
               onClick={closeMobileMenu}
             >
               Articles
+            </Link>
+            <Link 
+              href="/payment" 
+              className="text-foreground/80 hover:text-primary transition-colors py-2"
+              onClick={closeMobileMenu}
+            >
+              Payment
             </Link>
             {loading ? (
               <span className="text-foreground/80 py-2">Loading...</span>

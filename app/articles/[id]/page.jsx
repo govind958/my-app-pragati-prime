@@ -48,16 +48,11 @@ export default function ArticleDetailPage() {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
-        <div className="max-w-3xl mx-auto py-16 sm:py-24 px-4 animate-pulse">
-          <div className="h-10 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded mb-4"></div>
-          <div className="h-4 w-1/4 bg-zinc-200 dark:bg-zinc-800 rounded mb-8"></div>
-          <div className="h-48 w-full bg-zinc-200 dark:bg-zinc-800 rounded mb-8"></div>
-          <div className="h-6 w-full bg-zinc-200 dark:bg-zinc-800 rounded mb-4"></div>
-          <div className="h-6 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded mb-4"></div>
-          <div className="h-6 w-full bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+      <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
-        <Footer />
       </div>
     );
   }

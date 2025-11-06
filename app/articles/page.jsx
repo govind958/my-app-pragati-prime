@@ -76,21 +76,12 @@ export default function ArticlesPage() {
             </h2>
           </div>
 
-          {loading ? ( 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-              {Array.from({ length: 3 }).map((_, idx) => (
-                <Card key={idx} className="rounded-2xl overflow-hidden animate-pulse">
-                  <div className="h-48 w-full bg-zinc-200 dark:bg-zinc-800" />
-                  <CardHeader>
-                    <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 mb-2 rounded" />
-                    <div className="h-6 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-4 w-full bg-zinc-200 dark:bg-zinc-800 mb-2 rounded" />
-                    <div className="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                  </CardContent>
-                </Card>
-              ))}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading articles...</p>
+              </div>
             </div>
           ) : articles.length === 0 ? (
             <div className="text-center py-12">
