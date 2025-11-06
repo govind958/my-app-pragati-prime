@@ -55,9 +55,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/membership" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Membership
-                </Link>
+                <Link href="/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">Admin</Link>
               </li>
             </ul>
           </div>
