@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { logout } from "@/app/logout/action";
 
 export default function NavbarClient() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -63,8 +64,27 @@ export default function NavbarClient() {
   }, [checkMembership, checkAdmin]);
 
   const handleLogout = async () => {
-    await logout();
-    setMobileMenuOpen(false);
+    try {
+      setMobileMenuOpen(false);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        return;
+      }
+      
+      // Clear local state
+      setUser(null);
+      setIsMember(false);
+      setIsAdmin(false);
+      
+      // Redirect to home page
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const toggleMobileMenu = () => {
@@ -98,11 +118,11 @@ export default function NavbarClient() {
           <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
           <Link href="/team" className="text-foreground/80 hover:text-primary transition-colors">Team</Link>
           <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
-          <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
           {loading ? (
             <span className="text-foreground/80">Loading...</span>
           ) : user ? (
             <>
+              <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
               {isMember && (
                 <Link href="/profile" className="text-foreground/80 hover:text-primary transition-colors">Profile</Link>
               )}
@@ -161,17 +181,17 @@ export default function NavbarClient() {
             >
               Articles
             </Link>
-            <Link 
-              href="/payment" 
-              className="text-foreground/80 hover:text-primary transition-colors py-2"
-              onClick={closeMobileMenu}
-            >
-              Payment
-            </Link>
             {loading ? (
               <span className="text-foreground/80 py-2">Loading...</span>
             ) : user ? (
               <>
+                <Link 
+                  href="/payment" 
+                  className="text-foreground/80 hover:text-primary transition-colors py-2"
+                  onClick={closeMobileMenu}
+                >
+                  Payment
+                </Link>
                 {isMember && (
                   <Link 
                     href="/profile" 
