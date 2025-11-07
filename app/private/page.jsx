@@ -40,7 +40,7 @@ export default async function MemberPage() {
   // 3️⃣ Handle missing member data
   if (memberError || !member) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Welcome, {user.email}</CardTitle>
@@ -70,8 +70,34 @@ export default async function MemberPage() {
 
   // 4️⃣ Render beautiful member dashboard
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-gray-100">
       <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+        {/* Welcome Header - At top on mobile, hidden on desktop (shown in main content) */}
+        <div className="mb-6 lg:hidden">
+          <Card className="bg-linear-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl md:text-3xl mb-2">
+                    Welcome back, {userName}! 👋
+                  </CardTitle>
+                  <CardDescription className="text-blue-100">
+                    {isPremium 
+                      ? "You have access to all premium content and features."
+                      : "Explore our community and upgrade to unlock premium features."
+                    }
+                  </CardDescription>
+                </div>
+                {isPremium && (
+                  <div className="hidden sm:block">
+                    <Sparkles className="h-12 w-12 text-yellow-300" />
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Beautiful Sidebar */}
           <aside className="lg:col-span-3">
@@ -96,7 +122,7 @@ export default async function MemberPage() {
                     <span className="text-sm font-medium text-muted-foreground">Membership</span>
                     <Badge 
                       variant={isPremium ? "default" : "secondary"}
-                      className={isPremium ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white" : ""}
+                      className={isPremium ? "bg-linear-to-r from-yellow-400 to-orange-500 text-white" : ""}
                     >
                       {isPremium ? (
                         <>
@@ -142,8 +168,8 @@ export default async function MemberPage() {
 
           {/* Main Content */}
           <main className="lg:col-span-9 space-y-6">
-            {/* Welcome Header */}
-            <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
+            {/* Welcome Header - Hidden on mobile (shown at top), visible on desktop */}
+            <Card className="hidden lg:block bg-linear-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -239,7 +265,7 @@ export default async function MemberPage() {
                       )}
                     </h3>
                     {isPremium && (
-                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                      <Badge className="bg-linear-to-r from-yellow-400 to-orange-500 text-white">
                         <Sparkles className="mr-1 h-3 w-3" />
                         Included
                       </Badge>
@@ -248,7 +274,7 @@ export default async function MemberPage() {
 
                   {isPremium ? (
                     <div className="grid gap-4">
-                      <Card className="hover:shadow-md transition-shadow cursor-pointer border-2 border-yellow-200 hover:border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50">
+                      <Card className="hover:shadow-md transition-shadow cursor-pointer border-2 border-yellow-200 hover:border-yellow-400 bg-linear-to-br from-yellow-50 to-orange-50">
                         <Link href="/articles">
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between">
@@ -261,7 +287,7 @@ export default async function MemberPage() {
                                   Exclusive reports and member-only analyses
                                 </p>
                               </div>
-                              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                              <Badge className="bg-linear-to-r from-yellow-400 to-orange-500 text-white">
                                 Premium
                               </Badge>
                             </div>
@@ -270,7 +296,7 @@ export default async function MemberPage() {
                       </Card>
                     </div>
                   ) : (
-                    <Card className="border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50">
+                    <Card className="border-2 border-yellow-200 bg-linear-to-br from-yellow-50 to-orange-50">
                       <CardContent className="p-6">
                         <div className="flex items-start gap-4">
                           <div className="p-3 bg-yellow-100 rounded-full">
