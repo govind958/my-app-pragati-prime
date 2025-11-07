@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { logout } from "@/app/logout/action";
+import { LogIn, User, Menu, X, LayoutDashboard, Zap } from 'lucide-react'; // Importing icons
 
 export default function NavbarClient() {
   const [user, setUser] = useState(null);
@@ -74,35 +75,49 @@ export default function NavbarClient() {
     setMobileMenuOpen(false);
   };
 
+  // Base class for desktop links
+  const baseLinkClass = "text-foreground/80 hover:text-primary transition-colors hover:scale-105 transform duration-200";
+  // Base class for mobile links
+  const baseMobileLinkClass = "text-foreground/80 hover:text-primary transition-colors py-2 flex items-center gap-3";
+  // Primary button class
+  const primaryButtonClass = "flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-primary/90 transition-all transform hover:scale-[1.02] duration-300";
+
   return (
     <header className="w-full border-b border-border bg-linear-to-r from-primary/10 to-secondary/20 backdrop-blur supports-backdrop-filter:bg-linear-to-r supports-backdrop-filter:from-primary/10 supports-backdrop-filter:to-secondary/20 sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link 
           href="/" 
-          className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+          className="text-2xl font-extrabold text-primary hover:text-primary/80 transition-colors flex items-center gap-2"
           onClick={closeMobileMenu}
         >
+          <Zap className="w-5 h-5" />
           Pragati Prime
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden gap-8 text-sm font-medium md:flex">
-          <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
-          <Link href="/team" className="text-foreground/80 hover:text-primary transition-colors">Team</Link>
-          <Link href="/articles" className="text-foreground/80 hover:text-primary transition-colors">Articles</Link>
+        <nav className="hidden gap-8 text-sm font-medium md:flex items-center">
+          <Link href="/about" className={baseLinkClass}>About</Link>
+          <Link href="/team" className={baseLinkClass}>Team</Link>
+          <Link href="/articles" className={baseLinkClass}>Articles</Link>
           {loading ? (
             <span className="text-foreground/80">Loading...</span>
           ) : user ? (
             <>
               {isMember && (
-                <Link href="/profile" className="text-foreground/80 hover:text-primary transition-colors">Profile</Link>
+                <Link href="/profile" className={baseLinkClass}>Profile</Link>
               )}
-              <Link href="/private" className="text-foreground/80 hover:text-primary transition-colors">Dashboard</Link>
+              <Link href="/private" className={baseLinkClass}>Dashboard</Link>
               {/* Admin link removed from navbar */}
-              <button onClick={handleLogout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer">Logout</button>
+              <button onClick={handleLogout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer hover:scale-105 transform duration-200">Logout</button>
             </>
           ) : (
-            <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Memberlogin</Link>
+            <Link 
+              href="/login" 
+              className={primaryButtonClass} // Using the new button style
+            >
+              <LogIn className="w-4 h-4" />
+              Member Login
+            </Link>
           )}
         </nav>
 
@@ -110,18 +125,14 @@ export default function NavbarClient() {
         <div className="md:hidden">
           <button 
             onClick={toggleMobileMenu}
-            className="text-foreground/80 hover:text-primary transition-colors p-2"
+            className="text-primary hover:text-primary/80 transition-colors p-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md"
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="h-6 w-6" />
             ) : (
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <Menu className="h-6 w-6" />
             )}
           </button>
         </div>
@@ -129,29 +140,30 @@ export default function NavbarClient() {
 
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
-          <nav className="flex flex-col px-4 py-4 space-y-4">
+        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur animate-in slide-in-from-top-4 duration-300">
+          <nav className="flex flex-col px-4 py-4 space-y-2">
             <Link 
               href="/about" 
-              className="text-foreground/80 hover:text-primary transition-colors py-2"
+              className={baseMobileLinkClass}
               onClick={closeMobileMenu}
             >
               About
             </Link>
             <Link 
               href="/team" 
-              className="text-foreground/80 hover:text-primary transition-colors py-2"
+              className={baseMobileLinkClass}
               onClick={closeMobileMenu}
             >
               Team
             </Link>
             <Link 
               href="/articles" 
-              className="text-foreground/80 hover:text-primary transition-colors py-2"
+              className={baseMobileLinkClass}
               onClick={closeMobileMenu}
             >
               Articles
             </Link>
+            <div className="border-t border-border/50 my-2"></div>
             {loading ? (
               <span className="text-foreground/80 py-2">Loading...</span>
             ) : user ? (
@@ -159,42 +171,42 @@ export default function NavbarClient() {
                 {isMember && (
                   <Link 
                     href="/profile" 
-                    className="text-foreground/80 hover:text-primary transition-colors py-2"
+                    className={baseMobileLinkClass}
                     onClick={closeMobileMenu}
                   >
-                    Profile
+                    <User className="w-4 h-4" /> Profile
                   </Link>
                 )}
                 <Link 
                   href="/private" 
-                  className="text-foreground/80 hover:text-primary transition-colors py-2"
+                  className={baseMobileLinkClass}
                   onClick={closeMobileMenu}
                 >
-                  Dashboard
+                  <LayoutDashboard className="w-4 h-4" /> Dashboard
                 </Link>
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="text-foreground/80 hover:text-primary transition-colors py-2"
+                    className={baseMobileLinkClass}
                     onClick={closeMobileMenu}
                   >
-                    Admin
+                    <Zap className="w-4 h-4" /> Admin
                   </Link>
                 )}
                 <button 
                   onClick={handleLogout} 
-                  className="text-left text-foreground/80 hover:text-primary transition-colors py-2 cursor-pointer"
+                  className="text-left text-foreground/80 hover:text-primary transition-colors py-2 cursor-pointer flex items-center gap-3"
                 >
-                  Logout
+                  <LogIn className="w-4 h-4 rotate-180" /> Logout
                 </button>
               </>
             ) : (
               <Link 
                 href="/login" 
-                className="text-foreground/80 hover:text-primary transition-colors py-2"
+                className={primaryButtonClass + " mt-4 justify-center"} // Apply button style in mobile, centered
                 onClick={closeMobileMenu}
               >
-               Member login
+               <LogIn className="w-4 h-4" /> Member Login
               </Link>
             )}
           </nav>
@@ -203,4 +215,3 @@ export default function NavbarClient() {
     </header>
   );
 }
-

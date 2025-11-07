@@ -32,6 +32,9 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
+     
+     
+     
       <form
         onSubmit={handleMagicLinkLogin}
         className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-8 w-full max-w-sm space-y-6 border border-zinc-200 dark:border-zinc-800"
@@ -72,6 +75,12 @@ export default function LoginForm() {
           </p>
         )}
       </form>
+
+
+
+
+
+
     </div>
   )
 }
