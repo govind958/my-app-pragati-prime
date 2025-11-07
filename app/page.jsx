@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button1";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Footer from "@/components/Footer";
 import AuthActionButton from "@/components/ui/AuthActionButton";

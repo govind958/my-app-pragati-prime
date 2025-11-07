@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button1";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AuthActionButton({

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Footer from "@/components/Footer"; // Assuming this exists
 import { createClient } from "@/utils/supabase/client"; // Import Supabase client
-import { Button } from "@/components/ui/button"; // Assuming this exists
+import { Button } from "@/components/ui/button1"; // Assuming this exists
 
 // Initialize Supabase Client
 const supabase = createClient();
