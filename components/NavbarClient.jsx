@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { logout } from "@/app/logout/action";
-import { LogIn, User, Menu, X, LayoutDashboard, Zap } from 'lucide-react'; // Importing icons
 
 export default function NavbarClient() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -63,8 +65,27 @@ export default function NavbarClient() {
   }, [checkMembership, checkAdmin]);
 
   const handleLogout = async () => {
-    await logout();
-    setMobileMenuOpen(false);
+    try {
+      setMobileMenuOpen(false);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        return;
+      }
+      
+      // Clear local state
+      setUser(null);
+      setIsMember(false);
+      setIsAdmin(false);
+      
+      // Redirect to home page
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const toggleMobileMenu = () => {
@@ -87,10 +108,9 @@ export default function NavbarClient() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link 
           href="/" 
-          className="text-2xl font-extrabold text-primary hover:text-primary/80 transition-colors flex items-center gap-2"
+          className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
           onClick={closeMobileMenu}
         >
-          <Zap className="w-5 h-5" />
           Pragati Prime
         </Link>
         
@@ -103,6 +123,7 @@ export default function NavbarClient() {
             <span className="text-foreground/80">Loading...</span>
           ) : user ? (
             <>
+              <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
               {isMember && (
                 <Link href="/profile" className={baseLinkClass}>Profile</Link>
               )}
@@ -168,6 +189,13 @@ export default function NavbarClient() {
               <span className="text-foreground/80 py-2">Loading...</span>
             ) : user ? (
               <>
+                <Link 
+                  href="/payment" 
+                  className="text-foreground/80 hover:text-primary transition-colors py-2"
+                  onClick={closeMobileMenu}
+                >
+                  Payment
+                </Link>
                 {isMember && (
                   <Link 
                     href="/profile" 

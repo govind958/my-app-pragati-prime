@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { logout } from "@/app/logout/action";
 import { createClient } from "@/utils/supabase/server";
 
@@ -21,8 +22,15 @@ export default async function Navbar() {
   return (
     <header className="w-full border-b border-border bg-linear-to-r from-primary/10 to-secondary/20 backdrop-blur supports-backdrop-filter:bg-linear-to-r supports-backdrop-filter:from-primary/10 supports-backdrop-filter:to-secondary/20 sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-        <Link href="/" className="text-xl font-bold text-primary hover:text-primary/80 transition-colors">
-          Pragati Prime
+        <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <Image 
+            src="/logo1.jpeg" 
+            alt="Pragati Prime Logo" 
+            width={80} 
+            height={80} 
+            className="rounded-full object-contain h-12 w-auto "
+            priority
+          />
         </Link>
         <nav className="hidden gap-8 text-sm font-medium md:flex">
           <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors">About</Link>
@@ -31,6 +39,7 @@ export default async function Navbar() {
           {
             user ? (
               <>
+                <Link href="/payment" className="text-foreground/80 hover:text-primary transition-colors">Payment</Link>
                 {isMember && (
                   <>
                     <Link href="/profile" className="text-foreground/80 hover:text-primary transition-colors">Profile</Link>
@@ -38,7 +47,9 @@ export default async function Navbar() {
                 )}
                 <Link href="/private" className="text-foreground/80 hover:text-primary transition-colors">Dashboard</Link>
                 {/* Admin link removed from navbar */}
-                <button onClick={logout} className="text-foreground/80 hover:text-primary transition-colors cursor-pointer">Logout</button>
+                <form action={logout}>
+                  <button type="submit" className="text-foreground/80 hover:text-primary transition-colors cursor-pointer bg-transparent border-none">Logout</button>
+                </form>
               </>
             ) : (
               <Link href="/login" className="text-foreground/80 hover:text-primary transition-colors">Member Login</Link>

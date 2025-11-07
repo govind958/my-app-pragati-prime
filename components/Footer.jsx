@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -7,8 +8,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-4">
           {/* Brand Section */}
           <div className="md:col-span-2">
-            <Link href="/" className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
-              Pragati Prime
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity mb-4">
+              <Image 
+                src="/logo1.jpeg" 
+                alt="Pragati Prime Logo" 
+                width={100} 
+                height={100} 
+                className="rounded-full object-contain h-16 w-auto"
+              />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground max-w-md">
               Empowering communities for a better tomorrow through education, healthcare, and sustainable development programs.
