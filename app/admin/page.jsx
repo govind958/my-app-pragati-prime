@@ -2,6 +2,12 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client"; // Adjust path as needed
+import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button1";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Menu, X, LogOut, LayoutDashboard, Users, FileText, CreditCard, UsersRound, Settings } from "lucide-react";
 
 // Initialize Supabase Client
 const supabase = createClient();
@@ -187,64 +193,72 @@ export default function AdminPanel() {
           <h1 className="text-xl font-semibold text-indigo-800">
             NGO Admin
           </h1>
-          <button
+          <Button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
             aria-label="Close menu"
           >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+            <X className="w-6 h-6" />
+          </Button>
         </div>
         <nav className="space-y-2">
           <NavButton
             active={section === "dashboard"}
             onClick={() => switchSection("dashboard")}
+            icon={LayoutDashboard}
           >
             Dashboard
           </NavButton>
           <NavButton
             active={section === "members"}
             onClick={() => switchSection("members")}
+            icon={Users}
           >
             Members
           </NavButton>
           <NavButton
             active={section === "articles"}
             onClick={() => switchSection("articles")}
+            icon={FileText}
           >
             Articles
           </NavButton>
           <NavButton
             active={section === "payments"}
             onClick={() => switchSection("payments")}
+            icon={CreditCard}
           >
             Payments
           </NavButton>
           <NavButton
             active={section === "team"}
             onClick={() => switchSection("team")}
+            icon={UsersRound}
           >
             Core Team
           </NavButton>
           <NavButton
             active={section === "settings"}
             onClick={() => switchSection("settings")}
+            icon={Settings}
           >
             Settings
           </NavButton>
         </nav>
         <div className="mt-8 pt-4 border-t">
-          <button
-            className="w-full bg-red-600 text-white py-2 rounded-lg shadow-md hover:bg-red-700 transition"
+          <Button
+            variant="destructive"
+            className="w-full"
             onClick={async () => {
               await supabase.auth.signOut();
               window.location.href = "/";
             }}
           >
+            <LogOut className="w-4 h-4" />
             Sign out
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -252,15 +266,15 @@ export default function AdminPanel() {
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full lg:w-auto">
         <header className="mb-4 md:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button
+            <Button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden text-gray-600 hover:text-gray-900 p-2"
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
               aria-label="Open menu"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+              <Menu className="w-6 h-6" />
+            </Button>
             <div>
               <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
                 {section.charAt(0).toUpperCase() + section.slice(1)}
@@ -271,29 +285,32 @@ export default function AdminPanel() {
             </div>
           </div>
           {section === "articles" && (
-            <button
-              className="px-4 md:px-5 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition font-medium text-sm md:text-base whitespace-nowrap"
+            <Button
               onClick={() => {
                 window.dispatchEvent(new CustomEvent("admin:add-article"));
               }}
+              className="whitespace-nowrap"
             >
-              + Add Article
-            </button>
+              <FileText className="w-4 h-4" />
+              Add Article
+            </Button>
           )}
         </header>
 
-        <section className="bg-white p-4 md:p-6 rounded-xl shadow-lg min-h-[70vh]">
-          {loading && (
-            <div className="flex justify-center items-center h-full">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading...</p>
+        <Card className="min-h-[70vh]">
+          <CardContent className="p-4 md:p-6">
+            {loading && (
+              <div className="flex justify-center items-center h-full min-h-[50vh]">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                  <p className="mt-4 text-muted-foreground">Loading...</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {!loading && renderSection()}
-        </section>
+            {!loading && renderSection()}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
@@ -303,27 +320,31 @@ export default function AdminPanel() {
 // SHARED UI COMPONENTS
 //----------------------------------------------------------------------
 
-function NavButton({ children, active, onClick }) {
+function NavButton({ children, active, onClick, icon: Icon }) {
   return (
-    <button
+    <Button
       onClick={onClick}
-      className={`block w-full text-left px-4 py-2 rounded-lg font-medium transition duration-150 ${
+      variant={active ? "secondary" : "ghost"}
+      className={`w-full justify-start ${
         active
-          ? "bg-indigo-100 text-indigo-700 shadow-sm"
-          : "text-gray-700 hover:bg-gray-100"
+          ? "bg-primary/10 text-primary font-semibold"
+          : "text-muted-foreground"
       }`}
     >
+      {Icon && <Icon className="w-4 h-4" />}
       {children}
-    </button>
+    </Button>
   );
 }
 
 function StatCard({ title, value }) {
   return (
-    <div className="p-5 bg-indigo-50 border border-indigo-200 rounded-lg shadow-md flex flex-col">
-      <div className="text-sm font-medium text-indigo-600">{title}</div>
-      <div className="text-3xl font-bold mt-2 text-gray-900">{value}</div>
-    </div>
+    <Card className="bg-primary/5 border-primary/20">
+      <CardContent className="pt-6">
+        <CardDescription className="text-primary mb-2">{title}</CardDescription>
+        <CardTitle className="text-3xl font-bold">{value}</CardTitle>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -353,22 +374,22 @@ function Dashboard({ stats, refresh }) {
         />
       </div>
 
-      <div className="mt-6 md:mt-8 bg-white p-4 md:p-6 rounded-lg border border-gray-100 shadow-inner">
-        <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-800">
-          Quick Actions & Status
-        </h3>
-        <p className="text-xs md:text-sm text-gray-500">
-          The metrics above are generated from the latest data.
-        </p>
-        <div className="mt-4">
-          <button
+      <Card className="mt-6 md:mt-8">
+        <CardHeader>
+          <CardTitle>Quick Actions & Status</CardTitle>
+          <CardDescription>
+            The metrics above are generated from the latest data.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
             onClick={refresh}
-            className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition font-medium text-sm md:text-base"
+            className="w-full sm:w-auto"
           >
             Refresh Dashboard
-          </button>
-        </div>
-      </div>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -409,7 +430,7 @@ function RoleSelector({ member, supabase, refresh }) {
       <select
         value={member.role}
         onChange={(e) => handleRoleChange(e.target.value)}
-        className="hidden sm:block w-auto border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+        className="hidden sm:block w-auto rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       >
         {roleOptions.map((option) => (
           <option key={option.value} value={option.value}>
@@ -419,48 +440,45 @@ function RoleSelector({ member, supabase, refresh }) {
       </select>
 
       {/* Mobile: Button that opens modal */}
-      <button
+      <Button
         onClick={() => setShowMobileModal(true)}
-        className="sm:hidden w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        variant="outline"
+        className="sm:hidden w-full"
       >
         {roleOptions.find((opt) => opt.value === member.role)?.label || member.role}
-      </button>
+      </Button>
 
       {/* Mobile Modal */}
       {showMobileModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 sm:hidden p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
-            <div className="p-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Change Role for {member.email}
-              </h3>
-            </div>
-            <div className="p-4 space-y-2">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 sm:hidden p-4">
+          <Card className="w-full max-w-sm">
+            <CardHeader>
+              <CardTitle>Change Role for {member.email}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
               {roleOptions.map((option) => (
-                <button
+                <Button
                   key={option.value}
                   onClick={() => handleRoleChange(option.value)}
                   disabled={isChanging}
-                  className={`w-full text-left px-4 py-3 rounded-lg border-2 transition ${
-                    member.role === option.value
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-medium"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700"
-                  } ${isChanging ? "opacity-50 cursor-not-allowed" : ""}`}
+                  variant={member.role === option.value ? "default" : "outline"}
+                  className="w-full justify-start"
                 >
                   {option.label}
-                </button>
+                </Button>
               ))}
-            </div>
-            <div className="p-4 border-t">
-              <button
+            </CardContent>
+            <CardFooter>
+              <Button
                 onClick={() => setShowMobileModal(false)}
                 disabled={isChanging}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium"
+                variant="outline"
+                className="w-full"
               >
                 Cancel
-              </button>
-            </div>
-          </div>
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       )}
     </>
@@ -488,9 +506,9 @@ function MembersTable({ members = [], refresh, supabase }) {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">
+      <CardTitle className="text-lg mb-4">
         Site Members ({members.length})
-      </h3>
+      </CardTitle>
       <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="inline-block min-w-full align-middle px-4 md:px-0">
           <table className="min-w-full text-xs md:text-sm table-auto border-collapse">
@@ -524,12 +542,13 @@ function MembersTable({ members = [], refresh, supabase }) {
 
                   {/* Actions */}
                   <td className="p-2 md:p-3 text-right whitespace-nowrap">
-                    <button
-                      className="px-2 md:px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       onClick={() => deleteMember(m)}
                     >
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -585,9 +604,9 @@ function ArticlesTable({ articles = [], refresh, supabase }) {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">
+      <CardTitle className="text-lg mb-4">
         Content Articles ({articles.length})
-      </h3>
+      </CardTitle>
       <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="inline-block min-w-full align-middle px-4 md:px-0">
           <table className="min-w-full text-xs md:text-sm table-auto border-collapse">
@@ -611,43 +630,37 @@ function ArticlesTable({ articles = [], refresh, supabase }) {
                   </td>
                   <td className="p-2 md:p-3 hidden sm:table-cell">{a.is_paid ? "Yes" : "No"}</td>
                   <td className="p-2 md:p-3">
-                    <span
-                      className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
-                        a.published
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                    <Badge
+                      variant={a.published ? "default" : "destructive"}
                     >
                       {a.published ? "Live" : "Draft"}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="p-2 md:p-3 text-gray-500 hidden md:table-cell">
                     {new Date(a.created_at).toLocaleDateString()}
                   </td>
                   <td className="p-2 md:p-3 text-right whitespace-nowrap">
                     <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 justify-end">
-                      <button
-                        className="px-2 md:px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                      <Button
+                        size="sm"
                         onClick={() => openArticleEditor(a)}
                       >
                         Edit
-                      </button>
-                      <button
-                        className={`px-2 md:px-3 py-1 text-xs text-white rounded-md transition ${
-                          a.published
-                            ? "bg-orange-500 hover:bg-orange-600"
-                            : "bg-green-500 hover:bg-green-600"
-                        }`}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={a.published ? "outline" : "default"}
                         onClick={() => publishToggle(a)}
                       >
                         {a.published ? "Unpub" : "Publish"}
-                      </button>
-                      <button
-                        className="px-2 md:px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
                         onClick={() => deleteArticle(a)}
                       >
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -676,24 +689,11 @@ function PaymentsTable({ payments = [], refresh, supabase }) {
     }
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "succeeded":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "failed":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">
+      <CardTitle className="text-lg mb-4">
         Payment Transactions ({payments.length})
-      </h3>
+      </CardTitle>
       <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="inline-block min-w-full align-middle px-4 md:px-0">
           <table className="min-w-full text-xs md:text-sm table-auto border-collapse">
@@ -723,24 +723,29 @@ function PaymentsTable({ payments = [], refresh, supabase }) {
                     ₹ {p.amount ? p.amount.toLocaleString() : "0"}
                   </td>
                   <td className="p-2 md:p-3">
-                    <span
-                      className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(
-                        p.status
-                      )}`}
+                    <Badge
+                      variant={
+                        p.status === "succeeded" 
+                          ? "default" 
+                          : p.status === "pending" 
+                          ? "secondary" 
+                          : "destructive"
+                      }
                     >
                       {p.status || "unknown"}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="p-2 md:p-3 text-gray-500 hidden md:table-cell">
                     {new Date(p.created_at).toLocaleDateString()}
                   </td>
                   <td className="p-2 md:p-3 text-right whitespace-nowrap">
-                    <button
-                      className="px-2 md:px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       onClick={() => deletePayment(p)}
                     >
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -894,13 +899,14 @@ function TeamManager({ team = [], refresh, supabase }) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-2 border-b gap-4">
-        <h3 className="text-lg font-semibold">Core Team ({team.length})</h3>
-        <button
-          className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition font-medium text-sm md:text-base"
+        <CardTitle className="text-lg">Core Team ({team.length})</CardTitle>
+        <Button
+          className="w-full sm:w-auto"
           onClick={openAddModal}
         >
-          + Add Member
-        </button>
+          <UsersRound className="w-4 h-4" />
+          Add Member
+        </Button>
       </div>
 
       {/* Team Grid */}
@@ -911,9 +917,9 @@ function TeamManager({ team = [], refresh, supabase }) {
             : (t.links || {});
           
           return (
-            <div
+            <Card
               key={t.id}
-              className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition"
+              className="overflow-hidden hover:shadow-lg transition"
             >
               {t.image && (
                 <div className="relative h-48 w-full bg-gray-100">
@@ -927,17 +933,17 @@ function TeamManager({ team = [], refresh, supabase }) {
                   />
                 </div>
               )}
-              <div className="p-4">
-                <h4 className="font-semibold text-lg text-gray-900 mb-1">
+              <CardContent className="p-4">
+                <CardTitle className="text-lg mb-1">
                   {t.name}
-                </h4>
+                </CardTitle>
                 {t.role && (
-                  <p className="text-sm text-indigo-600 font-medium mb-2">
+                  <CardDescription className="text-primary font-medium mb-2">
                     {t.role}
-                  </p>
+                  </CardDescription>
                 )}
                 {t.bio && (
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                     {t.bio}
                   </p>
                 )}
@@ -946,27 +952,30 @@ function TeamManager({ team = [], refresh, supabase }) {
                     href={links.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-indigo-600 hover:underline mb-3 inline-block"
+                    className="text-sm text-primary hover:underline mb-3 inline-block"
                   >
                     LinkedIn →
                   </a>
                 )}
                 <div className="flex gap-2 mt-4">
-                  <button
-                    className="flex-1 px-3 py-2 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                  <Button
+                    size="sm"
+                    className="flex-1"
                     onClick={() => openEditModal(t)}
                   >
                     Edit
-                  </button>
-                  <button
-                    className="flex-1 px-3 py-2 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1"
                     onClick={() => removeMember(t)}
                   >
                     Remove
-                  </button>
+                  </Button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>
@@ -979,85 +988,81 @@ function TeamManager({ team = [], refresh, supabase }) {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg sm:text-xl font-semibold">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <Card className="max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg sm:text-xl">
                   {editingMember ? "Edit Team Member" : "Add Team Member"}
-                </h3>
-                <button
+                </CardTitle>
+                <Button
                   onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 text-2xl p-1"
+                  variant="ghost"
+                  size="icon"
                   aria-label="Close"
                 >
-                  ×
-                </button>
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                  <Label>
+                    Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Enter team member name"
+                    className="mt-1"
                   />
                 </div>
 
                 {/* Role */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role
-                  </label>
-                  <input
+                  <Label>Role</Label>
+                  <Input
                     type="text"
                     value={formData.role}
                     onChange={(e) =>
                       setFormData({ ...formData, role: e.target.value })
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="e.g., Founder & President"
+                    className="mt-1"
                   />
                 </div>
 
                 {/* Bio */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bio
-                  </label>
+                  <Label>Bio</Label>
                   <textarea
                     value={formData.bio}
                     onChange={(e) =>
                       setFormData({ ...formData, bio: e.target.value })
                     }
                     rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     placeholder="Enter a brief biography..."
                   />
                 </div>
 
                 {/* Image */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Image
-                  </label>
-                  <div className="space-y-2">
-                    <input
+                  <Label>Image</Label>
+                  <div className="space-y-2 mt-1">
+                    <Input
                       type="url"
                       value={formData.image}
                       onChange={(e) =>
                         setFormData({ ...formData, image: e.target.value })
                       }
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="https://example.com/image.jpg"
                     />
                     <div className="relative">
@@ -1069,14 +1074,16 @@ function TeamManager({ team = [], refresh, supabase }) {
                         className="hidden"
                         id="image-upload"
                       />
-                      <label
-                        htmlFor="image-upload"
-                        className={`inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 transition ${
-                          uploading ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        asChild
+                        disabled={uploading}
                       >
-                        {uploading ? "Uploading..." : "Or Upload Image"}
-                      </label>
+                        <label htmlFor="image-upload" className="cursor-pointer">
+                          {uploading ? "Uploading..." : "Or Upload Image"}
+                        </label>
+                      </Button>
                     </div>
                     {formData.image && (
                       <div className="mt-2">
@@ -1095,10 +1102,8 @@ function TeamManager({ team = [], refresh, supabase }) {
 
                 {/* LinkedIn Link */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    LinkedIn URL
-                  </label>
-                  <input
+                  <Label>LinkedIn URL</Label>
+                  <Input
                     type="url"
                     value={formData.links.linkedin}
                     onChange={(e) =>
@@ -1107,30 +1112,30 @@ function TeamManager({ team = [], refresh, supabase }) {
                         links: { ...formData.links, linkedin: e.target.value },
                       })
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="https://linkedin.com/in/username"
+                    className="mt-1"
                   />
                 </div>
-
-                {/* Form Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="w-full sm:flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm md:text-base"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="w-full sm:flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm md:text-base"
-                  >
-                    {editingMember ? "Update" : "Add"} Member
-                  </button>
-                </div>
               </form>
-            </div>
-          </div>
+            </CardContent>
+            <CardFooter className="flex flex-col sm:flex-row gap-3">
+              <Button
+                type="button"
+                onClick={closeModal}
+                variant="outline"
+                className="w-full sm:flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                className="w-full sm:flex-1"
+              >
+                {editingMember ? "Update" : "Add"} Member
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       )}
     </div>
@@ -1182,58 +1187,50 @@ function SettingsPanel({ supabase }) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading settings...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading settings...</p>
         </div>
       </div>
     );
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">Global Site Settings</h3>
-      <div className="space-y-4 max-w-lg">
-        <div>
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="site-title"
-          >
-            Site Title
-          </label>
-          <input
-            id="site-title"
-            value={site.title}
-            onChange={(e) => setSite({ ...site, title: e.target.value })}
-            className="w-full p-2 md:p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
-            type="text"
-          />
-        </div>
-        <div>
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="contact-email"
-          >
-            Contact Email
-          </label>
-          <input
-            id="contact-email"
-            value={site.contact_email}
-            onChange={(e) =>
-              setSite({ ...site, contact_email: e.target.value })
-            }
-            className="w-full p-2 md:p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
-            type="email"
-          />
-        </div>
-        <div>
-          <button
-            onClick={save}
-            disabled={loading}
-            className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition font-medium disabled:opacity-50 text-sm md:text-base"
-          >
-            {loading ? "Saving..." : "Save Settings"}
-          </button>
-        </div>
-      </div>
+      <CardTitle className="text-lg mb-4">Global Site Settings</CardTitle>
+      <Card className="max-w-lg">
+        <CardContent className="pt-6 space-y-4">
+          <div>
+            <Label htmlFor="site-title">Site Title</Label>
+            <Input
+              id="site-title"
+              value={site.title}
+              onChange={(e) => setSite({ ...site, title: e.target.value })}
+              type="text"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="contact-email">Contact Email</Label>
+            <Input
+              id="contact-email"
+              value={site.contact_email}
+              onChange={(e) =>
+                setSite({ ...site, contact_email: e.target.value })
+              }
+              type="email"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Button
+              onClick={save}
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              {loading ? "Saving..." : "Save Settings"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

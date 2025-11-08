@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card"; // Assuming these exist
-import { Button } from "@/components/ui/button"; // Assuming this exists
+import { Button } from "@/components/ui/button1"; // Assuming this exists
 import Footer from "@/components/Footer"; // Assuming this exists
 import { createClient } from "@/utils/supabase/client"; // Import Supabase client
 

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button1"
 import { Input } from "@/components/ui/input"
 import {
   Form,

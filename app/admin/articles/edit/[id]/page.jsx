@@ -1,8 +1,14 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useRouter ,useParams} from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
+import RichTextEditor from "@/components/RichTextEditor"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button1"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import Link from "next/link"
 
 // Initialize Supabase Client OUTSIDE the component
 const supabase = createClient()
@@ -94,8 +100,8 @@ export default function EditArticlePage( ) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Article Editor...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading Article Editor...</p>
         </div>
       </div>
     )
@@ -103,101 +109,98 @@ export default function EditArticlePage( ) {
 
   // Once data is loaded, show the form
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Edit Article</h1>
-          <a
-            href="/admin"
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg shadow-sm hover:bg-gray-300 transition font-medium"
-          >
-            ← Back to Admin
-          </a>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              id="title"
-              value={article.title || ""}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
-          </div>
-
-          {/* Content */}
-          <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-              Content (Markdown supported)
-            </label>
-            <textarea
-              name="content"
-              id="content"
-              rows={15}
-              value={article.content || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
-            />
-          </div>
-
-          {/* Toggles: is_paid and published */}
-          <div className="grid grid-cols-2 gap-6">
-            <label htmlFor="is_paid" className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-              <input
-                type="checkbox"
-                name="is_paid"
-                id="is_paid"
-                checked={article.is_paid}
-                onChange={handleChange}
-                className="h-5 w-5 text-indigo-600 rounded"
-              />
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-3xl font-bold">Edit Article</CardTitle>
+              <Button variant="outline" asChild>
+                <Link href="/admin">← Back to Admin</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Title */}
               <div>
-                <span className="font-medium text-gray-800">Paid Content</span>
-                <p className="text-sm text-gray-500">Is this a premium, members-only article?</p>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  type="text"
+                  name="title"
+                  id="title"
+                  value={article.title || ""}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
+                />
               </div>
-            </label>
 
-            <label htmlFor="published" className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-              <input
-                type="checkbox"
-                name="published"
-                id="published"
-                checked={article.published}
-                onChange={handleChange}
-                className="h-5 w-5 text-indigo-600 rounded"
-              />
+              {/* Content */}
               <div>
-                <span className="font-medium text-gray-800">Publish</span>
-                <p className="text-sm text-gray-500">Make this article visible to the public?</p>
+                <Label htmlFor="content">Content</Label>
+                <div className="mt-1">
+                  <RichTextEditor
+                    value={article.content || ""}
+                    onChange={handleChange}
+                    id="content"
+                  />
+                </div>
               </div>
-            </label>
-          </div>
 
-          {/* Submit Button */}
-          <div className="text-right pt-4 border-t">
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition font-medium disabled:opacity-50"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
-                </span>
-              ) : (
-                "Save Changes"
-              )}
-            </button>
-          </div>
-        </form>
+              {/* Toggles: is_paid and published */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <label htmlFor="is_paid" className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition">
+                  <input
+                    type="checkbox"
+                    name="is_paid"
+                    id="is_paid"
+                    checked={article.is_paid}
+                    onChange={handleChange}
+                    className="mt-1 h-5 w-5 text-primary rounded"
+                  />
+                  <div>
+                    <span className="font-medium">Paid Content</span>
+                    <p className="text-sm text-muted-foreground">Is this a premium, members-only article?</p>
+                  </div>
+                </label>
+
+                <label htmlFor="published" className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition">
+                  <input
+                    type="checkbox"
+                    name="published"
+                    id="published"
+                    checked={article.published}
+                    onChange={handleChange}
+                    className="mt-1 h-5 w-5 text-primary rounded"
+                  />
+                  <div>
+                    <span className="font-medium">Publish</span>
+                    <p className="text-sm text-muted-foreground">Make this article visible to the public?</p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <div className="text-right pt-4 border-t">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="min-w-[140px]"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </span>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
