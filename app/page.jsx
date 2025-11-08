@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button1";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Footer from "@/components/Footer";
-import AuthActionButton from "@/components/ui/AuthActionButton";
+
 
 // Keyframe simulation for a subtle entrance animation
 // Note: In a real app, you'd use Framer Motion's `initial` and `animate`
@@ -111,8 +111,6 @@ export default function Home() {
   </div>
 </section>
 
-      ---
-
       {/* Impact / About Preview */}
       <section className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16">
         <div className="max-w-6xl mx-auto text-center">
@@ -132,7 +130,6 @@ export default function Home() {
         </div>
       </section>
 
-      ---
 
       {/* Key Impact Stories */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-100 dark:bg-zinc-900">
@@ -213,7 +210,6 @@ export default function Home() {
         </div>
       </section>
 
-      ---
 
       {/* Articles */}
       <section className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16">
@@ -267,7 +263,6 @@ export default function Home() {
         </div>
       </section>
 
-      ---
 
       {/* Recent Updates */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-100 dark:bg-zinc-900">
@@ -310,7 +305,6 @@ export default function Home() {
         </div>
       </section>
 
-      ---
 
       {/* Membership CTA */}
       <section className="py-16 sm:py-20 text-center bg-linear-to-r from-indigo-500 to-blue-600 text-white px-4 sm:px-6 transition-all duration-500 hover:from-indigo-600 hover:to-blue-700">

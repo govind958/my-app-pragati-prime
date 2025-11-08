@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useRouter ,useParams} from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import RichTextEditor from "@/components/RichTextEditor"
