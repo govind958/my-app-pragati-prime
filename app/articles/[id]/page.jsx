@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Footer from "@/components/Footer"; // Assuming this exists
 import { createClient } from "@/utils/supabase/client"; // Import Supabase client
 import { Button } from "@/components/ui/button1"; // Assuming this exists
-import { sanitizeHTML } from "@/lib/htmlUtils";
 
 // Initialize Supabase Client
 const supabase = createClient();
@@ -17,14 +16,6 @@ export default function ArticleDetailPage() {
   const [error, setError] = useState(null);
   const params = useParams();
   const { id } = params;
-
-  // Sanitize HTML content
-  const sanitizedContent = useMemo(() => {
-    if (!article || !article.content) {
-      return "<p>This article has no content.</p>"
-    }
-    return sanitizeHTML(article.content) || "<p>This article has no content.</p>"
-  }, [article])
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -111,10 +102,16 @@ export default function ArticleDetailPage() {
         </div>
 
         {/* Article Content */}
-        <article 
-          className="prose prose-lg dark:prose-invert max-w-none article-content"
-          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-        />
+        {/* We use a 'prose' class from Tailwind Typography for nice formatting */}
+        <article className="prose prose-lg dark:prose-invert max-w-none">
+          {/* This renders the article content. 
+              If it's Markdown, you'd use a library like 'react-markdown'.
+              For plain text, a <p> tag is fine.
+          */}
+          <p>
+            {article.content || "This article has no content."}
+          </p>
+        </article>
 
         {/* Back Button */}
         <div className="mt-12 pt-8 border-t dark:border-zinc-800 text-center">

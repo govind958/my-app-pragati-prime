@@ -2,18 +2,31 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Menu, X, LogIn, LayoutDashboard, Zap } from "lucide-react";
+import { Menu, X, LogIn, User, LayoutDashboard, Zap } from "lucide-react";
 
 export default function NavbarClient() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [isMember, setIsMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const supabase = createClient();
+
+  /** ✅ Check if user is a Member */
+  const checkMembership = useCallback(async (userId) => {
+    const { data } = await supabase
+      .from("members")
+      .select("profile_id")
+      .eq("profile_id", userId)
+      .single();
+
+    setIsMember(!!data);
+  }, []);
 
   /** ✅ Check if user is Admin */
   const checkAdmin = useCallback(async (userId) => {
@@ -24,7 +37,7 @@ export default function NavbarClient() {
       .single();
 
     setIsAdmin(profile?.role === "admin");
-  }, [supabase]);
+  }, []);
 
   /** ✅ Load user on mount */
   useEffect(() => {
@@ -32,6 +45,7 @@ export default function NavbarClient() {
       setUser(user);
 
       if (user) {
+        checkMembership(user.id);
         checkAdmin(user.id);
       }
       setLoading(false);
@@ -44,8 +58,10 @@ export default function NavbarClient() {
       setUser(session?.user ?? null);
 
       if (session?.user) {
+        checkMembership(session.user.id);
         checkAdmin(session.user.id);
       } else {
+        setIsMember(false);
         setIsAdmin(false);
       }
 
@@ -53,7 +69,7 @@ export default function NavbarClient() {
     });
 
     return () => subscription.unsubscribe();
-  }, [checkAdmin, supabase]);
+  }, [checkMembership, checkAdmin]);
 
   /** ✅ Logout function */
   const handleLogout = async () => {
@@ -63,6 +79,7 @@ export default function NavbarClient() {
     if (error) console.error("Logout error:", error);
 
     setUser(null);
+    setIsMember(false);
     setIsAdmin(false);
 
     router.push("/");
@@ -99,6 +116,12 @@ export default function NavbarClient() {
             <span className="text-foreground/80">Loading...</span>
           ) : user ? (
             <>
+              <Link href="/payment" className={linkClass}>Payment</Link>
+
+              {isMember && (
+                <Link href="/profile" className={linkClass}>Profile</Link>
+              )}
+
               <Link href="/private" className={linkClass}>Dashboard</Link>
 
               <button
@@ -141,6 +164,16 @@ export default function NavbarClient() {
               <span className="text-foreground/80">Loading...</span>
             ) : user ? (
               <>
+                <Link href="/payment" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>
+                  Payment
+                </Link>
+
+                {isMember && (
+                  <Link href="/profile" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>
+                    <User className="w-4 h-4" /> Profile
+                  </Link>
+                )}
+
                 <Link href="/private" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>
                   <LayoutDashboard className="w-4 h-4" /> Dashboard
                 </Link>
