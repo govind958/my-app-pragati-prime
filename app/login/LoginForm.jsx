@@ -1,24 +1,26 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 export default function LoginForm() {
+  const router = useRouter()
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleMagicLinkLogin = async (e) => {
+  const handleOTPLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
 
+    // Allow both login and signup - Supabase will create user if doesn't exist
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        shouldCreateUser: true, // Allow creating new users (signup)
       },
     })
 
@@ -26,22 +28,30 @@ export default function LoginForm() {
     if (error) {
       setMessage(error.message)
     } else {
-      setMessage('✅ Magic Link sent! Check your email to log in.')
+      // Store email in sessionStorage for OTP page
+      sessionStorage.setItem('otp_email', email)
+      // Set cooldown for resend (60 seconds)
+      sessionStorage.setItem('otp_cooldown', String(Date.now() + 60000))
+      // Redirect to OTP verification page
+      router.push(`/login/otp?email=${encodeURIComponent(email)}`)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-black">
      
      
      
       <form
-        onSubmit={handleMagicLinkLogin}
+        onSubmit={handleOTPLogin}
         className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-8 w-full max-w-sm space-y-6 border border-zinc-200 dark:border-zinc-800"
       >
         <h1 className="text-2xl font-semibold text-center text-zinc-800 dark:text-zinc-100">
-          Login via Magic Link
+          Login / Sign Up
         </h1>
+        <p className="text-sm text-center text-zinc-600 dark:text-zinc-400">
+          Enter your email to receive a verification code
+        </p>
 
         <div>
           <label
@@ -66,7 +76,7 @@ export default function LoginForm() {
           disabled={loading}
           className="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors duration-200 disabled:opacity-60"
         >
-          {loading ? 'Sending...' : 'Send Magic Link'}
+          {loading ? 'Sending...' : 'Send OTP'}
         </button>
 
         {message && (
