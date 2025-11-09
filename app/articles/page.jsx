@@ -7,6 +7,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card"; // Assumin
 import { Button } from "@/components/ui/button1"; // Assuming this exists
 import Footer from "@/components/Footer"; // Assuming this exists
 import { createClient } from "@/utils/supabase/client"; // Import Supabase client
+import { stripHTML } from "@/lib/htmlUtils";
 
 // Initialize Supabase Client
 const supabase = createClient();
@@ -110,7 +111,7 @@ export default function ArticlesPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-3">
-                      {article.content ? article.content.substring(0, 100) + '...' : 'No description available.'}
+                      {article.content ? stripHTML(article.content).substring(0, 100) + '...' : 'No description available.'}
                     </p>
                     {/* Link to the article using its 'id' as a fallback */}
                     <Link href={`/articles/${article.id}`}>
