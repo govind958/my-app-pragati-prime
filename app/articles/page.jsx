@@ -23,7 +23,7 @@ export default function ArticlesPage() {
       
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, content, is_paid, created_at")
+        .select("id, title, content, is_paid, created_at, image_url")
         .eq("published", true)
         .order("created_at", { ascending: false });
 
@@ -92,10 +92,22 @@ export default function ArticlesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
               {articles.map((article) => (
                 <Card key={article.id} className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                  {/* Placeholder for image, since 'image_url' is not in the table */}
-                  <div className="relative h-48 w-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                    <span className="text-zinc-400 text-sm">No Image Available</span>
+                  
+                  <div className="relative h-48 w-full bg-zinc-100 dark:bg-zinc-800">
+                    {article.image_url ? (
+                      <Image
+                        src={article.image_url}
+                        alt={article.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                         <span className="text-zinc-400 text-sm">No Image Available</span>
+                      </div>
+                    )}
                   </div>
+
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-xs font-medium ${article.is_paid ? 'text-yellow-600' : 'text-primary'}`}>

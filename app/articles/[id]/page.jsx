@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Footer from "@/components/Footer"; // Assuming this exists
-import { createClient } from "@/utils/supabase/client"; // Import Supabase client
-import { Button } from "@/components/ui/button1"; // Assuming this exists
+import Footer from "@/components/Footer"; 
+import { createClient } from "@/utils/supabase/client"; 
+import { Button } from "@/components/ui/button1";
 import { sanitizeHTML } from "@/lib/htmlUtils";
 
 // Initialize Supabase Client
@@ -28,7 +29,7 @@ export default function ArticleDetailPage() {
 
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!id) return; // Don't fetch if ID isn't available yet
+      if (!id) return; 
 
       setLoading(true);
       setError(null);
@@ -36,7 +37,7 @@ export default function ArticleDetailPage() {
       // Fetch the single article.
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, content, is_paid, created_at, published")
+        .select("id, title, content, is_paid, created_at, published, image_url")
         .eq("id", id)
         .eq("published", true)
         .single();
@@ -106,8 +107,20 @@ export default function ArticleDetailPage() {
         </header>
         
         {/* Placeholder for a featured image */}
-        <div className="relative h-64 sm:h-96 w-full bg-zinc-100 dark:bg-zinc-800 rounded-2xl mb-8 flex items-center justify-center">
-          <span className="text-zinc-400">Article Image Placeholder</span>
+        <div className="relative h-64 sm:h-96 w-full bg-zinc-100 dark:bg-zinc-800 rounded-2xl mb-8 overflow-hidden">
+          {article.image_url ? (
+            <Image
+              src={article.image_url}
+              alt={article.title}
+              fill
+              className="object-cover"
+              priority // Prioritize loading the main article image
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+               <span className="text-zinc-400">No Image Available</span>
+            </div>
+          )}
         </div>
 
         {/* Article Content */}

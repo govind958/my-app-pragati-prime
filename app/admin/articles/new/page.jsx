@@ -8,9 +8,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button1"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import ImageUploader from "@/components/ImageUploader" 
 import Link from "next/link"
 
-// This is the page for the /admin/articles/new route
 export default function NewArticlePage() {
   const supabase = createClient()
   const router = useRouter()
@@ -19,6 +19,7 @@ export default function NewArticlePage() {
     title: "",
     content: "",
     is_paid: false,
+    image_url: "",
     published: false,
   })
 
@@ -28,6 +29,13 @@ export default function NewArticlePage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
+  }
+
+  const handleImageUpload = (url) => {
+    setArticle(prev => ({
+      ...prev,
+      image_url: url
+    }));
   }
 
   const handleSubmit = async (e) => {
@@ -46,7 +54,6 @@ export default function NewArticlePage() {
       {
         ...article,
         author_id: user.id,
-        // Set published_at timestamp if we are publishing now
         published_at: article.published ? new Date().toISOString() : null,
       },
     ])
@@ -99,6 +106,11 @@ export default function NewArticlePage() {
                     id="content"
                   />
                 </div>
+              </div>
+              
+              {/* Cover Image */}
+              <div>
+                <ImageUploader onUpload={handleImageUpload} />
               </div>
 
               {/* Toggles: is_paid and published */}

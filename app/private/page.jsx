@@ -130,7 +130,7 @@ export default function MemberDashboard() {
       // If user is premium, show all articles; otherwise, filter out paid articles
       let query = supabase
         .from("articles")
-        .select("id, title, content, is_paid, published, created_at")
+        .select("id, title, content, is_paid, published, created_at, image_url")
         .eq("published", true)
         .order("created_at", { ascending: false })
 
@@ -516,7 +516,21 @@ function ArticlesSection({ articles, isPremium, loading, profile, user, selected
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((article) => (
-            <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onArticleSelect(article)}>
+            <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden" onClick={() => onArticleSelect(article)}>
+              {/* Article Image */}
+              {article.image_url && (
+                <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
+                  <img
+                    src={article.image_url}
+                    alt={article.title}
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">
                   <Badge variant={article.is_paid ? "default" : "secondary"}>
@@ -603,7 +617,21 @@ function ArticleView({ article, onBack }) {
         </Button>
       </div>
 
-      <Card className="max-w-4xl mx-auto">
+      <Card className="max-w-4xl mx-auto overflow-hidden">
+        {/* Article Image */}
+        {article.image_url && (
+          <div className="relative w-full h-64 md:h-80 lg:h-96 bg-gray-100">
+            <img
+              src={article.image_url}
+              alt={article.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <Badge variant={article.is_paid ? "default" : "secondary"} className="text-sm">
