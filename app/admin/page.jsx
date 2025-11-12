@@ -123,7 +123,6 @@ export default function AdminPanel() {
     }
   }, []);
 
-  // --- Effects and Handlers ---
 
   useEffect(() => {
     fetchDashboard();
@@ -131,7 +130,7 @@ export default function AdminPanel() {
 
   const switchSection = (sec) => {
     setSection(sec);
-    setSidebarOpen(false); // Close sidebar on mobile when switching sections
+    setSidebarOpen(false); 
     // Lazy load section data
     if (sec === "members") loadMembers();
     else if (sec === "articles") loadArticles();
@@ -139,7 +138,6 @@ export default function AdminPanel() {
     else if (sec === "team") loadTeam();
   };
 
-  // Function to determine which component to render
   const renderSection = () => {
     switch (section) {
       case "dashboard":

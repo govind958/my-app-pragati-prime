@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Footer from "@/components/Footer"; // Assuming this exists
-import { createClient } from "@/utils/supabase/client"; // Import Supabase client
-import { Button } from "@/components/ui/button1"; // Assuming this exists
+import Footer from "@/components/Footer"; 
+import { createClient } from "@/utils/supabase/client"; 
+import { Button } from "@/components/ui/button1";
+import { sanitizeHTML } from "@/lib/htmlUtils";
 
 // Initialize Supabase Client
 const supabase = createClient();
@@ -17,9 +19,17 @@ export default function ArticleDetailPage() {
   const params = useParams();
   const { id } = params;
 
+  // Sanitize HTML content
+  const sanitizedContent = useMemo(() => {
+    if (!article || !article.content) {
+      return "<p>This article has no content.</p>"
+    }
+    return sanitizeHTML(article.content) || "<p>This article has no content.</p>"
+  }, [article])
+
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!id) return; // Don't fetch if ID isn't available yet
+      if (!id) return; 
 
       setLoading(true);
       setError(null);
@@ -27,7 +37,7 @@ export default function ArticleDetailPage() {
       // Fetch the single article.
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, content, is_paid, created_at, published")
+        .select("id, title, content, is_paid, created_at, published, image_url")
         .eq("id", id)
         .eq("published", true)
         .single();
@@ -97,21 +107,27 @@ export default function ArticleDetailPage() {
         </header>
         
         {/* Placeholder for a featured image */}
-        <div className="relative h-64 sm:h-96 w-full bg-zinc-100 dark:bg-zinc-800 rounded-2xl mb-8 flex items-center justify-center">
-          <span className="text-zinc-400">Article Image Placeholder</span>
+        <div className="relative h-64 sm:h-96 w-full bg-zinc-100 dark:bg-zinc-800 rounded-2xl mb-8 overflow-hidden">
+          {article.image_url ? (
+            <Image
+              src={article.image_url}
+              alt={article.title}
+              fill
+              className="object-cover"
+              priority // Prioritize loading the main article image
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+               <span className="text-zinc-400">No Image Available</span>
+            </div>
+          )}
         </div>
 
         {/* Article Content */}
-        {/* We use a 'prose' class from Tailwind Typography for nice formatting */}
-        <article className="prose prose-lg dark:prose-invert max-w-none">
-          {/* This renders the article content. 
-              If it's Markdown, you'd use a library like 'react-markdown'.
-              For plain text, a <p> tag is fine.
-          */}
-          <p>
-            {article.content || "This article has no content."}
-          </p>
-        </article>
+        <article 
+          className="prose prose-lg dark:prose-invert max-w-none article-content"
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+        />
 
         {/* Back Button */}
         <div className="mt-12 pt-8 border-t dark:border-zinc-800 text-center">

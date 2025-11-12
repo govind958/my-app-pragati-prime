@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter ,useParams} from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import RichTextEditor from "@/components/RichTextEditor"
+import ImageUploader from "@/components/ImageUploader"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button1"
 import { Input } from "@/components/ui/input"
@@ -29,9 +30,13 @@ export default function EditArticlePage( ) {
     }))
   }
 
-  // --- THIS IS THE FIX ---
-  // We move the fetching logic inside the useEffect hook.
-  // This avoids the infinite loop problem with useCallback.
+  const handleImageUpload = (url) => {
+    setArticle(prev => ({
+      ...prev,
+      image_url: url
+    }));
+  }
+
   useEffect(() => {
     // Define the async function *inside* the effect
     const fetchArticleById = async () => {
@@ -51,23 +56,17 @@ export default function EditArticlePage( ) {
       setLoading(false)
     }
 
-    // --- THIS IS THE FIX ---
-    // Only call the function if the 'id' from params is available
     if (id) {
       fetchArticleById()
     }
-    // --- END OF FIX ---
 
-  }, [id, router]) // The effect now only depends on stable 'id' and 'router'
-  // --- END OF FIX ---
+  }, [id, router]) 
 
-
-  // 2. Handle the form submission (UPDATE)
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
 
-    const { title, content, is_paid, published } = article
+    const { title, content, is_paid, published, image_url } = article
 
     const { error } = await supabase
       .from("articles")
@@ -76,7 +75,7 @@ export default function EditArticlePage( ) {
         content,
         is_paid,
         published,
-        // Set/clear published_at timestamp
+        image_url: image_url || null,
         published_at: published && !article.published_at 
           ? new Date().toISOString() 
           : !published 
@@ -91,7 +90,7 @@ export default function EditArticlePage( ) {
       alert(`Error updating article: ${error.message}`)
     } else {
       alert("Article updated successfully!")
-      router.push("/admin") // Go back to the main admin panel
+      router.push("/admin")
     }
   }
 
@@ -136,7 +135,6 @@ export default function EditArticlePage( ) {
                 />
               </div>
 
-              {/* Content */}
               <div>
                 <Label htmlFor="content">Content</Label>
                 <div className="mt-1">
@@ -148,7 +146,13 @@ export default function EditArticlePage( ) {
                 </div>
               </div>
 
-              {/* Toggles: is_paid and published */}
+              <div>
+                <ImageUploader 
+                  onUpload={handleImageUpload} 
+                  currentImageUrl={article.image_url || null}
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label htmlFor="is_paid" className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition">
                   <input
@@ -181,7 +185,6 @@ export default function EditArticlePage( ) {
                 </label>
               </div>
 
-              {/* Submit Button */}
               <div className="text-right pt-4 border-t">
                 <Button
                   type="submit"

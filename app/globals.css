@@ -116,3 +116,76 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Article content styling - override pasted inline styles */
+.article-content {
+  /* Remove all inline styles from pasted content */
+  color: inherit !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  background-color: transparent !important;
+  white-space: normal !important;
+}
+
+.article-content p {
+  margin-top: 0.5em !important;
+  margin-bottom: 1em !important;
+  color: inherit !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  white-space: normal !important;
+  background-color: transparent !important;
+}
+
+.article-content a {
+  color: rgb(59, 130, 246) !important;
+  text-decoration: underline !important;
+  background: none !important;
+  border-radius: 0 !important;
+  overflow-wrap: break-word !important;
+}
+
+.article-content a:hover {
+  color: rgb(37, 99, 235) !important;
+}
+
+.article-content b,
+.article-content strong {
+  font-weight: 600 !important;
+  color: inherit !important;
+}
+
+.article-content i,
+.article-content em {
+  font-style: italic !important;
+  color: inherit !important;
+}
+
+.article-content u {
+  text-decoration: underline !important;
+  color: inherit !important;
+}
+
+.article-content sup {
+  font-size: 0.75em !important;
+  line-height: 1 !important;
+  vertical-align: super !important;
+  color: inherit !important;
+}
+
+.article-content sup a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.article-content span {
+  color: inherit !important;
+  background: none !important;
+  pointer-events: auto !important;
+}
+
+.article-content * {
+  /* Reset problematic inline styles */
+  white-space-collapse: collapse !important;
+  pointer-events: auto !important;
+}
