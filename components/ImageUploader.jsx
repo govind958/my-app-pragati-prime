@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button1';
 import { Label } from '@/components/ui/label';
@@ -123,13 +124,11 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
           {preview ? (
             <div className="relative group">
               <div className="relative w-full h-64 rounded-lg border-2 border-gray-300 overflow-hidden bg-gray-50">
-                <img
+                <Image
                   src={preview}
                   alt="Article preview"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-family="sans-serif" font-size="18"%3EImage not found%3C/text%3E%3C/svg%3E';
-                  }}
+                  fill
+                  className="object-cover"
                 />
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-200 flex items-center justify-center">

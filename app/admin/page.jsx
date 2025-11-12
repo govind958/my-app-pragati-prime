@@ -1,6 +1,7 @@
 "use client"; // REQUIRED for using React hooks (useState, useEffect) in Next.js App Router
 
 import React, { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/client"; // Adjust path as needed
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button1";
@@ -921,13 +922,11 @@ function TeamManager({ team = [], refresh, supabase }) {
             >
               {t.image && (
                 <div className="relative h-48 w-full bg-gray-100">
-                  <img
+                  <Image
                     src={t.image}
                     alt={t.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
+                    fill
+                    className="object-cover"
                   />
                 </div>
               )}
@@ -1084,14 +1083,13 @@ function TeamManager({ team = [], refresh, supabase }) {
                       </Button>
                     </div>
                     {formData.image && (
-                      <div className="mt-2">
-                        <img
+                      <div className="mt-2 relative w-32 h-32">
+                        <Image
                           src={formData.image}
                           alt="Preview"
-                          className="w-32 h-32 object-cover rounded-lg border border-gray-300"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                          }}
+                          width={128}
+                          height={128}
+                          className="object-cover rounded-lg border border-gray-300"
                         />
                       </div>
                     )}
