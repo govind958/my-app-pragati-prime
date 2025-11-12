@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button1"
@@ -519,15 +520,12 @@ function ArticlesSection({ articles, isPremium, loading, profile, user, selected
             <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden" onClick={() => onArticleSelect(article)}>
               {/* Article Image */}
               {article.image_url && (
-                <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
-                  <img
+                <div className="relative h-48 w-full mt-[-25px] bg-gray-100 overflow-hidden">
+                  <Image
                     src={article.image_url}
                     alt={article.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.style.display = 'none';
-                    }}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105"
                   />
                 </div>
               )}
@@ -621,14 +619,11 @@ function ArticleView({ article, onBack }) {
         {/* Article Image */}
         {article.image_url && (
           <div className="relative w-full h-64 md:h-80 lg:h-96 bg-gray-100">
-            <img
+            <Image
               src={article.image_url}
               alt={article.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.style.display = 'none';
-              }}
+              fill
+              className="object-cover"
             />
           </div>
         )}
