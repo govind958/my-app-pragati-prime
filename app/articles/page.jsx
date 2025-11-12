@@ -93,7 +93,7 @@ export default function ArticlesPage() {
               {articles.map((article) => (
                 <Card key={article.id} className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                   
-                  <div className="relative h-48 w-full bg-zinc-100 dark:bg-zinc-800">
+                  <div className="relative h-48 w-full mt-[-24px] bg-zinc-100 dark:bg-zinc-800">
                     {article.image_url ? (
                       <Image
                         src={article.image_url}

@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button1";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Footer from "@/components/Footer";
+import { createClient } from "@/utils/supabase/client";
+import { stripHTML } from "@/lib/htmlUtils";
 
 
 // Keyframe simulation for a subtle entrance animation
@@ -16,7 +19,41 @@ const EntranceAnimation = ({ children }) => (
   </div>
 );
 
+const supabase = createClient();
+
 export default function Home() {
+  const [articles, setArticles] = useState([]);
+  const [loadingArticles, setLoadingArticles] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setLoadingArticles(true);
+      
+      const { data, error } = await supabase
+        .from("articles")
+        .select("id, title, content, is_paid, created_at, image_url")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(3); // Show only 3 articles on home page
+
+      if (error) {
+        console.error("Error fetching articles:", error.message);
+      } else {
+        setArticles(data || []);
+      }
+      setLoadingArticles(false);
+    };
+
+    fetchArticles();
+  }, []);
+
+  // Helper function to get description from content
+  const getDescription = (content) => {
+    if (!content) return 'No description available.';
+    const text = stripHTML(content);
+    return text.length > 150 ? text.substring(0, 150) + '...' : text;
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
       {/* Hero Section */}
@@ -224,42 +261,57 @@ export default function Home() {
             <Link href="/articles" className="text-sm text-primary hover:underline self-start sm:self-auto transition-colors duration-300 hover:text-primary/70">View all</Link>
           </div>
           {/* Animated Article Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                title: "Expanding Access to Education",
-                desc: "Discover how our community-led education programs are transforming lives across rural areas. From scholarship initiatives to teacher training workshops, we're building sustainable educational ecosystems that empower children and families for generations to come.",
-                href: "/articles/education-access",
-              },
-              {
-                title: "Health Camps Impact Report",
-                desc: "An in-depth analysis of our quarterly health camp initiatives. Learn about the thousands of lives touched through free medical checkups, vaccination drives, and health awareness programs that are making healthcare accessible to underserved communities.",
-                href: "/articles/health-impact",
-              },
-              {
-                title: "Women in Leadership",
-                desc: "Celebrating the remarkable journeys of women entrepreneurs who've built successful businesses through our mentorship programs. These inspiring stories showcase how economic empowerment creates ripple effects throughout entire communities.",
-                href: "/articles/women-leadership",
-              },
-            ].map((article, i) => (
-              <Card 
-                key={i} 
-                className="rounded-2xl transition-all duration-300 hover:shadow-2xl hover:border-primary/50 hover:scale-[1.02] cursor-pointer"
-              >
-                <Link href={article.href}>
+          {loadingArticles ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">Loading articles...</p>
+              </div>
+            </div>
+          ) : articles.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-zinc-600 dark:text-zinc-400">No articles available at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+              {articles.map((article) => (
+                <Card 
+                  key={article.id} 
+                  className="rounded-2xl transition-all duration-300 hover:shadow-2xl hover:border-primary/50 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                >
+                  <Link href={`/articles/${article.id}`}>
+                    {article.image_url && (
+                      <div className="relative h-48 mt-[-24px] w-full bg-zinc-100 dark:bg-zinc-800">
+                        <Image
+                          src={article.image_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                     <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`text-xs font-medium ${article.is_paid ? 'text-yellow-600' : 'text-primary'}`}>
+                          {article.is_paid ? "Premium" : "Free"}
+                        </span>
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                          {new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
                       <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 transition-colors duration-300 hover:text-primary">
                         {article.title}
                       </h3>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-zinc-600 dark:text-zinc-400 mb-4">{article.desc}</p>
+                      <p className="text-zinc-600 dark:text-zinc-400 mb-4">{getDescription(article.content)}</p>
                       <span className="text-primary hover:underline transition-colors duration-300 hover:text-primary/70">Read more</span>
                     </CardContent>
-                </Link>
-              </Card>
-            ))}
-          </div>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
