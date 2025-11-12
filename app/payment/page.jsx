@@ -8,7 +8,6 @@ import BuyNowButton from "@/components/BuyNowButton"
 export default function PaymentPage() {
   const supabase = createClient()
   const router = useRouter()
-  const [user, setUser] = useState(null)
   const [userDetails, setUserDetails] = useState({
     name: "",
     email: "",
@@ -24,8 +23,6 @@ export default function PaymentPage() {
         router.push("/login")
         return
       }
-
-      setUser(currentUser)
 
       // Fetch user profile details
       const { data: profile } = await supabase
