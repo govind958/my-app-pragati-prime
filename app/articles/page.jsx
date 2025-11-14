@@ -43,7 +43,10 @@ export default function ArticlesPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center text-center py-20 px-4 sm:py-32 sm:px-6 md:py-40 md:px-16">
+      <section
+        id="articles-hero"
+        className="relative flex flex-col items-center justify-center text-center py-20 px-4 sm:py-32 sm:px-6 md:py-40 md:px-16"
+      >
         <div className="absolute inset-0 z-0">
           <Image
             src="/banner.png"
@@ -66,7 +69,10 @@ export default function ArticlesPage() {
       </section>
 
       {/* Articles Section */}
-      <section className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16">
+      <section
+        id="articles-list"
+        className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16"
+      >
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-10">
             <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">

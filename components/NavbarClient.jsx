@@ -4,7 +4,16 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Menu, X, LogIn, LayoutDashboard, Zap } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogIn,
+  LogOut,
+  LayoutDashboard,
+  Zap,
+  ChevronDown,
+} from "lucide-react";
+import { NAV_LINKS } from "@/config/nav-links";
 
 export default function NavbarClient() {
   const router = useRouter();
@@ -12,6 +21,9 @@ export default function NavbarClient() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openMobileSection, setOpenMobileSection] = useState(null);
+  const [hoveredNavItem, setHoveredNavItem] = useState(null);
+  const [hoverTimeout, setHoverTimeout] = useState(null);
 
   const supabase = createClient();
 
@@ -55,9 +67,19 @@ export default function NavbarClient() {
     return () => subscription.unsubscribe();
   }, [checkAdmin, supabase]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
+  }, [hoverTimeout]);
+
   /** ✅ Logout function */
   const handleLogout = async () => {
     setMobileMenuOpen(false);
+    setOpenMobileSection(null);
 
     const { error } = await supabase.auth.signOut();
     if (error) console.error("Logout error:", error);
@@ -69,6 +91,23 @@ export default function NavbarClient() {
     router.refresh();
   };
 
+  /** ✅ Handle hover enter with delay */
+  const handleMouseEnter = (itemLabel) => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    setHoveredNavItem(itemLabel);
+  };
+
+  /** ✅ Handle hover leave with delay */
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setHoveredNavItem(null);
+    }, 200); // 200ms delay before hiding
+    setHoverTimeout(timeout);
+  };
+
   // ✅ Classes
   const linkClass =
     "text-foreground/80 hover:text-primary transition-colors hover:scale-105 duration-200";
@@ -76,6 +115,8 @@ export default function NavbarClient() {
     "text-foreground/80 hover:text-primary flex items-center gap-3 py-2";
   const primaryButtonClass =
     "flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-primary/90 transition-all transform hover:scale-[1.02] duration-300";
+  const logoutButtonClass =
+    "flex items-center gap-2 rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-destructive/90 transition-all transform hover:scale-[1.02] duration-300";
 
   return (
     <header className="w-full border-b border-border bg-linear-to-r from-primary/10 to-secondary/20 backdrop-blur sticky top-0 z-50">
@@ -90,21 +131,71 @@ export default function NavbarClient() {
         </Link>
 
         {/* ✅ Desktop Menu */}
-        <nav className="hidden md:flex gap-8 text-sm font-medium items-center">
-          <Link href="/about" className={linkClass}>About</Link>
-          <Link href="/team" className={linkClass}>Team</Link>
-          <Link href="/articles" className={linkClass}>Articles</Link>
+        <nav className="hidden md:flex gap-6 text-sm font-medium items-center">
+          {NAV_LINKS.map((item) => {
+            const hasSections = item.sections?.length;
+            const isHovered = hoveredNavItem === item.label;
+
+            return (
+              <div
+                key={item.label}
+                className="relative"
+                onMouseEnter={() => hasSections && handleMouseEnter(item.label)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  href={item.href}
+                  className={`${linkClass} inline-flex items-center gap-1 rounded-full px-3 py-2 transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20`}
+                >
+                  <span>{item.label}</span>
+                  {hasSections ? (
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isHovered ? "rotate-180" : ""
+                      }`}
+                    />
+                  ) : null}
+                </Link>
+                {hasSections ? (
+                  <div
+                    className={`absolute left-1/2 top-full z-30 mt-1 w-64 -translate-x-1/2 rounded-2xl border border-border/60 bg-white/95 p-4 shadow-xl backdrop-blur transition-all duration-200 dark:border-zinc-800 dark:bg-zinc-950/95 dark:shadow-zinc-900/40 ${
+                      isHovered
+                        ? "pointer-events-auto translate-y-0 opacity-100"
+                        : "pointer-events-none translate-y-2 opacity-0"
+                    }`}
+                    onMouseEnter={() => handleMouseEnter(item.label)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                      Quick Links
+                    </p>
+                    <div className="mt-3 flex flex-col gap-2">
+                      {item.sections.map((section) => (
+                        <Link
+                          key={section.href}
+                          href={section.href}
+                          className="rounded-xl px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-primary/10 hover:text-primary dark:text-zinc-300 dark:hover:bg-primary/30"
+                        >
+                          {section.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
 
           {loading ? (
             <span className="text-foreground/80">Loading...</span>
           ) : user ? (
             <>
-              <Link href="/private" className={linkClass}>Dashboard</Link>
+              <Link href="/private" className={linkClass}>
+                Dashboard
+              </Link>
 
-              <button
-                onClick={handleLogout}
-                className="hover:text-primary transition-colors hover:scale-105 duration-200"
-              >
+              <button onClick={handleLogout} className={logoutButtonClass}>
+                <LogOut className="w-4 h-4" />
                 Logout
               </button>
             </>
@@ -119,7 +210,15 @@ export default function NavbarClient() {
         {/* ✅ Mobile Toggle */}
         <div className="md:hidden">
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() =>
+              setMobileMenuOpen((prev) => {
+                const next = !prev;
+                if (!next) {
+                  setOpenMobileSection(null);
+                }
+                return next;
+              })
+            }
             className="text-primary p-2 rounded-md hover:text-primary/80"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -130,32 +229,94 @@ export default function NavbarClient() {
       {/* ✅ Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t bg-background/95 backdrop-blur animate-in slide-in-from-top-4 duration-300">
-          <nav className="flex flex-col px-4 py-4 space-y-2">
-            <Link href="/about" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>About</Link>
-            <Link href="/team" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>Team</Link>
-            <Link href="/articles" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>Articles</Link>
+          <nav className="flex flex-col px-4 py-4 space-y-3">
+            {NAV_LINKS.map((item) => {
+              const hasSections = item.sections?.length;
+              const isOpen = openMobileSection === item.label;
 
-            <div className="border-t my-2 border-border/50"></div>
+              return (
+                <div key={item.label} className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href={item.href}
+                      className={mobileLinkClass}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setOpenMobileSection(null);
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                    {hasSections ? (
+                      <button
+                        type="button"
+                        className="rounded-full p-1 text-foreground/70 hover:text-primary"
+                        aria-label={`Toggle ${item.label} sections`}
+                        aria-expanded={isOpen}
+                        onClick={() =>
+                          setOpenMobileSection((prev) =>
+                            prev === item.label ? null : item.label
+                          )
+                        }
+                      >
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${
+                            isOpen ? "rotate-180 text-primary" : ""
+                          }`}
+                        />
+                      </button>
+                    ) : null}
+                  </div>
+                  {hasSections && isOpen ? (
+                    <div className="ml-4 flex flex-col gap-1 border-l border-border/50 pl-4">
+                      {item.sections.map((section) => (
+                        <Link
+                          key={section.href}
+                          href={section.href}
+                          className="text-sm text-foreground/70 hover:text-primary"
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            setOpenMobileSection(null);
+                          }}
+                        >
+                          {section.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+
+            <div className="border-t pt-3 border-border/50" />
 
             {loading ? (
               <span className="text-foreground/80">Loading...</span>
             ) : user ? (
               <>
-                <Link href="/private" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  href="/private"
+                  className={mobileLinkClass}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <LayoutDashboard className="w-4 h-4" /> Dashboard
                 </Link>
 
                 {isAdmin && (
-                  <Link href="/admin" className={mobileLinkClass} onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    href="/admin"
+                    className={mobileLinkClass}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <Zap className="w-4 h-4" /> Admin
                   </Link>
                 )}
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 text-left text-foreground/80 hover:text-primary"
+                  className={`${logoutButtonClass} justify-center mt-2`}
                 >
-                  <LogIn className="w-4 h-4 rotate-180" /> Logout
+                  <LogOut className="w-4 h-4" /> Logout
                 </button>
               </>
             ) : (
