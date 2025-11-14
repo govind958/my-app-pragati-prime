@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="bg-linear-to-r from-primary/10 to-secondary/20 border-t border-border">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 md:px-6">
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-5">
           {/* Brand Section */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center hover:opacity-80 transition-opacity mb-4">
@@ -63,6 +63,33 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">Admin</Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Resources</h3>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link href="/articles" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/articles" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Our Research
+                </Link>
+              </li>
+              <li>
+                <Link href="/articles" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Financials
+                </Link>
+              </li>
+              <li>
+                <Link href="/articles" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Girl Child and Policy
+                </Link>
               </li>
             </ul>
           </div>
