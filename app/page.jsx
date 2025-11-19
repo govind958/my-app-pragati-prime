@@ -83,19 +83,19 @@ export default function Home() {
     <EntranceAnimation>
       <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
         <span className="bg-clip-text text-transparent 
-                       bg-gradient-to-r from-primary/90 to-blue-300 
+                       bg-linear-to-r from-primary/90 to-blue-300 
                          transition-colors duration-300 ease-in-out">
-          Transforming Lives.
+          Empowering Rural Women.
         </span>
         <span className="text-white dark:text-zinc-50 block mt-2">
-          Become the Change Today.
+          Health. Education. Economic Independence.
         </span>
       </h1>
     </EntranceAnimation>
     
     <EntranceAnimation>
       <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto animate-delay-200">
-        Be part of a movement that transforms lives through education, empowerment, and empathy.
+        Join Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan to connect rural women and girls in Western Uttar Pradesh and Delhi with the healthcare, education, and livelihood pathways they deserve.
       </p>
     </EntranceAnimation>
 
@@ -104,7 +104,7 @@ export default function Home() {
       <div className="mt-8 mb-10 text-center animate-delay-400">
           <p className="text-xl font-bold text-primary/80 tracking-wide uppercase">
               <span className="inline-block relative">
-                10,000+ Lives Touched
+                10,000+ Rural Women Supported
                 {/* Subtle pulse effect on a dot for focus */}
                 <span className="absolute top-0 right-[-10px] w-2 h-2 rounded-full bg-primary animate-ping-slow" />
               </span>
@@ -158,17 +158,28 @@ export default function Home() {
             {/* Pulsating/Vibrating separator for subtle attention */}
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70 animate-pulse-slow" />
           </h2>
-          <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto px-4 sm:px-0">
-            We strive to improve lives by supporting education, healthcare, and
-            community development programs. Our dedicated team works closely
-            with local communities to bring sustainable change and measurable
-            impact.
-          </p>
+          <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto px-4 sm:px-0 text-left sm:text-center">
+            <p>
+              Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan (Regd.) is a New Delhi-based NGO dedicated to empowering rural women and adolescent girls by promoting health, education, and economic independence.
+            </p>
+            <p>
+              Our mission is to uplift women from rural communities, especially in Western Uttar Pradesh and Delhi, by connecting them with government welfare schemes, enhancing health awareness, and opening pathways for skill development and financial growth.
+            </p>
+            <p>
+              We collaborate closely with villages to run health camps, awareness drives, livelihood training, education support, and grievance redressal for rural women, while CSR partnerships help us deliver sustainable assistance and long-term development opportunities.
+            </p>
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4 text-center text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo;
+              <div className="mt-2 text-sm uppercase tracking-wide text-primary">
+                Tagline: &quot;Swasth, Shikshit aur Samarth Meri Beti.&quot;
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* What We Do - Feature Cards */}
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-4 sm:px-6 md:px-16">
+      <section className="py-16 sm:py-20 bg-linear-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-4 sm:px-6 md:px-16">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
@@ -178,7 +189,7 @@ export default function Home() {
               <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
             </h2>
             <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-              Our comprehensive approach addresses multiple dimensions of community development
+              We combine health, education, livelihood, and protection services so rural women and girls can lead self-reliant, dignified lives.
             </p>
           </div>
 
@@ -195,7 +206,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  Providing scholarships, learning resources, and teacher training to ensure every child has access to quality education.
+                  Scholarships, bridge courses, and digital learning labs keep rural girls in school and open new futures in Western Uttar Pradesh and Delhi.
                 </p>
               </CardContent>
             </Card>
@@ -212,7 +223,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  Organizing health camps, vaccination drives, and awareness programs to improve community health outcomes.
+                  Mobile health camps, screenings, and menstrual health awareness ensure women receive timely care and trusted information close to home.
                 </p>
               </CardContent>
             </Card>
@@ -229,7 +240,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  Supporting women entrepreneurs and community leaders through training, micro-loans, and mentorship programs.
+                  Entrepreneurship cohorts, micro-loans, and mentorship circles help women launch enterprises and gain financial independence.
                 </p>
               </CardContent>
             </Card>
@@ -246,7 +257,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  Building community centers, water wells, and essential facilities to create sustainable development foundations.
+                  Safe community hubs, water systems, and digital kiosks connect families to government welfare schemes and essential services.
                 </p>
               </CardContent>
             </Card>
@@ -263,7 +274,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  Promoting environmental awareness, tree planting initiatives, and sustainable practices for a greener future.
+                  Climate-smart farming demos and water conservation drives protect village livelihoods and the environment women depend on.
                 </p>
               </CardContent>
             </Card>
@@ -280,7 +291,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  Fostering local leadership, organizing community events, and building networks for collective growth.
+                  Women-led collectives, grievance cells, and youth clubs nurture leadership and collective action across hamlets.
                 </p>
               </CardContent>
             </Card>
@@ -289,7 +300,7 @@ export default function Home() {
       </section>
 
       {/* Key Impact Stories */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-gradient-to-b from-white to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-linear-to-b from-white to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
@@ -315,7 +326,7 @@ export default function Home() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
               </div>
               <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center order-2 md:order-2">
                 <div className="flex items-center gap-2 mb-4">
@@ -327,11 +338,10 @@ export default function Home() {
                   <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Education</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Education for Every Child
+                  Keeping Girls in School
                 </h3>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                  Providing scholarships and learning resources to underprivileged children. Our programs focus on
-                  access, mentoring, and long-term support so every child can stay in school and thrive.
+                  Learning labs, bicycles, and mentoring circles ensure adolescent girls from rural blocks can continue their education, delay early marriage, and dream bigger.
                 </p>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
@@ -366,11 +376,10 @@ export default function Home() {
                   <span className="text-sm font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide">Empowerment</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Empowering Women Entrepreneurs
+                  Women-Led Enterprises
                 </h3>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                  Helping women start small businesses through training and micro-loans. We focus on
-                  financial literacy, market access, and mentorship to drive sustainable livelihoods.
+                  SHG federations, product design labs, and CSR-backed seed funding are helping first-generation women entrepreneurs earn steady incomes and employ their peers.
                 </p>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
@@ -397,7 +406,7 @@ export default function Home() {
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
               </div>
             </div>
           </div>
@@ -413,7 +422,7 @@ export default function Home() {
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
               </div>
               <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center order-2 md:order-2">
                 <div className="flex items-center gap-2 mb-4">
@@ -425,11 +434,10 @@ export default function Home() {
                   <span className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wide">Infrastructure</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Clean Water Initiative
+                  Clean Water, Safer Villages
                 </h3>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                  Building water wells and promoting hygiene awareness in rural areas. Cleaner water means
-                  healthier families and improved livelihoods across communities.
+                  Women water stewards maintain hand pumps, lead hygiene sessions, and advocate for government repairs so families spend less time fetching water and stay healthier year-round.
                 </p>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
@@ -538,16 +546,16 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
-                title: "New Community Center Opened",
-                desc: "We inaugurated a new learning hub in Ward 11.",
+                title: "Baghpat Health & Nutrition Camp",
+                desc: "412 women screened for anemia, BP, and maternal health support.",
               },
               {
-                title: "Annual Fundraiser Launched",
-                desc: "Support our 2025 education initiatives.",
+                title: "Skill Bridge Cohort Graduates",
+                desc: "60 adolescent girls completed tailoring and digital literacy modules.",
               },
               {
-                title: "Volunteer Drive This Month",
-                desc: "Join outreach programs across neighborhoods.",
+                title: "New CSR Partner Onboarded",
+                desc: "Corporate allies expand micro-loan pool for rural entrepreneurs.",
               },
             ].map((u, i) => (
               <Card key={i} className="rounded-2xl transition-all duration-300 hover:shadow-xl hover:border-blue-500/20 hover:bg-white dark:hover:bg-zinc-800 cursor-default">
@@ -572,7 +580,7 @@ export default function Home() {
           </span>
           <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-white/70" />
         </h2>
-        <p className="mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto">Become a part of our growing community of changemakers.</p>
+        <p className="mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto">Help rural women and girls access healthcare, classrooms, and dignified livelihoods.</p>
         <Link href="/login">
           <Button 
             size="lg" 
