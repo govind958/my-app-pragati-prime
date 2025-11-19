@@ -24,12 +24,12 @@ export default function Vision() {
           />
         </div>
         <div className="relative z-10 px-4 sm:px-0">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold max-w-3xl leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold max-w-3xl leading-tight mx-auto text-center">
             <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">
               Vision for Rural Girls & Women
             </span>
           </h1>
-          <p className="mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg text-zinc-100 dark:text-zinc-300 mx-auto">
+          <p className="mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg text-zinc-900 dark:text-zinc-100 mx-auto">
             A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice.
           </p>
           <div className="mt-6 rounded-2xl border border-white/40 bg-black/20 px-6 py-4 text-sm uppercase tracking-wide text-zinc-100">
