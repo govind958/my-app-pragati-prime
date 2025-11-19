@@ -11,42 +11,42 @@ const TEAM_MEMBERS = [
   {
     name: "Aarav Sharma",
     role: "Founder & President",
-    bio: "Leads strategy and partnerships, focusing on education access and policy advocacy.",
+    bio: "Leads mission strategy and CSR alliances that fund rural women’s health, education, and livelihood cohorts.",
     image: "/logo1.jpeg",
     links: { linkedin: "#" },
   },
   {
     name: "Neha Verma",
     role: "Program Director",
-    bio: "Oversees program design and delivery across education and healthcare verticals.",
+    bio: "Designs end-to-end interventions that link village girls to scholarships, health camps, and micro-enterprise training.",
     image: "/logo1.jpeg",
     links: { linkedin: "#" },
   },
   {
     name: "Rahul Mehta",
     role: "Head of Community Development",
-    bio: "Drives grassroots initiatives, building resilient community infrastructures.",
+    bio: "Mobilizes self-help groups and grievance cells across Western UP to secure government schemes for families.",
     image: "/logo1.jpeg",
     links: { linkedin: "#" },
   },
   {
     name: "Priya Iyer",
     role: "Women Empowerment Lead",
-    bio: "Leads entrepreneurship, mentorship, and micro-loan programs for women.",
+    bio: "Anchors entrepreneurship bootcamps, peer mentorship, and micro-loan pipelines for first-generation women earners.",
     image: "/logo1.jpeg",
     links: { linkedin: "#" },
   },
   {
     name: "Vikram Singh",
     role: "Health Initiatives Manager",
-    bio: "Runs health camps, vaccination drives, and preventive care awareness.",
+    bio: "Runs mobile health units, menstrual health drives, and anemia screening campaigns in high-need blocks.",
     image: "/logo1.jpeg",
     links: { linkedin: "#" },
   },
   {
     name: "Ananya Gupta",
     role: "Monitoring & Evaluation",
-    bio: "Measures outcomes and ensures data-driven impact across all programs.",
+    bio: "Builds data systems that track girls’ retention, income gains, and grievance resolutions for accountability.",
     image: "/logo1.jpeg",
     links: { linkedin: "#" },
   },
@@ -72,10 +72,10 @@ export default function TeamPage() {
         </div>
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-            <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">Our Core Team</span>
+            <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">People Powering Meri Beti Mission</span>
           </h1>
           <p className="mt-4 sm:mt-6 text-base sm:text-lg text-zinc-800 dark:text-zinc-400">
-            The people behind Pragati Prime&apos;s mission—leading programs, partnerships, and impact.
+            Meet the Pragati Prime leaders partnering with rural women and girls to deliver health camps, bridge education, and income pathways across Western Uttar Pradesh and Delhi.
           </p>
         </div>
       </section>
@@ -147,14 +147,10 @@ export default function TeamPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center mb-8">
             <div>
               <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Join our volunteer community and make a tangible difference in the lives of those we serve. 
-                Whether you have a few hours a week or want to commit to a long-term project, your time and 
-                skills can create lasting impact.
+                Volunteer with us to host health camps, mentor adolescent girls, and help families enroll in government schemes—the support that keeps rural daughters safe in school.
               </p>
               <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Our volunteers are the backbone of Pragati Prime, bringing passion, expertise, and dedication 
-                to every program we run. From teaching and mentoring to organizing events and supporting 
-                administrative work, there&apos;s a role for everyone.
+                Whether you can translate awareness materials into Hindi, teach digital literacy, or document impact stories, your skills strengthen the Meri Beti Mera Abhiman movement.
               </p>
             </div>
             <Card className="rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800">
@@ -162,23 +158,23 @@ export default function TeamPage() {
               <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Education: Teaching, tutoring, and curriculum development</span>
+                  <span>Education bridges: Mentor board exam cohorts, run STEM clubs, or help with scholarship paperwork</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Healthcare: Assisting in health camps and awareness programs</span>
+                  <span>Healthcare camps: Support screenings, menstrual health workshops, and referral follow-ups</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Community Outreach: Field work and community engagement</span>
+                  <span>Community outreach: Map high-risk villages, collect beneficiary stories, and spread scheme awareness</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Administrative: Data entry, communications, and event planning</span>
+                  <span>Digital ops: Manage case-tracking dashboards, WhatsApp helplines, and donor updates</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Skills Training: Sharing professional expertise and mentorship</span>
+                  <span>Skills training: Coach women entrepreneurs on pricing, packaging, and online marketplaces</span>
                 </li>
               </ul>
             </Card>
@@ -238,15 +234,10 @@ export default function TeamPage() {
             </Card>
             <div>
               <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Our internship program offers students and recent graduates the opportunity to gain valuable 
-                experience in the non-profit sector while contributing to meaningful social change. Interns 
-                work alongside our team on real projects, learning about program management, community 
-                engagement, and impact measurement.
+                Interns co-create field toolkits, visualize impact data, and shadow frontline teams as they connect rural households to health, education, and financial services.
               </p>
               <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                We offer internships in various departments including program management, communications, 
-                research and evaluation, fundraising, and field operations. Internships typically last 3-6 
-                months and can be part-time or full-time based on your availability.
+                Roles span program design, storytelling, fundraising, and research; most last 12-24 weeks with hybrid options from Delhi NCR plus immersive village visits.
               </p>
             </div>
           </div>
@@ -260,7 +251,7 @@ export default function TeamPage() {
               </div>
               <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Program Management</h4>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Learn to design, implement, and monitor development programs
+                Learn to design, implement, and monitor women-centered development cohorts
               </p>
             </Card>
             <Card className="rounded-2xl p-6 bg-white dark:bg-zinc-950">
@@ -271,7 +262,7 @@ export default function TeamPage() {
               </div>
               <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Communications</h4>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Develop content, manage social media, and tell impact stories
+                Craft bilingual storytelling that spotlights rural girls’ progress
               </p>
             </Card>
             <Card className="rounded-2xl p-6 bg-white dark:bg-zinc-950">
@@ -282,7 +273,7 @@ export default function TeamPage() {
               </div>
               <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Research & Evaluation</h4>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Conduct research, analyze data, and measure program impact
+                Conduct research, analyze gendered data, and measure program impact
               </p>
             </Card>
           </div>
@@ -315,8 +306,7 @@ export default function TeamPage() {
 
           <div className="text-center mb-12">
             <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto mb-8">
-              Partner with Pragati Prime to create meaningful social impact while achieving your corporate 
-              social responsibility goals. Together, we can build stronger communities and create lasting change.
+              Partner with Pragati Prime to channel CSR capital into rural health, education, and livelihood pipelines for women and girls—complete with transparent reporting and on-ground visibility.
             </p>
           </div>
 
@@ -326,11 +316,11 @@ export default function TeamPage() {
               <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Enhanced brand reputation and visibility</span>
+                  <span>Enhanced brand reputation with community-first women empowerment</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Employee engagement and team building opportunities</span>
+                  <span>Employee engagement through experiential village immersions</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
@@ -338,7 +328,7 @@ export default function TeamPage() {
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Measurable social impact and reporting</span>
+                  <span>Measurable, gender-disaggregated impact dashboards</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
@@ -352,7 +342,7 @@ export default function TeamPage() {
               <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Financial sponsorship for specific programs</span>
+                  <span>Financial sponsorship for health, education, or livelihood cohorts</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
@@ -360,7 +350,7 @@ export default function TeamPage() {
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Employee volunteering programs</span>
+                  <span>Employee volunteering programs focused on mentoring girls</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-primary mr-2 mt-1">✓</span>
@@ -417,8 +407,7 @@ export default function TeamPage() {
 
           <div className="text-center mb-12">
             <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto mb-8">
-              Join our mission-driven team and help create lasting social impact. We&apos;re looking for 
-              passionate individuals who are committed to making a difference in the communities we serve.
+              We&apos;re hiring builders who believe rural girls deserve equitable healthcare, classrooms, and careers. If you can blend community empathy with execution rigor, we want you on the Meri Beti mission.
             </p>
           </div>
 
@@ -433,7 +422,7 @@ export default function TeamPage() {
                     </svg>
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Meaningful Work:</strong> Every day, you&apos;ll contribute to programs that directly impact lives and communities.
+                    <strong className="text-zinc-900 dark:text-zinc-100">Meaningful Work:</strong> Design and scale programs that keep thousands of girls in school and women in business.
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -443,7 +432,7 @@ export default function TeamPage() {
                     </svg>
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Professional Growth:</strong> We invest in your development with training, mentorship, and career advancement opportunities.
+                    <strong className="text-zinc-900 dark:text-zinc-100">Professional Growth:</strong> Receive mentorship from experts in gender, public health, and impact finance.
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -453,7 +442,7 @@ export default function TeamPage() {
                     </svg>
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Collaborative Culture:</strong> Work with a diverse, passionate team that values innovation and teamwork.
+                    <strong className="text-zinc-900 dark:text-zinc-100">Collaborative Culture:</strong> Co-create with field leaders, SHG federations, and youth volunteers.
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -463,7 +452,7 @@ export default function TeamPage() {
                     </svg>
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Work-Life Balance:</strong> We believe in sustainable work practices and support flexible arrangements.
+                    <strong className="text-zinc-900 dark:text-zinc-100">Work-Life Balance:</strong> Flexible, purpose-driven schedules with periodic village immersions.
                   </div>
                 </li>
               </ul>
@@ -506,8 +495,7 @@ export default function TeamPage() {
 
           <div className="text-center">
             <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
-              Don&apos;t see a position that matches your skills? We&apos;re always looking for talented individuals. 
-              Send us your resume and we&apos;ll keep you in mind for future opportunities.
+              Don&apos;t see a role yet? Share how you can advance rural women’s health, education, or economic independence—we&apos;re always scouting aligned talent.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <Link href="/login">
@@ -538,11 +526,11 @@ export default function TeamPage() {
         className="py-16 sm:py-20 text-center bg-linear-to-r from-indigo-500 to-blue-600 text-white px-4 sm:px-6"
       >
         <h2 className="relative text-center mb-4 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
-          <span className="text-white">Work With Us</span>
+          <span className="text-white">Keep Rural Daughters Thriving</span>
           <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-white/70" />
         </h2>
         <p className="mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto">
-          Passionate about impact? Volunteer or join our programs to help drive change.
+          Volunteer, apply, or partner with Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan and help deliver health, education, and livelihood pathways to women and girls who need them most.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
           <AuthActionButton />

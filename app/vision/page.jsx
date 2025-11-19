@@ -26,12 +26,15 @@ export default function Vision() {
         <div className="relative z-10 px-4 sm:px-0">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold max-w-3xl leading-tight">
             <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">
-              Our Vision
+              Vision for Rural Girls & Women
             </span>
           </h1>
-          <p className="mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg text-zinc-800 dark:text-zinc-400 mx-auto">
-            Building a future where every child and woman has access to education, health, and opportunities to thrive.
+          <p className="mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg text-zinc-100 dark:text-zinc-300 mx-auto">
+            A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice.
           </p>
+          <div className="mt-6 rounded-2xl border border-white/40 bg-black/20 px-6 py-4 text-sm uppercase tracking-wide text-zinc-100">
+            “Healthy, Educated, and Empowered Girls Build a Stronger Nation.” — Tagline: “Swasth, Shikshit aur Samarth Meri Beti.”
+          </div>
         </div>
       </section>
 
@@ -78,9 +81,8 @@ export default function Vision() {
                     Child Education
                   </h3>
                   <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                    We believe that education is the foundation of a child&apos;s future. Our vision is to ensure every child, 
-                    regardless of their background, has access to quality education. We work to provide scholarships, 
-                    learning resources, and support systems that enable children to stay in school and excel academically.
+                    Pragati Prime keeps rural daughters learning by pairing scholarships with bicycles, STEM clubs, and 
+                    mentor didis who guide first-generation learners through board exams and beyond.
                   </p>
                   <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <li className="flex items-start">
@@ -123,9 +125,7 @@ export default function Vision() {
                     Child Health and Nutrition
                   </h3>
                   <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                    Healthy children are the cornerstone of thriving communities. Our vision focuses on ensuring every child 
-                    receives proper nutrition, healthcare, and preventive care. We work to eliminate malnutrition and provide 
-                    access to essential health services that allow children to grow, learn, and reach their full potential.
+                    Our health vans travel through Western Uttar Pradesh villages each month, screening girls for anemia, linking expectant mothers to schemes, and equipping families with nutrition and WASH knowledge.
                   </p>
                   <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <li className="flex items-start">
@@ -186,9 +186,7 @@ export default function Vision() {
                     Stop Child Labour
                   </h3>
                   <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                    Every child deserves a childhood free from exploitation. Our vision is to eliminate child labour by 
-                    creating awareness, supporting families economically, and ensuring children are in schools rather than 
-                    workplaces. We work with communities, parents, and local authorities to protect children&apos;s rights.
+                    By combining livelihood support for parents with village protection committees, we keep girls out of brick kilns and back into classrooms, while paralegal teams handle rescue and rehabilitation.
                   </p>
                   <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <li className="flex items-start">
@@ -231,9 +229,7 @@ export default function Vision() {
                     Support Girl Child
                   </h3>
                   <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                    Empowering the girl child is essential for building equitable societies. Our vision is to ensure every 
-                    girl has equal opportunities in education, health, and life choices. We work to break down barriers, 
-                    challenge stereotypes, and create environments where girls can dream, achieve, and lead.
+                    Leadership labs, sports fellowships, and peer-led support circles help adolescent girls negotiate safer homes, access government stipends, and step into community decision-making.
                   </p>
                   <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <li className="flex items-start">
@@ -294,9 +290,7 @@ export default function Vision() {
                     Stop Child Marriage
                   </h3>
                   <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                    Child marriage robs children of their childhood, education, and future. Our vision is to end this practice 
-                    by raising awareness, providing support to at-risk children and families, and working with communities to 
-                    change harmful traditions. We believe every child should have the right to choose their own future.
+                    Our rapid response collectives track high-risk cases, engage village leaders, and offer bridge education so girls can delay marriage, graduate, and pursue livelihoods on their terms.
                   </p>
                   <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <li className="flex items-start">
@@ -339,9 +333,7 @@ export default function Vision() {
                     Women Health and Empowerment
                   </h3>
                   <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                    Empowered women create stronger families and communities. Our vision is to ensure every woman has access 
-                    to quality healthcare, economic opportunities, and the freedom to make choices about her life. We work 
-                    to break down barriers and create pathways for women to thrive and lead.
+                    CSR-backed micro-loan pools, digital finance bootcamps, and referral partnerships with hospitals ensure rural women can protect their health, launch enterprises, and reinvest in their daughters.
                   </p>
                   <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <li className="flex items-start">
@@ -384,12 +376,12 @@ export default function Vision() {
       >
         <h2 className="relative text-center mb-4 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
           <span className="text-white">
-            Join Us in Realizing Our Vision
+            Stand With Rural Girls & Women
           </span>
           <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-white/70" />
         </h2>
         <p className="mb-6 sm:mb-8 text-base sm:text-lg max-w-2xl mx-auto">
-          Together, we can create a world where every child and woman has the opportunity to thrive and succeed.
+          Your support fuels health camps, bridge classrooms, livelihood cohorts, and grievance redressal cells that keep daughters safe and thriving.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
           <AuthActionButton />

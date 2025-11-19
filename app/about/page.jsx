@@ -50,16 +50,27 @@ export default function About() {
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 sm:gap-12 mb-8 sm:mb-12">
-            <div>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-4">
-                Pragati Prime is a non-governmental organization dedicated to creating lasting positive change in communities across the region. Founded with a vision to bridge the gap between underserved populations and essential resources, we work tirelessly to empower individuals and transform communities.
+            <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400">
+              <p>
+                Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan (Regd.) is a New Delhi-based NGO dedicated to empowering rural women and adolescent girls by promoting health, education, and economic independence.
               </p>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-4">
-                Our journey began with a simple belief: that every individual deserves access to quality education, healthcare, and opportunities for growth. Over the years, we have developed comprehensive programs that address the root causes of poverty and inequality, focusing on sustainable solutions that create ripple effects throughout communities.
+              <p>
+                Our mission is to uplift women from rural communities, especially in Western Uttar Pradesh and Delhi, by connecting them with government welfare schemes, creating awareness about health, and providing opportunities for skill development and financial growth.
               </p>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400">
-                Through collaboration with local communities, government agencies, and international partners, Pragati Prime has established itself as a trusted catalyst for social change, touching thousands of lives and building a foundation for a brighter future.
+              <p>
+                We work closely with local communities to organize health camps, awareness programs, livelihood training, education support, and grievance resolution for rural women.
               </p>
+              <p>
+                Through CSR partnerships and collaborative initiatives, we aim to provide sustainable support, financial assistance, and long-term development opportunities for women and girls.
+              </p>
+              <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5 dark:bg-primary/5">
+                <p className="font-semibold italic text-zinc-900 dark:text-zinc-100">
+                  &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo;
+                </p>
+                <p className="text-sm uppercase tracking-wide text-primary/80 mt-3">
+                  Tagline: &quot;Swasth, Shikshit aur Samarth Meri Beti.&quot;
+                </p>
+              </div>
             </div>
             <div className="relative h-64 sm:h-80 md:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
               <Image
@@ -69,6 +80,33 @@ export default function About() {
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-contain"
               />
+            </div>
+          </div>
+          <div className="mt-12 rounded-3xl border border-primary/20 bg-rose-50/80 p-6 sm:p-10 text-base sm:text-lg text-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-300">
+            <h3 className="text-2xl font-semibold text-rose-900 dark:text-rose-200 mb-4">
+              🌸 हमारे बारे में (Hindi)
+            </h3>
+            <div className="space-y-4 leading-relaxed">
+              <p>
+                प्रगति प्राइम – मेरी बेटी मेरा अभिमान महिला संगठन एक पंजीकृत गैर-सरकारी संस्था (NGO) है, जिसका उद्देश्य ग्रामीण क्षेत्रों की महिलाओं और किशोरियों को स्वास्थ्य, शिक्षा और आर्थिक सशक्तिकरण के माध्यम से आगे बढ़ाना है।
+              </p>
+              <p>
+                हमारा लक्ष्य पश्चिमी उत्तर प्रदेश और दिल्ली की ग्रामीण महिलाओं को सरकारी योजनाओं का लाभ दिलाना, स्वास्थ्य जागरूकता बढ़ाना, कौशल विकास के अवसर प्रदान करना और उन्हें आर्थिक रूप से मजबूत बनाना है।
+              </p>
+              <p>
+                संगठन द्वारा नियमित रूप से स्वास्थ्य शिविर, जागरूकता कार्यक्रम, कौशल प्रशिक्षण, शिक्षा सहायता, सरकारी योजनाओं की जानकारी, और ग्रामीण महिलाओं की समस्याओं का समाधान किया जाता है।
+              </p>
+              <p>
+                CSR कंपनियों और सामाजिक संगठनों के सहयोग से हम महिलाओं को वित्तीय सहायता, प्रशिक्षण और स्थायी विकास के अवसर उपलब्ध कराने का कार्य करते हैं।
+              </p>
+              <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/70 border border-rose-200/60 dark:border-rose-500/30 p-5">
+                <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  &ldquo;स्वस्थ, शिक्षित और समर्थ बेटियाँ ही मजबूत समाज और देश का निर्माण करती हैं।&rdquo;
+                </p>
+                <p className="text-sm tracking-wide text-rose-700 dark:text-rose-200 mt-3">
+                  टैगलाइन: &ldquo;स्वस्थ, शिक्षित और समर्थ मेरी बेटी।&rdquo;
+                </p>
+              </div>
             </div>
           </div>
         </div>
