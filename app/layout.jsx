@@ -16,8 +16,12 @@ export const metadata = {
   // I'll use your original metadata title
   title: "Pragati Prime",
   icons: {
-    icon: '/logo1.jpeg',
-    apple: '/logo1.jpeg',
+    icon: [
+      { url: '/logo1.jpeg', type: 'image/jpeg' },
+    ],
+    apple: [
+      { url: '/logo1.jpeg', type: 'image/jpeg' },
+    ],
   },
 };
 
