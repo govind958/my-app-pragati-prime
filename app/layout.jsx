@@ -15,14 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata = {
   // I'll use your original metadata title
   title: "Pragati Prime",
-  icons: {
-    icon: [
-      { url: '/logo1.jpeg', type: 'image/jpeg' },
-    ],
-    apple: [
-      { url: '/logo1.jpeg', type: 'image/jpeg' },
-    ],
-  },
 };
 
 export default function RootLayout({ children }) {
