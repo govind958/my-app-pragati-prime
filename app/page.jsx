@@ -540,7 +540,7 @@ export default function Home() {
               </span>
               <span className="mt-3 block h-1 w-16 sm:w-24 rounded-full bg-primary/70" />
             </h2>
-            <Link href="/updates" className="text-sm text-primary hover:underline self-start sm:self-auto transition-colors duration-300 hover:text-primary/70">View all</Link>
+            <Link href="/articles" className="text-sm text-primary hover:underline self-start sm:self-auto transition-colors duration-300 hover:text-primary/70">View all</Link>
           </div>
           {/* Animated Update Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
