@@ -173,7 +173,7 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex relative">
+    <div className="min-h-screen bg-gray-50 flex relative h-screen">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
@@ -184,69 +184,80 @@ export default function AdminPanel() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r p-4 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } overflow-y-auto`}
+        } flex flex-col h-screen`}
       >
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-semibold text-indigo-800">
-            NGO Admin
-          </h1>
-          <Button
-            onClick={() => setSidebarOpen(false)}
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            aria-label="Close menu"
-          >
-            <X className="w-6 h-6" />
-          </Button>
+        <div className="p-4 overflow-y-auto flex-1 min-h-0">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Image 
+                src="/logo1.jpeg" 
+                alt="Pragati Prime Logo" 
+                width={32} 
+                height={32} 
+                className="rounded-full object-contain"
+              />
+              <h1 className="text-xl font-semibold text-primary">
+                Admin Dashboard
+              </h1>
+            </div>
+            <Button
+              onClick={() => setSidebarOpen(false)}
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              aria-label="Close menu"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+          </div>
+          <nav className="space-y-2">
+            <NavButton
+              active={section === "dashboard"}
+              onClick={() => switchSection("dashboard")}
+              icon={LayoutDashboard}
+            >
+              Dashboard
+            </NavButton>
+            <NavButton
+              active={section === "members"}
+              onClick={() => switchSection("members")}
+              icon={Users}
+            >
+              Members
+            </NavButton>
+            <NavButton
+              active={section === "articles"}
+              onClick={() => switchSection("articles")}
+              icon={FileText}
+            >
+              Articles
+            </NavButton>
+            <NavButton
+              active={section === "payments"}
+              onClick={() => switchSection("payments")}
+              icon={CreditCard}
+            >
+              Payments
+            </NavButton>
+            <NavButton
+              active={section === "team"}
+              onClick={() => switchSection("team")}
+              icon={UsersRound}
+            >
+              Core Team
+            </NavButton>
+            <NavButton
+              active={section === "settings"}
+              onClick={() => switchSection("settings")}
+              icon={Settings}
+            >
+              Settings
+            </NavButton>
+          </nav>
         </div>
-        <nav className="space-y-2">
-          <NavButton
-            active={section === "dashboard"}
-            onClick={() => switchSection("dashboard")}
-            icon={LayoutDashboard}
-          >
-            Dashboard
-          </NavButton>
-          <NavButton
-            active={section === "members"}
-            onClick={() => switchSection("members")}
-            icon={Users}
-          >
-            Members
-          </NavButton>
-          <NavButton
-            active={section === "articles"}
-            onClick={() => switchSection("articles")}
-            icon={FileText}
-          >
-            Articles
-          </NavButton>
-          <NavButton
-            active={section === "payments"}
-            onClick={() => switchSection("payments")}
-            icon={CreditCard}
-          >
-            Payments
-          </NavButton>
-          <NavButton
-            active={section === "team"}
-            onClick={() => switchSection("team")}
-            icon={UsersRound}
-          >
-            Core Team
-          </NavButton>
-          <NavButton
-            active={section === "settings"}
-            onClick={() => switchSection("settings")}
-            icon={Settings}
-          >
-            Settings
-          </NavButton>
-        </nav>
-        <div className="mt-8 pt-4 border-t">
+        <div className="p-4 pt-4 border-t mt-auto shrink-0">
           <Button
             variant="destructive"
             className="w-full"
