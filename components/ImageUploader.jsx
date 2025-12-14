@@ -13,8 +13,18 @@ import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
  * @param {function(string): void} onUpload - Callback function that returns the public URL
  * @param {string} currentImageUrl - Optional current image URL to display
  * @param {string} bucketName - Bucket name (default: "article_image")
+ * @param {string} label - Optional label text (default: "Article Cover Image")
+ * @param {string} inputId - Optional input ID (default: "articleImage")
+ * @param {string} filePathPrefix - Optional file path prefix (default: "articles")
  */
-export default function ImageUploader({ onUpload, currentImageUrl = null, bucketName = "article_image" }) {
+export default function ImageUploader({ 
+  onUpload, 
+  currentImageUrl = null, 
+  bucketName = "article_image",
+  label = "Article Cover Image",
+  inputId = "articleImage",
+  filePathPrefix = "articles"
+}) {
   const supabase = createClient();
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState(currentImageUrl || null);
@@ -63,7 +73,7 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
       const fileExt = file.name.split('.').pop();
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 9);
-      const filePath = `articles/${timestamp}-${randomStr}.${fileExt}`;
+      const filePath = `${filePathPrefix}/${timestamp}-${randomStr}.${fileExt}`;
 
       // Upload the file to Supabase Storage
       const { error: uploadError } = await supabase.storage
@@ -106,7 +116,7 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
     setError(null);
     onUpload(''); // Clear the image URL
     // Reset file input
-    const fileInput = document.getElementById('articleImage');
+    const fileInput = document.getElementById(inputId);
     if (fileInput) {
       fileInput.value = '';
     }
@@ -115,8 +125,8 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="articleImage" className="block text-sm font-medium text-gray-700 mb-2">
-          Article Cover Image
+        <Label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
         </Label>
         
         {/* Upload Area */}
@@ -137,7 +147,7 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => document.getElementById('articleImage')?.click()}
+                      onClick={() => document.getElementById(inputId)?.click()}
                       disabled={uploading}
                       className="bg-white hover:bg-white/90"
                     >
@@ -161,7 +171,7 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
             </div>
           ) : (
             <label
-              htmlFor="articleImage"
+              htmlFor={inputId}
               className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -186,7 +196,7 @@ export default function ImageUploader({ onUpload, currentImageUrl = null, bucket
 
         {/* Hidden file input - always present */}
         <input
-          id="articleImage"
+          id={inputId}
           type="file"
           className="hidden"
           accept="image/*"

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import {
@@ -24,6 +25,10 @@ export default function NavbarClient() {
   const [openMobileSection, setOpenMobileSection] = useState(null);
   const [hoveredNavItem, setHoveredNavItem] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
+  const [siteSettings, setSiteSettings] = useState({
+    title: "Pragati Prime",
+    logo_url: "/logo1.jpeg"
+  });
 
   const supabase = createClient();
 
@@ -36,6 +41,30 @@ export default function NavbarClient() {
       .single();
 
     setIsAdmin(profile?.role === "admin");
+  }, [supabase]);
+
+  /** ✅ Load site settings */
+  useEffect(() => {
+    const loadSiteSettings = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("title, logo_url")
+          .limit(1)
+          .maybeSingle();
+        
+        if (data) {
+          setSiteSettings({
+            title: data.title || "Pragati Prime",
+            logo_url: data.logo_url || "/logo1.jpeg"
+          });
+        }
+      } catch (error) {
+        console.error("Error loading site settings:", error);
+      }
+    };
+    
+    loadSiteSettings();
   }, [supabase]);
 
   /** ✅ Load user on mount */
@@ -110,24 +139,32 @@ export default function NavbarClient() {
 
   // ✅ Classes
   const linkClass =
-    "text-foreground/80 hover:text-primary transition-colors hover:scale-105 duration-200";
+    "text-zinc-900 dark:text-zinc-100 hover:text-primary transition-colors hover:scale-105 duration-200 font-medium";
   const mobileLinkClass =
-    "text-foreground/80 hover:text-primary flex items-center gap-3 py-2";
+    "text-zinc-900 dark:text-zinc-100 hover:text-primary flex items-center gap-3 py-2 font-medium";
   const primaryButtonClass =
     "flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-primary/90 transition-all transform hover:scale-[1.02] duration-300";
   const logoutButtonClass =
-    "flex items-center gap-2 rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-destructive/90 transition-all transform hover:scale-[1.02] duration-300";
+    "flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-primary/90 transition-all transform hover:scale-[1.02] duration-300";
 
   return (
-    <header className="w-full border-b border-border bg-linear-to-r from-primary/10 to-secondary/20 backdrop-blur sticky top-0 z-50">
+    <header className="w-full border-b border-border bg-white dark:bg-zinc-950 sticky top-0 z-50 shadow-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         {/* ✅ Logo */}
         <Link
           href="/"
-          className="text-xl font-bold text-primary hover:text-primary/80"
+          className="inline-flex items-center gap-2 text-xl font-bold text-primary hover:text-primary/80"
           onClick={() => setMobileMenuOpen(false)}
         >
-          Pragati Prime
+          <Image
+            src={siteSettings.logo_url || "/logo1.jpeg"}
+            alt={`${siteSettings.title} Logo`}
+            width={36}
+            height={36}
+            className="rounded-full object-contain"
+            priority
+          />
+          {siteSettings.title}
         </Link>
 
         {/* ✅ Desktop Menu */}

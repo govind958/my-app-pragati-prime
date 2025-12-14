@@ -92,7 +92,7 @@ const loadRazorpayScript = () => {
           contact: userDetails.contact || "",
         },
         theme: {
-          color: "#3399cc",
+          color: "#F97316",
         },
       }
   
@@ -129,7 +129,7 @@ const loadRazorpayScript = () => {
         <button
           onClick={openCheckout}
           disabled={loading}
-          className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:opacity-50"
+          className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg shadow-md disabled:opacity-50"
         >
           {loading ? "Processing..." : `Pay ₹${amount} Now`}
         </button>

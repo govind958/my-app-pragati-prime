@@ -217,7 +217,7 @@ export default function AuthPage() {
             onClick={() => { setTab("login"); setMessage(""); }}
             className={`flex-1 text-center py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
               tab === "login"
-                ? "bg-white dark:bg-zinc-900 text-blue-600 shadow-md"
+                ? "bg-white dark:bg-zinc-900 text-primary shadow-md"
                 : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
             }`}
           >
@@ -227,7 +227,7 @@ export default function AuthPage() {
             onClick={() => { setTab("signup"); setMessage(""); }}
             className={`flex-1 text-center py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
               tab === "signup"
-                ? "bg-white dark:bg-zinc-900 text-blue-600 shadow-md"
+                ? "bg-white dark:bg-zinc-900 text-primary shadow-md"
                 : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
             }`}
           >
@@ -270,7 +270,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={verifying || otp.length !== 6}
-            className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.01]"
+            className="w-full py-3 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.01]"
           >
             {verifying ? "Verifying..." : "Verify OTP"}
           </button>
@@ -280,7 +280,7 @@ export default function AuthPage() {
               type="button"
               onClick={handleResendOtp}
               disabled={loading}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+              className="text-sm text-primary hover:underline disabled:opacity-50"
             >
               {loading ? "Sending..." : "Resend OTP"}
             </button>
@@ -328,7 +328,7 @@ export default function AuthPage() {
                 placeholder="Jane Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-900 dark:text-zinc-100 shadow-sm transition-colors"
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-900 dark:text-zinc-100 shadow-sm transition-colors"
               />
             </div>
             <div>
@@ -345,7 +345,7 @@ export default function AuthPage() {
                 placeholder="(123) 456-7890"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-900 dark:text-zinc-100 shadow-sm transition-colors"
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-900 dark:text-zinc-100 shadow-sm transition-colors"
               />
             </div>
           </>
@@ -366,7 +366,7 @@ export default function AuthPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-900 dark:text-zinc-100 shadow-sm transition-colors"
+            className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-900 dark:text-zinc-100 shadow-sm transition-colors"
           />
         </div>
 
@@ -374,7 +374,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.01]"
+            className="w-full py-3 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.01]"
           >
             {loading
               ? "Sending OTP..."
