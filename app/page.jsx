@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button1";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Footer from "@/components/Footer";
 import { createClient } from "@/utils/supabase/client";
 import { stripHTML } from "@/lib/htmlUtils";
@@ -24,6 +26,46 @@ const supabase = createClient();
 export default function Home() {
   const [articles, setArticles] = useState([]);
   const [loadingArticles, setLoadingArticles] = useState(true);
+  const [homeContent, setHomeContent] = useState({
+    heroTitleLine1: "Empowering Rural Women.",
+    heroTitleLine2: "Health. Education. Economic Independence.",
+    missionStatement: "Healthy, Educated, and Empowered Girls Build a Stronger Nation.",
+    tagline: "Swasth, Shikshit aur Samarth Meri Beti."
+  });
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    location: "",
+    interestedToConnect: false,
+  });
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchHomeContent = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("hero_title_line1, hero_title_line2, mission_statement, tagline")
+          .limit(1)
+          .maybeSingle();
+        
+        if (data) {
+          setHomeContent({
+            heroTitleLine1: data.hero_title_line1 || "Empowering Rural Women.",
+            heroTitleLine2: data.hero_title_line2 || "Health. Education. Economic Independence.",
+            missionStatement: data.mission_statement || "Healthy, Educated, and Empowered Girls Build a Stronger Nation.",
+            tagline: data.tagline || "Swasth, Shikshit aur Samarth Meri Beti."
+          });
+        }
+      } catch (error) {
+        console.error("Error loading home content:", error);
+      }
+    };
+
+    fetchHomeContent();
+  }, []);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -52,6 +94,40 @@ export default function Home() {
     if (!content) return 'No description available.';
     const text = stripHTML(content);
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
+  };
+
+  // Contact form handler
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setFormSubmitting(true);
+
+    try {
+      // Here you can add logic to save to database or send email
+      // For now, we'll just log and show success message
+      console.log("Form submitted:", formData);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setFormSubmitted(true);
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        location: "",
+        interestedToConnect: false,
+      });
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setFormSubmitted(false);
+      }, 5000);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Failed to submit form. Please try again.");
+    } finally {
+      setFormSubmitting(false);
+    }
   };
 
   return (
@@ -83,21 +159,56 @@ export default function Home() {
     <EntranceAnimation>
       <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
         <span className="bg-clip-text text-transparent 
-                       bg-linear-to-r from-primary/90 to-blue-300 
+                       bg-linear-to-r from-primary/90 to-orange-300 
                          transition-colors duration-300 ease-in-out">
-          Empowering Rural Women.
+          {homeContent.heroTitleLine1}
         </span>
         <span className="text-white dark:text-zinc-50 block mt-2">
-          Health. Education. Economic Independence.
+          {homeContent.heroTitleLine2}
         </span>
       </h1>
     </EntranceAnimation>
     
-    <EntranceAnimation>
-      <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto animate-delay-200">
-        Join Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan to connect rural women and girls in Western Uttar Pradesh and Delhi with the healthcare, education, and livelihood pathways they deserve.
-      </p>
-    </EntranceAnimation>
+    {/* Sliding Highlight Banner (moved up to replace the paragraph) */}
+    <div className="relative mt-8 w-full overflow-hidden animate-delay-200">
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-linear-to-r from-zinc-950/90 via-zinc-950/40 to-transparent dark:from-black/90 dark:via-black/40" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-linear-to-l from-zinc-950/90 via-zinc-950/40 to-transparent dark:from-black/90 dark:via-black/40" />
+
+      <div className="flex items-center gap-4 sm:gap-6 marquee">
+        {[
+          "10,000+ Women Impacted",
+          "200+ Health Camps",
+          "Scholarships for Girls",
+          "Skill Training & Jobs",
+          "Menstrual Health Drives",
+          "Nutrition & Wellness",
+          "Access to Government Schemes",
+        ].map((item) => (
+          <div
+            key={item}
+            className="shrink-0 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm sm:text-base font-semibold text-white shadow-lg shadow-primary/20 backdrop-blur"
+          >
+            {item}
+          </div>
+        ))}
+        {[
+          "10,000+ Women Impacted",
+          "200+ Health Camps",
+          "Scholarships for Girls",
+          "Skill Training & Jobs",
+          "Menstrual Health Drives",
+          "Nutrition & Wellness",
+          "Access to Government Schemes",
+        ].map((item, idx) => (
+          <div
+            key={`dupe-${idx}`}
+            className="shrink-0 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm sm:text-base font-semibold text-white shadow-lg shadow-primary/20 backdrop-blur"
+          >
+            {item}
+          </div>
+        ))}
+      </div>
+    </div>
 
     {/* **IMPACT / CREDIBILITY ROW** */}
     <EntranceAnimation>
@@ -145,6 +256,7 @@ export default function Home() {
       </Link>
       
     </div>
+
   </div>
 </section>
 
@@ -169,9 +281,9 @@ export default function Home() {
               We collaborate closely with villages to run health camps, awareness drives, livelihood training, education support, and grievance redressal for rural women, while CSR partnerships help us deliver sustainable assistance and long-term development opportunities.
             </p>
             <div className="rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4 text-center text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo;
+              &ldquo;{homeContent.missionStatement}&rdquo;
               <div className="mt-2 text-sm uppercase tracking-wide text-primary">
-                Tagline: &quot;Swasth, Shikshit aur Samarth Meri Beti.&quot;
+                Tagline: &quot;{homeContent.tagline}&quot;
               </div>
             </div>
           </div>
@@ -571,9 +683,130 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Contact Form Section */}
+      <section id="contact-form" className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
+              <span className=" bg-linear-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent">
+                Get in Touch
+              </span>
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-lg">
+              Connect with us to learn more about our initiatives and how you can contribute
+            </p>
+          </div>
+
+          <Card className="border-2 border-primary/20 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl">Contact Us</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {formSubmitted ? (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-4">✅</div>
+                  <h3 className="text-xl font-semibold text-primary mb-2">Thank You!</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400">
+                    We&apos;ve received your message and will get back to you soon.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleContactSubmit} className="space-y-6">
+                  {/* Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="name">
+                      Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Enter your full name"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Phone Number */}
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">
+                      Phone Number <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="Enter your phone number"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">
+                      Email <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="Enter your email address"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Location */}
+                  <div className="space-y-2">
+                    <Label htmlFor="location">
+                      Location <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="location"
+                      type="text"
+                      required
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="Enter your location"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Interested to Connect (Checkbox) */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="interestedToConnect"
+                      checked={formData.interestedToConnect}
+                      onChange={(e) => setFormData({ ...formData, interestedToConnect: e.target.checked })}
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <Label htmlFor="interestedToConnect" className="font-normal cursor-pointer">
+                      Interested to Connect
+                    </Label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    disabled={formSubmitting}
+                    className="w-full bg-primary hover:bg-primary/90 text-white py-6 text-lg font-semibold"
+                  >
+                    {formSubmitting ? "Submitting..." : "Submit"}
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Membership CTA */}
-      <section className="py-16 sm:py-20 text-center bg-linear-to-r from-indigo-500 to-blue-600 text-white px-4 sm:px-6 transition-all duration-500 hover:from-indigo-600 hover:to-blue-700">
+      <section className="py-16 sm:py-20 text-center bg-linear-to-r from-orange-500 to-orange-600 text-white px-4 sm:px-6 transition-all duration-500 hover:from-orange-600 hover:to-orange-700">
         <h2 className="relative text-center mb-4 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
           <span className="text-white">
             Ready to Make a Difference?
@@ -585,9 +818,9 @@ export default function Home() {
           <Button 
             size="lg" 
             variant="secondary" 
-            className="rounded-full bg-white text-blue-600 w-full sm:w-auto 
+            className="rounded-full bg-white text-orange-600 w-full sm:w-auto 
                        transition-all duration-300 
-                       hover:bg-blue-100 hover:text-blue-800 hover:scale-105 
+                       hover:bg-orange-100 hover:text-orange-800 hover:scale-105 
                        shadow-xl hover:shadow-2xl"
           >
             Join Now

@@ -11,29 +11,41 @@ export default function Vision() {
       {/* Hero Section */}
       <section
         id="vision-hero"
-        className="relative flex flex-col items-center justify-center text-center py-20 px-4 sm:py-32 sm:px-6 md:py-40 md:px-16"
+        className="relative flex flex-col items-center justify-center text-center 
+                    min-h-[50vh] 
+                    py-20 px-4 sm:px-6 md:px-16 
+                    overflow-hidden bg-zinc-950/90 dark:bg-black/90"
       >
+        {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/banner.png"
             alt="Our Vision"
             fill
             sizes="100vw"
-            className="object-cover opacity-40 dark:opacity-30"
+            className="object-cover 
+                     opacity-20 dark:opacity-10 
+                     transition-transform duration-1000 ease-in-out 
+                     hover:scale-105"
             priority  
           />
         </div>
-        <div className="relative z-10 px-4 sm:px-0">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold max-w-3xl leading-tight mx-auto text-center">
-            <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">
+        <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+            <span className="bg-clip-text text-transparent 
+                           bg-linear-to-r from-primary/90 to-orange-300 
+                             transition-colors duration-300 ease-in-out">
               Vision for Rural Girls & Women
             </span>
+            <span className="text-white dark:text-zinc-50 block mt-2">
+              Building a Stronger Nation Together
+            </span>
           </h1>
-          <p className="mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg text-zinc-900 dark:text-zinc-100 mx-auto">
+          <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
             A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice.
           </p>
-          <div className="mt-6 rounded-2xl border border-white/40 bg-black/20 px-6 py-4 text-sm uppercase tracking-wide text-zinc-100">
-            “Healthy, Educated, and Empowered Girls Build a Stronger Nation.” — Tagline: “Swasth, Shikshit aur Samarth Meri Beti.”
+          <div className="mt-8 rounded-2xl border border-white/40 bg-white/10 backdrop-blur-sm px-6 py-4 text-sm uppercase tracking-wide text-white">
+            &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo; — Tagline: &ldquo;Swasth, Shikshit aur Samarth Meri Beti.&rdquo;
           </div>
         </div>
       </section>
@@ -372,7 +384,7 @@ export default function Vision() {
       {/* Call to Action */}
       <section
         id="vision-cta"
-        className="py-16 sm:py-20 text-center bg-linear-to-r from-indigo-500 to-blue-600 text-white px-4 sm:px-6"
+        className="py-16 sm:py-20 text-center bg-linear-to-r from-orange-500 to-orange-600 text-white px-4 sm:px-6 transition-all duration-500 hover:from-orange-600 hover:to-orange-700"
       >
         <h2 className="relative text-center mb-4 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
           <span className="text-white">

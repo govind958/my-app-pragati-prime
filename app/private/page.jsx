@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button1"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Menu, X, LogOut, LayoutDashboard, User, BookOpen, Crown, Lock, ArrowRight, CreditCard } from "lucide-react"
+import { Menu, X, LogOut, LayoutDashboard, User, BookOpen, Crown, Lock, ArrowRight, CreditCard, Upload } from "lucide-react"
 import BuyNowButton from "@/components/BuyNowButton"
 import { sanitizeHTML, stripHTML } from "@/lib/htmlUtils"
 
@@ -93,7 +93,7 @@ export default function MemberDashboard() {
         // Fetch profile
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("id, email, name, contact, role")
+          .select("id, email, name, contact, role, profile_image_url")
           .eq("id", authUser.id)
           .single()
         
@@ -184,7 +184,7 @@ export default function MemberDashboard() {
       // Reload profile
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("id, email, name, contact, role")
+        .select("id, email, name, contact, role, profile_image_url")
         .eq("id", user.id)
         .single()
 
@@ -217,7 +217,7 @@ export default function MemberDashboard() {
       case "payment":
         return <PaymentSection profile={profile} user={user} isPremium={isPremium} />
       case "profile":
-        return <ProfileSection profile={profile} user={user} onUpdate={handleProfileUpdate} loading={loading} />
+        return <ProfileSection profile={profile} user={user} onUpdate={handleProfileUpdate} loading={loading} supabase={supabase} />
       default:
         return <DashboardSection user={user} profile={profile} member={member} isPremium={isPremium} />
     }
@@ -227,7 +227,7 @@ export default function MemberDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -287,9 +287,20 @@ export default function MemberDashboard() {
           <Card className="mb-4">
             <CardContent className="pt-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                  {userInitials}
-                </div>
+                {profile?.profile_image_url ? (
+                  <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-primary">
+                    <Image
+                      src={profile.profile_image_url}
+                      alt={userName}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
+                    {userInitials}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{userName}</p>
                   <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
@@ -342,8 +353,7 @@ export default function MemberDashboard() {
 
         <div className="p-4 pt-4 border-t mt-auto shrink-0">
           <Button
-            variant="destructive"
-            className="w-full"
+            className="w-full bg-primary hover:bg-primary/90 text-white"
             onClick={async () => {
               await supabase.auth.signOut()
               window.location.href = "/"
@@ -421,12 +431,12 @@ function DashboardSection({ user, profile, member, isPremium, switchSection }) {
   return (
     <div className="space-y-6">
       {/* Welcome Card */}
-      <Card className="bg-linear-to-r from-blue-600 to-purple-600 text-white border-0">
+      <Card className="bg-linear-to-r from-orange-500 to-orange-600 text-white border-0">
         <CardHeader>
           <CardTitle className="text-2xl md:text-3xl">
             Welcome back, {profile?.name || user?.email?.split("@")[0] || "Member"}! 👋
           </CardTitle>
-          <CardDescription className="text-blue-100">
+          <CardDescription className="text-orange-100">
             {isPremium
               ? "You have access to all premium content and features."
               : "Explore our community and upgrade to unlock premium features."}
@@ -469,16 +479,14 @@ function DashboardSection({ user, profile, member, isPremium, switchSection }) {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button 
-            variant="outline" 
-            className="h-auto py-4"
+            className="h-auto py-4 bg-primary hover:bg-primary/90 text-white"
             onClick={() => switchSection("articles")}
           >
             <BookOpen className="mr-2 h-4 w-4" />
             Browse Articles
           </Button>
           <Button 
-            variant="outline" 
-            className="h-auto py-4"
+            className="h-auto py-4 bg-primary hover:bg-primary/90 text-white"
             onClick={() => switchSection("payment")}
           >
             <CreditCard className="mr-2 h-4 w-4" />
@@ -563,8 +571,7 @@ function ArticlesSection({ articles, isPremium, loading, profile, user, selected
                   {stripHTML(article.content)?.substring(0, 150) || "No content available"}
                 </p>
                 <Button 
-                  variant="outline" 
-                  className="w-full"
+                  className="w-full bg-primary hover:bg-primary/90 text-white"
                   onClick={(e) => {
                     e.stopPropagation()
                     onArticleSelect(article)
@@ -669,7 +676,7 @@ function ArticleView({ article, onBack }) {
           />
         </CardContent>
         <CardFooter className="pt-6 border-t">
-          <Button variant="outline" onClick={onBack} className="w-full sm:w-auto">
+          <Button onClick={onBack} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white">
             <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
             Back to Articles
           </Button>
@@ -729,7 +736,7 @@ function PaymentSection({ profile, user, isPremium }) {
         </Card>
 
         {/* Premium Plan */}
-        <Card className={isPremium ? "border-primary" : "border-blue-500"}>
+        <Card className={isPremium ? "border-primary" : "border-primary"}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -737,7 +744,7 @@ function PaymentSection({ profile, user, isPremium }) {
                 <CardDescription>Unlock all premium content</CardDescription>
               </div>
               {!isPremium && (
-                <Badge className="bg-blue-500">Popular</Badge>
+                <Badge className="bg-primary">Popular</Badge>
               )}
             </div>
           </CardHeader>
@@ -807,12 +814,14 @@ function PaymentSection({ profile, user, isPremium }) {
 }
 
 // Profile Section
-function ProfileSection({ profile, user, onUpdate, loading }) {
+function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
   })
   const [message, setMessage] = useState({ type: "", text: "" })
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [profileImageUrl, setProfileImageUrl] = useState(profile?.profile_image_url || "")
 
   // Initialize form data when profile is available
   useEffect(() => {
@@ -821,9 +830,62 @@ function ProfileSection({ profile, user, onUpdate, loading }) {
         name: profile.name || "",
         contact: profile.contact || "",
       })
+      setProfileImageUrl(profile.profile_image_url || "")
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]) // Only update when profile ID changes
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      const fileExt = file.name.split(".").pop()
+      const fileName = `profile-${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("profile_image")
+        .upload(filePath, file, {
+          upsert: true // Replace if exists
+        })
+
+      if (uploadError) {
+        console.error("Image upload failed:", uploadError)
+        alert("Image upload failed. Please try again.")
+        setUploadingImage(false)
+        return
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("profile_image")
+        .getPublicUrl(filePath)
+
+      if (urlData?.publicUrl) {
+        setProfileImageUrl(urlData.publicUrl)
+        // Update profile with new image URL
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ profile_image_url: urlData.publicUrl })
+          .eq("id", user.id)
+
+        if (updateError) {
+          console.error("Error updating profile image:", updateError)
+          alert("Image uploaded but failed to update profile. Please refresh the page.")
+        } else {
+          alert("Profile image uploaded successfully!")
+          // Reload the page to show the new image
+          window.location.reload()
+        }
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      alert("Failed to upload image. Please try again.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -847,6 +909,53 @@ function ProfileSection({ profile, user, onUpdate, loading }) {
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Profile Image Upload */}
+            <div>
+              <Label>Profile Picture</Label>
+              <div className="mt-2 flex items-center gap-4">
+                {profileImageUrl ? (
+                  <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-primary">
+                    <Image
+                      src={profileImageUrl}
+                      alt="Profile"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-24 w-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-2xl">
+                    {(profile?.name || user?.email?.split("@")[0] || "U")
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    id="profile-image-upload"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploadingImage}
+                    onClick={() => document.getElementById('profile-image-upload')?.click()}
+                    className="w-full sm:w-auto"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploadingImage ? "Uploading..." : profileImageUrl ? "Change Image" : "Upload Image"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">Upload a profile picture (JPG, PNG, etc.)</p>
+                </div>
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -897,7 +1006,7 @@ function ProfileSection({ profile, user, onUpdate, loading }) {
               </div>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary/90 text-white">
               {loading ? "Updating..." : "Update Profile"}
             </Button>
           </form>

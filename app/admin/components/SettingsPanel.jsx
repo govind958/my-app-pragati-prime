@@ -1,0 +1,491 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button1";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Upload } from "lucide-react";
+import FooterLinkEditor from "./shared/FooterLinkEditor";
+import SocialIconEditor from "./shared/SocialIconEditor";
+
+export default function SettingsPanel({ supabase, onSettingsSaved }) {
+  const [activeTab, setActiveTab] = useState("general");
+  const [site, setSite] = useState({ 
+    id: 1, 
+    title: "NGO", 
+    contact_email: "",
+    logo_url: "",
+    hero_title_line1: "Empowering Rural Women.",
+    hero_title_line2: "Health. Education. Economic Independence.",
+    mission_statement: "Healthy, Educated, and Empowered Girls Build a Stronger Nation.",
+    tagline: "Swasth, Shikshit aur Samarth Meri Beti.",
+    footer_description: "Empowering communities for a better tomorrow through education, healthcare, and sustainable development programs.",
+    footer_email: "",
+    footer_phone: "",
+    footer_address: "",
+    footer_copyright: "© 2025 Pragati Prime. All rights reserved."
+  });
+  const [footerLinks, setFooterLinks] = useState([]);
+  const [socialIcons, setSocialIcons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const loadSettings = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [settingsResult, linksResult, iconsResult] = await Promise.all([
+        supabase.from("site_settings").select("*").limit(1).maybeSingle(),
+        supabase.from("footer_links").select("*").order("display_order", { ascending: true }),
+        supabase.from("footer_social_icons").select("*").order("display_order", { ascending: true })
+      ]);
+
+      if (settingsResult.data) {
+        setSite({
+          id: 1,
+          title: settingsResult.data.title || "NGO",
+          contact_email: settingsResult.data.contact_email || "",
+          logo_url: settingsResult.data.logo_url || "",
+          hero_title_line1: settingsResult.data.hero_title_line1 || "Empowering Rural Women.",
+          hero_title_line2: settingsResult.data.hero_title_line2 || "Health. Education. Economic Independence.",
+          mission_statement: settingsResult.data.mission_statement || "Healthy, Educated, and Empowered Girls Build a Stronger Nation.",
+          tagline: settingsResult.data.tagline || "Swasth, Shikshit aur Samarth Meri Beti.",
+          footer_description: settingsResult.data.footer_description || "Empowering communities for a better tomorrow through education, healthcare, and sustainable development programs.",
+          footer_email: settingsResult.data.footer_email || "",
+          footer_phone: settingsResult.data.footer_phone || "",
+          footer_address: settingsResult.data.footer_address || "",
+          footer_copyright: settingsResult.data.footer_copyright || "© 2025 Pragati Prime. All rights reserved."
+        });
+      }
+      setFooterLinks(linksResult.data || []);
+      setSocialIcons(iconsResult.data || []);
+    } catch (error) {
+      console.error("Error loading settings:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  async function handleLogoUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("logo")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Logo upload failed:", uploadError);
+        alert("Logo upload failed. Please try again.");
+        setUploadingLogo(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("logo")
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        setSite({ ...site, logo_url: urlData.publicUrl });
+        alert("Logo uploaded successfully! Click 'Save Settings' to save.");
+      }
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      alert("Failed to upload logo. Please try again.");
+    } finally {
+      setUploadingLogo(false);
+    }
+  }
+
+  async function saveSiteSettings() {
+    setSaving(true);
+    try {
+      await supabase.from("site_settings").upsert(site, { onConflict: "id" });
+      alert("Settings saved successfully!");
+      loadSettings();
+      // Notify parent component to refresh site settings (for logo/title update)
+      if (onSettingsSaved) {
+        onSettingsSaved();
+      }
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      alert("Failed to save settings.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveFooterLink(link) {
+    try {
+      if (link.id) {
+        await supabase.from("footer_links").update(link).eq("id", link.id);
+      } else {
+        await supabase.from("footer_links").insert(link);
+      }
+      loadSettings();
+    } catch (error) {
+      console.error("Error saving footer link:", error);
+      alert("Failed to save footer link.");
+    }
+  }
+
+  async function deleteFooterLink(id) {
+    if (!confirm("Are you sure you want to delete this link?")) return;
+    try {
+      await supabase.from("footer_links").delete().eq("id", id);
+      loadSettings();
+    } catch (error) {
+      console.error("Error deleting footer link:", error);
+      alert("Failed to delete footer link.");
+    }
+  }
+
+  async function saveSocialIcon(icon) {
+    try {
+      if (icon.id) {
+        await supabase.from("footer_social_icons").update(icon).eq("id", icon.id);
+      } else {
+        await supabase.from("footer_social_icons").insert(icon);
+      }
+      loadSettings();
+    } catch (error) {
+      console.error("Error saving social icon:", error);
+      alert("Failed to save social icon.");
+    }
+  }
+
+  async function deleteSocialIcon(id) {
+    if (!confirm("Are you sure you want to delete this social icon?")) return;
+    try {
+      await supabase.from("footer_social_icons").delete().eq("id", id);
+      loadSettings();
+    } catch (error) {
+      console.error("Error deleting social icon:", error);
+      alert("Failed to delete social icon.");
+    }
+  }
+
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading settings...</p>
+        </div>
+      </div>
+    );
+
+  return (
+    <div className="space-y-6">
+      <CardTitle className="text-lg mb-4">Site Content Management</CardTitle>
+      
+      {/* Tabs */}
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setActiveTab("general")}
+          className={`px-4 py-2 font-medium ${activeTab === "general" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+        >
+          General
+        </button>
+        <button
+          onClick={() => setActiveTab("home")}
+          className={`px-4 py-2 font-medium ${activeTab === "home" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+        >
+          Home Page
+        </button>
+        <button
+          onClick={() => setActiveTab("footer")}
+          className={`px-4 py-2 font-medium ${activeTab === "footer" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+        >
+          Footer
+        </button>
+        <button
+          onClick={() => setActiveTab("footer-links")}
+          className={`px-4 py-2 font-medium ${activeTab === "footer-links" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+        >
+          Footer Links
+        </button>
+        <button
+          onClick={() => setActiveTab("social-media")}
+          className={`px-4 py-2 font-medium ${activeTab === "social-media" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+        >
+          Social Media
+        </button>
+      </div>
+
+      {/* General Tab */}
+      {activeTab === "general" && (
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <div>
+              <Label htmlFor="site-title">Organization Name (appears after logo in navbar)</Label>
+              <Input
+                id="site-title"
+                value={site.title}
+                onChange={(e) => setSite({ ...site, title: e.target.value })}
+                type="text"
+                placeholder="Pragati Prime"
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">This text will appear next to the logo in the navbar</p>
+            </div>
+            <div>
+              <Label htmlFor="contact-email">Contact Email</Label>
+              <Input
+                id="contact-email"
+                value={site.contact_email}
+                onChange={(e) => setSite({ ...site, contact_email: e.target.value })}
+                type="email"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="logo-upload">Logo Image</Label>
+              <div className="mt-2">
+                <input
+                  type="file"
+                  id="logo-upload"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  disabled={uploadingLogo}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploadingLogo}
+                  className="w-full sm:w-auto"
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploadingLogo ? "Uploading..." : site.logo_url ? "Replace Logo" : "Upload Logo"}
+                </Button>
+                {site.logo_url && (
+                  <p className="text-xs text-green-600 mt-2">✓ Logo uploaded. Click &apos;Save Settings&apos; to apply.</p>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Upload a logo image that will appear in the navbar</p>
+            </div>
+            <Button
+              onClick={saveSiteSettings}
+              disabled={saving}
+              className="w-full sm:w-auto"
+            >
+              {saving ? "Saving..." : "Save Settings"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Home Page Tab */}
+      {activeTab === "home" && (
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <div>
+              <Label htmlFor="hero-line1">Hero Title Line 1</Label>
+              <Input
+                id="hero-line1"
+                value={site.hero_title_line1 || ""}
+                onChange={(e) => setSite({ ...site, hero_title_line1: e.target.value })}
+                type="text"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="hero-line2">Hero Title Line 2</Label>
+              <Input
+                id="hero-line2"
+                value={site.hero_title_line2 || ""}
+                onChange={(e) => setSite({ ...site, hero_title_line2: e.target.value })}
+                type="text"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="mission">Mission Statement</Label>
+              <textarea
+                id="mission"
+                value={site.mission_statement || ""}
+                onChange={(e) => setSite({ ...site, mission_statement: e.target.value })}
+                rows={3}
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="tagline">Tagline</Label>
+              <Input
+                id="tagline"
+                value={site.tagline || ""}
+                onChange={(e) => setSite({ ...site, tagline: e.target.value })}
+                type="text"
+                className="mt-1"
+              />
+            </div>
+            <Button
+              onClick={saveSiteSettings}
+              disabled={saving}
+              className="w-full sm:w-auto"
+            >
+              {saving ? "Saving..." : "Save Home Page Content"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Footer Tab */}
+      {activeTab === "footer" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Footer Text Content</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="footer-desc">Footer Description</Label>
+              <textarea
+                id="footer-desc"
+                value={site.footer_description || ""}
+                onChange={(e) => setSite({ ...site, footer_description: e.target.value })}
+                rows={3}
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="footer-email">Footer Email</Label>
+              <Input
+                id="footer-email"
+                value={site.footer_email || ""}
+                onChange={(e) => setSite({ ...site, footer_email: e.target.value })}
+                type="email"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="footer-phone">Footer Phone</Label>
+              <Input
+                id="footer-phone"
+                value={site.footer_phone || ""}
+                onChange={(e) => setSite({ ...site, footer_phone: e.target.value })}
+                type="tel"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="footer-address">Footer Address</Label>
+              <textarea
+                id="footer-address"
+                value={site.footer_address || ""}
+                onChange={(e) => setSite({ ...site, footer_address: e.target.value })}
+                rows={2}
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="footer-copyright">Copyright Text</Label>
+              <Input
+                id="footer-copyright"
+                value={site.footer_copyright || ""}
+                onChange={(e) => setSite({ ...site, footer_copyright: e.target.value })}
+                type="text"
+                className="mt-1"
+              />
+            </div>
+            <Button
+              onClick={saveSiteSettings}
+              disabled={saving}
+              className="w-full sm:w-auto"
+            >
+              {saving ? "Saving..." : "Save Footer Content"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Footer Links Tab */}
+      {activeTab === "footer-links" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Footer Links</CardTitle>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const newLink = {
+                    section: "quick_links",
+                    label: "New Link",
+                    href: "#",
+                    display_order: footerLinks.length
+                  };
+                  saveFooterLink(newLink);
+                }}
+              >
+                Add Link
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {footerLinks.map((link) => (
+                <FooterLinkEditor
+                  key={link.id}
+                  link={link}
+                  onSave={saveFooterLink}
+                  onDelete={deleteFooterLink}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Social Media Tab */}
+      {activeTab === "social-media" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Social Media Icons</CardTitle>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const newIcon = {
+                    platform: "facebook",
+                    url: "#",
+                    icon_name: "facebook",
+                    display_order: socialIcons.length
+                  };
+                  saveSocialIcon(newIcon);
+                }}
+              >
+                Add Icon
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {socialIcons.map((icon) => (
+                <SocialIconEditor
+                  key={icon.id}
+                  icon={icon}
+                  onSave={saveSocialIcon}
+                  onDelete={deleteSocialIcon}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+

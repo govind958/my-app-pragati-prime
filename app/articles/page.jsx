@@ -45,24 +45,38 @@ export default function ArticlesPage() {
       {/* Hero Section */}
       <section
         id="articles-hero"
-        className="relative flex flex-col items-center justify-center text-center py-20 px-4 sm:py-32 sm:px-6 md:py-40 md:px-16"
+        className="relative flex flex-col items-center justify-center text-center 
+                    min-h-[50vh] 
+                    py-20 px-4 sm:px-6 md:px-16 
+                    overflow-hidden bg-zinc-950/90 dark:bg-black/90"
       >
+        {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/banner.png"
             alt="Articles & Updates"
             fill
             sizes="100vw"
-            className="object-cover opacity-40 dark:opacity-30"
+            className="object-cover 
+                     opacity-20 dark:opacity-10 
+                     transition-transform duration-1000 ease-in-out 
+                     hover:scale-105"
             priority
             onError={(e) => e.currentTarget.style.display = 'none'} // Hide on error
           />
         </div>
-        <div className="relative z-10 max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-            <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">Articles & Updates</span>
+        <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+            <span className="bg-clip-text text-transparent 
+                           bg-linear-to-r from-primary/90 to-orange-300 
+                             transition-colors duration-300 ease-in-out">
+              Articles & Updates
+            </span>
+            <span className="text-white dark:text-zinc-50 block mt-2">
+              Stay Informed About Our Impact
+            </span>
           </h1>
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-zinc-800 dark:text-zinc-400">
+          <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
             Stay informed about our latest initiatives, impact stories, and community updates.
           </p>
         </div>

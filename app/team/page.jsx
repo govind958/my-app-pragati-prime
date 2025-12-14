@@ -58,23 +58,37 @@ export default function TeamPage() {
       {/* Hero */}
       <section
         id="team-hero"
-        className="relative flex flex-col items-center justify-center text-center py-20 px-4 sm:py-32 sm:px-6 md:py-40 md:px-16"
+        className="relative flex flex-col items-center justify-center text-center 
+                    min-h-[50vh] 
+                    py-20 px-4 sm:px-6 md:px-16 
+                    overflow-hidden bg-zinc-950/90 dark:bg-black/90"
       >
+        {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/home.png"
             alt="Our Core Team"
             fill
             sizes="100vw"
-            className="object-cover opacity-40 dark:opacity-30"
+            className="object-cover 
+                     opacity-20 dark:opacity-10 
+                     transition-transform duration-1000 ease-in-out 
+                     hover:scale-105"
             priority
           />
         </div>
-        <div className="relative z-10 max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-            <span className="bg-linear-to-r from-primary to-primary/50 bg-clip-text text-transparent">People Powering Meri Beti Mission</span>
+        <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+            <span className="bg-clip-text text-transparent 
+                           bg-linear-to-r from-primary/90 to-orange-300 
+                             transition-colors duration-300 ease-in-out">
+              People Powering Meri Beti Mission
+            </span>
+            <span className="text-white dark:text-zinc-50 block mt-2">
+              Meet Our Dedicated Team
+            </span>
           </h1>
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-zinc-800 dark:text-zinc-400">
+          <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
             Meet the Pragati Prime leaders partnering with rural women and girls to deliver health camps, bridge education, and income pathways across Western Uttar Pradesh and Delhi.
           </p>
         </div>
@@ -181,7 +195,7 @@ export default function TeamPage() {
           </div>
 
           <div className="text-center">
-            <Link href="/login">
+            <Link href="/#contact-form">
               <Button
                 size="lg"
                 className="rounded-full px-8 py-6 bg-primary hover:bg-primary/90 text-white"
@@ -279,7 +293,7 @@ export default function TeamPage() {
           </div>
 
           <div className="text-center">
-            <Link href="/login">
+            <Link href="/#contact-form">
               <Button
                 size="lg"
                 className="rounded-full px-8 py-6 bg-primary hover:bg-primary/90 text-white"
@@ -380,7 +394,7 @@ export default function TeamPage() {
           </div>
 
           <div className="text-center">
-            <Link href="/about">
+            <Link href="/#contact-form">
               <Button
                 size="lg"
                 className="rounded-full px-8 py-6 bg-primary hover:bg-primary/90 text-white"
@@ -506,7 +520,7 @@ export default function TeamPage() {
                   View All Openings
                 </Button>
               </Link>
-              <Link href="/about">
+              <Link href="/#contact-form">
                 <Button
                   size="lg"
                   variant="outline"
@@ -523,7 +537,7 @@ export default function TeamPage() {
       {/* Join CTA */}
       <section
         id="team-cta"
-        className="py-16 sm:py-20 text-center bg-linear-to-r from-indigo-500 to-blue-600 text-white px-4 sm:px-6"
+        className="py-16 sm:py-20 text-center bg-linear-to-r from-orange-500 to-orange-600 text-white px-4 sm:px-6 transition-all duration-500 hover:from-orange-600 hover:to-orange-700"
       >
         <h2 className="relative text-center mb-4 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
           <span className="text-white">Keep Rural Daughters Thriving</span>
@@ -538,7 +552,7 @@ export default function TeamPage() {
             <Button
               size="lg"
               variant="outline"
-              className="rounded-full border-white text-blue-600 hover:bg-white/10 w-full sm:w-auto"
+              className="rounded-full border-white text-orange-600 hover:bg-white/10 w-full sm:w-auto"
             >
               Learn More About Us
             </Button>
