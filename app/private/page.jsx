@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Menu, X, LogOut, LayoutDashboard, User, BookOpen, Crown, Lock, ArrowRight, CreditCard, Upload } from "lucide-react"
 import BuyNowButton from "@/components/BuyNowButton"
 import { sanitizeHTML, stripHTML } from "@/lib/htmlUtils"
+import Footer from "@/components/Footer"
 
 const supabase = createClient()
 
@@ -35,7 +36,25 @@ export default function MemberDashboard() {
       if (target && target.href) {
         try {
           const url = new URL(target.href)
-          // Only allow navigation within dashboard or to logout
+          const currentOrigin = window.location.origin
+          
+          // Allow external links (different origin)
+          if (url.origin !== currentOrigin) {
+            return true // Allow external links (social media, etc.)
+          }
+          
+          // Allow links with target="_blank" (external links)
+          if (target.target === "_blank") {
+            return true // Allow external links
+          }
+          
+          // Allow links within footer
+          const isInFooter = target.closest("footer")
+          if (isInFooter) {
+            return true // Allow footer links
+          }
+          
+          // Allow navigation within dashboard or to logout
           if (!url.pathname.startsWith("/private") && !url.pathname.startsWith("/logout")) {
             e.preventDefault()
             e.stopPropagation()
@@ -227,7 +246,7 @@ export default function MemberDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-transparent border-t-orange-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -243,21 +262,22 @@ export default function MemberDashboard() {
     .slice(0, 2)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex relative h-screen">
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        ></div>
-      )}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex relative flex-1 h-screen">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+        )}
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } flex flex-col h-screen`}
-      >
+        {/* Sidebar */}
+        <aside
+          className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } flex flex-col h-screen`}
+        >
         <div className="p-4 overflow-y-auto flex-1 min-h-0">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
@@ -404,6 +424,10 @@ export default function MemberDashboard() {
           </CardContent>
         </Card>
       </main>
+      </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
