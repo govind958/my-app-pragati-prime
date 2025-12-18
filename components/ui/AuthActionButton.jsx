@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function AuthActionButton({
   size = "lg",
-  className = "",
+  className = "bg-white text-orange-600 hover:bg-orange-100 hover:text-orange-800 hover:scale-105 shadow-xl hover:shadow-2xl",
   loginText = "Become a Member",
   memberText = "Go to Member Page",
   loginHref = "/login",

@@ -42,6 +42,15 @@ export default function Home() {
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Banner images array
+  const bannerImages = [
+    "/banner-1.png",
+    "/banner-2.png",
+    "/banner-3.png",
+    "/banner-4.png"
+  ];
 
   useEffect(() => {
     const fetchHomeContent = async () => {
@@ -89,6 +98,15 @@ export default function Home() {
 
     fetchArticles();
   }, []);
+
+  // Auto-advance banner slider
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [bannerImages.length]);
 
   // Helper function to get description from content
   const getDescription = (content) => {
@@ -141,19 +159,43 @@ export default function Home() {
                     py-28 px-4 sm:px-6 md:px-16 
                     overflow-hidden bg-zinc-950/90 dark:bg-black/90" // Stronger dark background
 >
-  {/* Background Image: Deeper Dark Overlay for Contrast */}
-  <div className="absolute inset-0 z-0">
-    <Image
-      src="/home.png"
-      alt="Community empowerment in action"
-      fill
-      sizes="100vw"
-      className="object-cover 
-                 opacity-20 dark:opacity-10 
-                 transition-transform duration-1000 ease-in-out 
-                 hover:scale-105" // Image slightly scales on hover for subtle motion
-      priority  
-    />
+  {/* Banner Slider Background */}
+  <div className="absolute inset-0 z-0 overflow-hidden">
+    {bannerImages.map((src, index) => (
+      <div
+        key={index}
+        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+        }`}
+      >
+        <Image
+          src={src}
+          alt={`Banner ${index + 1}`}
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority={index === 0}
+        />
+      </div>
+    ))}
+    {/* Dark overlay for text contrast */}
+    <div className="absolute inset-0 bg-zinc-950/70 dark:bg-black/70 z-20" />
+  </div>
+  
+  {/* Slider Navigation Dots */}
+  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
+    {bannerImages.map((_, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentSlide(index)}
+        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+          index === currentSlide
+            ? "bg-primary w-8"
+            : "bg-white/50 hover:bg-white/75"
+        }`}
+        aria-label={`Go to slide ${index + 1}`}
+      />
+    ))}
   </div>
 
   <div className="relative z-10 px-4 sm:px-0 max-w-5xl mx-auto w-full">
@@ -795,8 +837,8 @@ export default function Home() {
 
                     {/* Location */}
                     <div className="space-y-2">
-                      <Label htmlFor="location">
-                        Location <span className="text-destructive">*</span>
+                      <Label htmlFor="address">
+                        Address <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="location"
@@ -804,7 +846,7 @@ export default function Home() {
                         required
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        placeholder="Enter your location"
+                        placeholder="Enter your Address"
                         className="w-full"
                       />
                     </div>

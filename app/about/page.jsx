@@ -124,6 +124,166 @@ export default function About() {
         </div>
       </section>
 
+      {/* Mission Section */}
+      <section
+        id="our-mission"
+        className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16"
+      >
+        <div className="max-w-6xl mx-auto">
+          <h2 className="relative text-center mb-8 sm:mb-12 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+            <span className="bg-linear-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent dark:from-zinc-100 dark:to-zinc-400">
+              Our Mission
+            </span>
+            <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-8 sm:gap-12">
+            <div className="space-y-5 text-base sm:text-lg text-zinc-600 dark:text-zinc-300">
+              <p>
+                Pragati Prime is committed to empowering rural women and adolescent girls in Western Uttar
+                Pradesh and Delhi NCR through health, education, and economic independence.
+              </p>
+              <p>
+                We bridge the gap between communities and government schemes, ensuring women can easily access
+                healthcare services, social security benefits, and livelihood opportunities.
+              </p>
+              <p>
+                By partnering with local leaders, institutions, and CSR initiatives, we design programs that
+                are practical, culturally rooted, and focused on long-term impact.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-primary/5 dark:bg-primary/10 border border-primary/30 p-6 sm:p-8 space-y-4">
+              <h3 className="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+                We focus on:
+              </h3>
+              <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                  <span>Strengthening mother–child health and menstrual hygiene awareness.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                  <span>Supporting girls&apos; education, digital learning, and life-skills training.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                  <span>Creating income-generation avenues through skilling, SHGs, and entrepreneurship.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                  <span>Helping women raise their voices, access grievance redressal, and claim their rights.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Vision Section */}
+      <section
+        id="our-vision"
+        className="py-16 sm:py-20 bg-zinc-100 dark:bg-zinc-900 px-4 sm:px-6 md:px-16"
+      >
+        <div className="max-w-6xl mx-auto">
+          <h2 className="relative text-center mb-8 sm:mb-12 text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+            <span className="bg-linear-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent dark:from-zinc-100 dark:to-zinc-400">
+              Our Vision
+            </span>
+            <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 sm:gap-12">
+            <div className="space-y-6">
+              <div className="rounded-2xl bg-white dark:bg-zinc-950 p-6 sm:p-8 shadow-lg border border-primary/20">
+                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+                  Vision for Rural Girls & Women
+                </h3>
+                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
+                  A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice.
+                </p>
+                <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 dark:bg-primary/5">
+                  <p className="font-semibold italic text-zinc-900 dark:text-zinc-100 text-lg">
+                    &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo;
+                  </p>
+                  <p className="text-sm uppercase tracking-wide text-primary/80 mt-3">
+                    Tagline: &quot;Swasth, Shikshit aur Samarth Meri Beti.&quot;
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Health & Well-being</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Ensuring every girl and woman has access to quality healthcare, nutrition, and wellness programs.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Education & Learning</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Empowering girls through quality education, scholarships, and skill development opportunities.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Economic Independence</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Creating pathways for women to achieve financial security through entrepreneurship and employment.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Rights & Entitlements</h4>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Ensuring women can access and claim their rightful government benefits and legal protections.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative h-64 sm:h-80 md:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shadow-lg">
+              <Image
+                src="/ai-imag.png"
+                alt="Vision for Rural Girls & Women"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-fit"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Impact Areas Section */}
       <section
         id="impact-areas"
