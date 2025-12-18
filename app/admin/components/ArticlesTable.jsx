@@ -55,6 +55,9 @@ export default function ArticlesTable({ articles = [], refresh, supabase }) {
             <thead>
               <tr className="text-left bg-gray-50 border-b border-gray-200">
                 <th className="p-2 md:p-3 font-medium text-gray-600">Title</th>
+                <th className="p-2 md:p-3 font-medium text-gray-600 hidden sm:table-cell">
+                  Member Plan
+                </th>
                 <th className="p-2 md:p-3 font-medium text-gray-600 hidden sm:table-cell">Paid</th>
                 <th className="p-2 md:p-3 font-medium text-gray-600">Status</th>
                 <th className="p-2 md:p-3 font-medium text-gray-600 hidden md:table-cell">Created</th>
@@ -68,7 +71,19 @@ export default function ArticlesTable({ articles = [], refresh, supabase }) {
                 <tr key={a.id} className="border-b hover:bg-gray-50">
                   <td className="p-2 md:p-3 font-medium text-indigo-700">
                     <div className="truncate max-w-[150px] md:max-w-none">{a.title || "Untitled"}</div>
-                    <div className="text-gray-500 text-xs sm:hidden">{a.is_paid ? "Paid" : "Free"}</div>
+                    <div className="text-gray-500 text-xs sm:hidden">
+                      {a.is_paid ? "Paid" : "Free"}
+                    </div>
+                    {a.is_paid && (
+                      <div className="text-xs text-orange-600 mt-1">
+                        Plan: {a.required_plan_name || "Any paid member"}
+                      </div>
+                    )}
+                  </td>
+                  <td className="p-2 md:p-3 hidden sm:table-cell text-gray-700">
+                    {!a.is_paid
+                      ? "Free"
+                      : a.required_plan_name || "Any paid member"}
                   </td>
                   <td className="p-2 md:p-3 hidden sm:table-cell">{a.is_paid ? "Yes" : "No"}</td>
                   <td className="p-2 md:p-3">

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button1";
-import { X, LogOut, LayoutDashboard, Users, FileText, CreditCard, UsersRound, Settings } from "lucide-react";
+import { X, LogOut, LayoutDashboard, Users, FileText, CreditCard, UsersRound, Settings, BadgeDollarSign, Inbox } from "lucide-react";
 import NavButton from "./shared/NavButton";
 import { createClient } from "@/utils/supabase/client";
 
@@ -68,6 +68,20 @@ export default function Sidebar({ section, onSectionChange, siteSettings, onClos
               icon={CreditCard}
             >
               Payments
+            </NavButton>
+            <NavButton
+              active={section === "plans"}
+              onClick={() => onSectionChange("plans")}
+              icon={BadgeDollarSign}
+            >
+              Membership Plans
+            </NavButton>
+            <NavButton
+              active={section === "forms"}
+              onClick={() => onSectionChange("forms")}
+              icon={Inbox}
+            >
+              Forms Collection
             </NavButton>
             <NavButton
               active={section === "team"}

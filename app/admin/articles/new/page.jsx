@@ -21,6 +21,7 @@ export default function NewArticlePage() {
     is_paid: false,
     image_url: "",
     published: false,
+    required_plan_name: "",
   })
 
   const handleChange = (e) => {
@@ -53,6 +54,7 @@ export default function NewArticlePage() {
     const { error } = await supabase.from("articles").insert([
       {
         ...article,
+        required_plan_name: article.is_paid ? (article.required_plan_name || null) : null,
         author_id: user.id,
         published_at: article.published ? new Date().toISOString() : null,
       },
@@ -129,6 +131,29 @@ export default function NewArticlePage() {
                     <p className="text-sm text-muted-foreground">Is this a premium, members-only article?</p>
                   </div>
                 </label>
+
+              </div>
+
+              {/* Plan access (for paid articles) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="required_plan_name">Member Access (optional)</Label>
+                  <select
+                    id="required_plan_name"
+                    name="required_plan_name"
+                    value={article.required_plan_name}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    <option value="">Any paid member can read</option>
+                    <option value="Active Member">Only Active Members</option>
+                    <option value="Executive Member">Only Executive Members</option>
+                    <option value="CSR Member">Only CSR Members</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    This applies only if the article is marked as paid. Leave empty to allow all paid members.
+                  </p>
+                </div>
 
                 <label htmlFor="published" className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition">
                   <input

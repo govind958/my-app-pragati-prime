@@ -24,6 +24,10 @@ export default function Dashboard({ stats, refresh }) {
           title="Total Revenue"
           value={`₹ ${stats.revenue.toLocaleString()}`}
         />
+        <StatCard
+          title="Contact Form Submissions"
+          value={stats.contactForms.toLocaleString()}
+        />
       </div>
 
       <Card className="mt-6 md:mt-8">

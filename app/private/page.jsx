@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button1"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Menu, X, LogOut, LayoutDashboard, User, BookOpen, Crown, Lock, ArrowRight, CreditCard, Upload } from "lucide-react"
+import { Menu, X, LogOut, LayoutDashboard, User, BookOpen, Crown, ArrowRight, CreditCard, Upload } from "lucide-react"
 import BuyNowButton from "@/components/BuyNowButton"
 import { sanitizeHTML, stripHTML } from "@/lib/htmlUtils"
 import Footer from "@/components/Footer"
@@ -147,10 +147,10 @@ export default function MemberDashboard() {
     setLoading(true)
     try {
       // Fetch published articles
-      // If user is premium, show all articles; otherwise, filter out paid articles
+      // If user is premium, show only articles allowed for their plan; otherwise, filter out paid articles
       let query = supabase
         .from("articles")
-        .select("id, title, content, is_paid, published, created_at, image_url")
+        .select("id, title, content, is_paid, published, created_at, image_url, required_plan_name")
         .eq("published", true)
         .order("created_at", { ascending: false })
 
@@ -159,10 +159,49 @@ export default function MemberDashboard() {
       if (error) {
         console.error("Error fetching articles:", error)
       } else {
-        // Filter paid articles if user is not premium
-        const filteredArticles = isPremium 
-          ? data || []
-          : (data || []).filter(article => !article.is_paid)
+        let filteredArticles = data || []
+
+        // helper to check plan hierarchy
+        const canAccessForPlan = (memberPlan, requiredPlan) => {
+          if (!requiredPlan) return true // any paid member
+          if (!memberPlan) return false
+
+          const order = {
+            "Active Member": 1,
+            "Executive Member": 2,
+            "CSR Member": 3,
+          }
+
+          const memberLevel = order[memberPlan] || 0
+          const requiredLevel = order[requiredPlan] || 0
+
+          // higher or equal tier can see lower-tier content
+          return memberLevel >= requiredLevel
+        }
+
+        if (!isPremium) {
+          // Non‑paid members see only free articles
+          filteredArticles = filteredArticles.filter(article => !article.is_paid)
+        } else {
+          // Paid members: respect required_plan_name with hierarchy
+          let planName = null
+          if (member?.plan_id) {
+            const { data: planData, error: planError } = await supabase
+              .from("membership_plans")
+              .select("name")
+              .eq("id", member.plan_id)
+              .maybeSingle()
+
+            if (!planError) {
+              planName = planData?.name || null
+            }
+          }
+
+          filteredArticles = filteredArticles.filter(article => {
+            if (!article.is_paid) return true
+            return canAccessForPlan(planName, article.required_plan_name)
+          })
+        }
         setArticles(filteredArticles)
       }
     } catch (error) {
@@ -170,7 +209,7 @@ export default function MemberDashboard() {
     } finally {
       setLoading(false)
     }
-  }, [isPremium])
+  }, [isPremium, member])
 
   useEffect(() => {
     if (section === "articles" && member) {
@@ -188,33 +227,30 @@ export default function MemberDashboard() {
   }, [loadArticles])
 
   const handleProfileUpdate = async (formData) => {
-    setLoading(true)
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          name: formData.name,
-          contact: formData.contact
-        })
-        .eq("id", user.id)
+    // Do not toggle global `loading` here to avoid layout shifts in the dashboard.
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        name: formData.name,
+        contact: formData.contact,
+        address: formData.address || null,
+        occupation: formData.occupation || null,
+        description: formData.description || null,
+      })
+      .eq("id", user.id)
 
-      if (error) throw error
+    if (error) throw error
 
-      // Reload profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("id, email, name, contact, role, profile_image_url")
-        .eq("id", user.id)
-        .single()
+    // Reload profile with extended fields
+    const { data: profileData, error: reloadError } = await supabase
+      .from("profiles")
+      .select("id, email, name, contact, role, profile_image_url, address, occupation, description")
+      .eq("id", user.id)
+      .single()
 
-      setProfile(profileData)
-      alert("Profile updated successfully!")
-    } catch (error) {
-      console.error("Error updating profile:", error)
-      alert("Failed to update profile.")
-    } finally {
-      setLoading(false)
-    }
+    if (reloadError) throw reloadError
+
+    setProfile(profileData)
   }
 
   const renderSection = () => {
@@ -227,16 +263,14 @@ export default function MemberDashboard() {
             articles={articles} 
             isPremium={isPremium} 
             loading={loading} 
-            profile={profile} 
-            user={user}
             selectedArticle={selectedArticle}
             onArticleSelect={setSelectedArticle}
           />
         )
       case "payment":
-        return <PaymentSection profile={profile} user={user} isPremium={isPremium} />
+        return <PaymentSection profile={profile} user={user} member={member} isPremium={isPremium} />
       case "profile":
-        return <ProfileSection profile={profile} user={user} onUpdate={handleProfileUpdate} loading={loading} supabase={supabase} />
+        return <ProfileSection profile={profile} user={user} onUpdate={handleProfileUpdate} supabase={supabase} />
       default:
         return <DashboardSection user={user} profile={profile} member={member} isPremium={isPremium} />
     }
@@ -523,7 +557,7 @@ function DashboardSection({ user, profile, member, isPremium, switchSection }) {
 }
 
 // Articles Section
-function ArticlesSection({ articles, isPremium, loading, profile, user, selectedArticle, onArticleSelect }) {
+function ArticlesSection({ articles, isPremium, loading, selectedArticle, onArticleSelect }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full min-h-[50vh]">
@@ -610,29 +644,7 @@ function ArticlesSection({ articles, isPremium, loading, profile, user, selected
         </div>
       )}
 
-      {!isPremium && (
-        <Card className="border-yellow-200 bg-linear-to-br from-yellow-50 to-orange-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-yellow-600" />
-              Unlock Premium Articles
-            </CardTitle>
-            <CardDescription>
-              Upgrade to access exclusive premium content and member-only articles.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BuyNowButton
-              amount={499}
-              userDetails={{
-                name: profile?.name || "",
-                email: user?.email || "",
-                contact: profile?.contact || "",
-              }}
-            />
-          </CardContent>
-        </Card>
-      )}
+      {/* Premium upsell card removed per request */}
     </div>
   )
 }
@@ -711,139 +723,176 @@ function ArticleView({ article, onBack }) {
 }
 
 // Payment Section
-function PaymentSection({ profile, user, isPremium }) {
+function PaymentSection({ profile, user, member, isPremium }) {
   const userDetails = {
     name: profile?.name || "",
     email: user?.email || "",
     contact: profile?.contact || "",
   }
 
+  const [plans, setPlans] = useState([])
+  const [loadingPlans, setLoadingPlans] = useState(true)
+
+  useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("membership_plans")
+          .select("id, name, price, billing_cycle")
+          .order("price", { ascending: true })
+
+        if (error) {
+          console.error("Error loading membership plans:", error)
+        } else {
+          setPlans(data || [])
+        }
+      } catch (err) {
+        console.error("Unexpected error loading membership plans:", err)
+      } finally {
+        setLoadingPlans(false)
+      }
+    }
+
+    loadPlans()
+  }, [])
+
+  const getPlanFeatures = (name) => {
+    switch (name) {
+      case "Active Member":
+        return [
+          "Access to member dashboard and community updates",
+          "Read selected members-only articles",
+          "Basic participation in events and programs",
+        ]
+      case "Executive Member":
+        return [
+          "All Active Member benefits",
+          "Full access to premium articles and resources",
+          "Priority invites to trainings and field visits",
+        ]
+      case "CSR Member":
+        return [
+          "All Executive Member benefits",
+          "Dedicated CSR coordination and reporting",
+          "Co-branded initiatives and visibility",
+        ]
+      default:
+        return [
+          "Access to member dashboard",
+          "Members-only updates and content",
+        ]
+    }
+  }
+
+  const currentPlanId = member?.plan_id || null
+
   return (
     <div className="space-y-6">
       <div>
-
         <CardDescription>
           Choose a membership plan to unlock premium features
         </CardDescription>
+        {isPremium && (
+          <p className="mt-2 text-sm text-green-600">
+            You already have an active paid membership.
+          </p>
+        )}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Free Plan */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Free Plan</CardTitle>
-            <CardDescription>Access limited articles</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <span className="text-4xl font-bold">₹0</span>
-              <span className="text-muted-foreground"> / year</span>
-            </div>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Limited article access
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Basic community features
-              </li>
-            </ul>
-            <Button variant="outline" className="w-full" disabled>
-              {isPremium ? "Current Plan" : "Active"}
-            </Button>
-          </CardContent>
-        </Card>
+      {loadingPlans ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-transparent border-t-orange-500 mx-auto" />
+            <p className="mt-3 text-sm text-gray-600">Loading plans...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-3 gap-6">
+          {plans.map((plan) => {
+            const features = getPlanFeatures(plan.name)
+            const isPopular = plan.name === "Executive Member"
+            const isCurrent = currentPlanId && currentPlanId === plan.id
 
-        {/* Premium Plan */}
-        <Card className={isPremium ? "border-primary" : "border-primary"}>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl">Premium Plan</CardTitle>
-                <CardDescription>Unlock all premium content</CardDescription>
-              </div>
-              {!isPremium && (
-                <Badge className="bg-primary">Popular</Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <span className="text-4xl font-bold">₹499</span>
-              <span className="text-muted-foreground"> / year</span>
-            </div>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Unlimited article access
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Premium content access
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Priority support
-              </li>
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Exclusive member benefits
-              </li>
-            </ul>
-            {isPremium ? (
-              <Button variant="outline" className="w-full" disabled>
-                <Crown className="mr-2 h-4 w-4" />
-                Current Plan
-              </Button>
-            ) : (
-              <BuyNowButton
-                amount={499}
-                userDetails={userDetails}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            return (
+              <Card
+                key={plan.id}
+                className={isPopular ? "border-primary shadow-lg" : ""}
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                      <CardDescription>
+                        {plan.name === "Active Member" && "Best for individuals starting their journey"}
+                        {plan.name === "Executive Member" && "For engaged supporters and leaders"}
+                        {plan.name === "CSR Member" && "Ideal for corporate & institutional partners"}
+                      </CardDescription>
+                    </div>
+                    {isPopular && !isPremium && (
+                      <Badge className="bg-primary">Popular</Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <span className="text-4xl font-bold">₹{plan.price}</span>
+                    <span className="text-muted-foreground">
+                      {" "}
+                      / {plan.billing_cycle || "year"}
+                    </span>
+                  </div>
+                  <ul className="space-y-3 text-sm">
+                    {features.map((feature) => (
+                      <li key={feature} className="flex items-start">
+                        <svg
+                          className="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
 
-      {isPremium && (
-        <Card className="bg-green-50 border-green-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Crown className="h-6 w-6 text-green-600" />
-              <div>
-                <CardTitle className="text-lg">Premium Active</CardTitle>
-                <CardDescription>
-                  You currently have an active premium membership. Thank you for your support!
-                </CardDescription>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                  {isCurrent ? (
+                    <Button variant="outline" className="w-full" disabled>
+                      <Crown className="mr-2 h-4 w-4" />
+                      Current Member
+                    </Button>
+                  ) : (
+                    <BuyNowButton
+                      amount={Number(plan.price)}
+                      userDetails={userDetails}
+                      planId={plan.id}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       )}
     </div>
   )
 }
 
 // Profile Section
-function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
+function ProfileSection({ profile, user, onUpdate, supabase }) {
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
+    address: "",
+    occupation: "",
+    description: "",
   })
   const [message, setMessage] = useState({ type: "", text: "" })
+  const [saving, setSaving] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [profileImageUrl, setProfileImageUrl] = useState(profile?.profile_image_url || "")
 
@@ -853,6 +902,9 @@ function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
       setFormData({
         name: profile.name || "",
         contact: profile.contact || "",
+        address: profile.address || "",
+        occupation: profile.occupation || "",
+        description: profile.description || "",
       })
       setProfileImageUrl(profile.profile_image_url || "")
     }
@@ -916,10 +968,13 @@ function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
     setMessage({ type: "", text: "" })
 
     try {
+      setSaving(true)
       await onUpdate(formData)
       setMessage({ type: "success", text: "Profile updated successfully!" })
     } catch (error) {
       setMessage({ type: "error", text: error.message || "Failed to update profile" })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -927,12 +982,12 @@ function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <CardTitle className="text-lg mb-2">Profile Information</CardTitle>
-        <CardDescription>Update your personal information</CardDescription>
+        <CardDescription>View and update your personal information</CardDescription>
       </div>
 
       <Card>
         <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Profile Image Upload */}
             <div>
               <Label>Profile Picture</Label>
@@ -980,42 +1035,85 @@ function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={user?.email || ""}
-                disabled
-                className="mt-1 bg-muted"
-              />
-              <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+            {/* Main details in responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={user?.email || ""}
+                  disabled
+                  className="mt-1 bg-muted"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+              </div>
+
+              <div>
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  className="mt-1"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="contact">Phone Number</Label>
+                <Input
+                  id="contact"
+                  type="tel"
+                  value={formData.contact}
+                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                  required
+                  className="mt-1"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="occupation">Occupation</Label>
+                <Input
+                  id="occupation"
+                  type="text"
+                  value={formData.occupation}
+                  onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                  className="mt-1"
+                  placeholder="Enter your occupation"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="mt-1"
+                  placeholder="Enter your full address"
+                />
+              </div>
             </div>
 
+            {/* Description full width */}
             <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                className="mt-1"
-                placeholder="Enter your full name"
+              <Label htmlFor="description">Description</Label>
+              <textarea
+                id="description"
+                rows={6}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                placeholder="Tell us about yourself (up to 10 lines)"
               />
-            </div>
-
-            <div>
-              <Label htmlFor="contact">Contact Number</Label>
-              <Input
-                id="contact"
-                type="tel"
-                value={formData.contact}
-                onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                required
-                className="mt-1"
-                placeholder="Enter your contact number"
-              />
+              <p className="text-xs text-muted-foreground mt-1">
+                This short bio helps us understand you better.
+              </p>
             </div>
 
             {message.text && (
@@ -1030,8 +1128,8 @@ function ProfileSection({ profile, user, onUpdate, loading, supabase }) {
               </div>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary/90 text-white">
-              {loading ? "Updating..." : "Update Profile"}
+            <Button type="submit" disabled={saving} className="w-full bg-primary hover:bg-primary/90 text-white">
+              {saving ? "Updating..." : "Update Profile"}
             </Button>
           </form>
         </CardContent>

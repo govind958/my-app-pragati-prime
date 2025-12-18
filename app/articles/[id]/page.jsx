@@ -16,6 +16,8 @@ export default function ArticleDetailPage() {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isPremiumMember, setIsPremiumMember] = useState(false);
+  const [planName, setPlanName] = useState(null);
   const params = useParams();
   const { id } = params;
 
@@ -34,22 +36,56 @@ export default function ArticleDetailPage() {
       setLoading(true);
       setError(null);
 
-      // Fetch the single article.
-      const { data, error } = await supabase
-        .from("articles")
-        .select("id, title, content, is_paid, created_at, published, image_url")
-        .eq("id", id)
-        .eq("published", true)
-        .single();
+      try {
+        // Check if viewer is a paid member
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Error fetching article:", error.message);
+        if (user) {
+          const { data: memberData } = await supabase
+            .from("members")
+            .select("membership_type, plan_id")
+            .eq("profile_id", user.id)
+            .maybeSingle();
 
-        setError("Article not found or you do not have permission to view it.");
-      } else {
-        setArticle(data);
+          if (memberData?.membership_type === "paid") {
+            setIsPremiumMember(true);
+
+            if (memberData.plan_id) {
+              const { data: planData } = await supabase
+                .from("membership_plans")
+                .select("name")
+                .eq("id", memberData.plan_id)
+                .maybeSingle();
+
+              if (planData?.name) {
+                setPlanName(planData.name);
+              }
+            }
+          }
+        }
+
+        // Fetch the single article.
+        const { data, error } = await supabase
+          .from("articles")
+          .select("id, title, content, is_paid, created_at, published, image_url, required_plan_name")
+          .eq("id", id)
+          .eq("published", true)
+          .single();
+
+        if (error) {
+          console.error("Error fetching article:", error.message);
+          setError("Article not found or you do not have permission to view it.");
+        } else {
+          setArticle(data);
+        }
+      } catch (err) {
+        console.error("Unexpected error loading article:", err);
+        setError("Something went wrong while loading the article.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchArticle();
@@ -124,10 +160,58 @@ export default function ArticleDetailPage() {
         </div>
 
         {/* Article Content */}
-        <article 
-          className="prose prose-lg dark:prose-invert max-w-none article-content"
-          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-        />
+        {article.is_paid && !isPremiumMember ? (
+          <div className="border border-orange-200 bg-orange-50 rounded-2xl p-6 sm:p-8 text-center">
+            <p className="text-lg font-semibold text-orange-800 mb-2">
+              This is a members-only article.
+            </p>
+            <p className="text-sm text-orange-700 mb-6">
+              Become an Active, Executive, or CSR Member to read the full content and access all premium articles.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/login">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  Login to your account
+                </Button>
+              </Link>
+              <Link href="/private">
+                <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white">
+                  View Membership Plans
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : article.is_paid && article.required_plan_name && planName && (() => {
+            const order = {
+              "Active Member": 1,
+              "Executive Member": 2,
+              "CSR Member": 3,
+            }
+            const memberLevel = order[planName] || 0
+            const requiredLevel = order[article.required_plan_name] || 0
+            return memberLevel < requiredLevel
+          })() ? (
+          <div className="border border-orange-200 bg-orange-50 rounded-2xl p-6 sm:p-8 text-center">
+            <p className="text-lg font-semibold text-orange-800 mb-2">
+              This article is available only for {article.required_plan_name}s.
+            </p>
+            <p className="text-sm text-orange-700 mb-6">
+              Your current membership plan does not include this content.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/private">
+                <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white">
+                  View Membership Plans
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <article 
+            className="prose prose-lg dark:prose-invert max-w-none article-content"
+            dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+          />
+        )}
 
         {/* Back Button */}
         <div className="mt-12 pt-8 border-t dark:border-zinc-800 text-center">

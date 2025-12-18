@@ -121,12 +121,22 @@ export default function Home() {
     setFormSubmitting(true);
 
     try {
-      // Here you can add logic to save to database or send email
-      // For now, we'll just log and show success message
-      console.log("Form submitted:", formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save contact form to database
+      const { error } = await supabase.from("contact_us").insert({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        state: formData.state,
+        location: formData.location,
+        interested_to_connect: formData.interestedToConnect,
+        status: "new",
+      });
+
+      if (error) {
+        console.error("Error inserting contact form:", error);
+        alert("Failed to submit form. Please try again.");
+        return;
+      }
       
       setFormSubmitted(true);
       setFormData({
