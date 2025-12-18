@@ -303,7 +303,7 @@ export default function Home() {
           className="rounded-full px-8 py-7 text-lg font-medium 
                      bg-transparent border-white/30 text-white 
                      transition-all duration-300 
-                     hover:bg-white/10 hover:border-white/50"
+                     hover:bg-white/10 hover:border-white/50 hover:text-white"
         >
           See Our Impact
         </Button>
