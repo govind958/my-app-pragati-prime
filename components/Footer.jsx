@@ -100,7 +100,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-5">
           {/* Brand Section */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity mb-4">
+            <Link href="/" className="flex items-center gap-3  mb-4">
               <Image 
                 src={footerData.logoUrl} 
                 alt="Pragati Prime Logo" 
@@ -108,6 +108,9 @@ export default function Footer() {
                 height={100} 
                 className="rounded-full object-contain h-16 w-auto"
               />
+              <span className="text-lg sm:text-xl font-semibold text-foreground inline-flex items-center gap-2  font-bold text-primary hover:text-primary/80">
+                Pragati Prime
+              </span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground max-w-md">
               {footerData.description}

@@ -7,10 +7,12 @@ export const NAV_LINKS = [
       { label: "Why Pragati Prime?", href: "/about#why-pragati-prime" },
       { label: "Our Approach", href: "/about#our-approach" },
       { label: "Impact Areas", href: "/about#impact-areas" },
+      { label: "Our Vision", href: "/about#our-vision" },
+      { label: "Our Mission", href: "/about#our-mission" },
     ],
   },
   {
-    label: "Vision",
+    label: "We Provide",
     href: "/vision",
     sections: [
       { label: "Child Education", href: "/vision#child-education" },

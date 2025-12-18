@@ -41,7 +41,7 @@ export async function createOrder(amount, currency = "INR") {
 // ACTION 2: Verify Payment and Update Database
 // This is the most critical step
 export async function verifyPaymentAndUpdateDatabase(paymentData) {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = paymentData
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan_id } = paymentData
     const supabase = await createClient()
   
     // 1. Get the logged-in user
@@ -65,7 +65,8 @@ export async function verifyPaymentAndUpdateDatabase(paymentData) {
     try {
       // Get the order details to find the amount
       const orderDetails = await razorpay.orders.fetch(razorpay_order_id)
-      const paymentDetails = await razorpay.payments.fetch(razorpay_payment_id);
+      // We don't rely on detailed payment status here, only on the verified signature.
+      // Avoid calling razorpay.payments.fetch to prevent SDK errors when refetching old payments.
       
       // Check if member record exists, use maybeSingle to avoid error if not found
       let { data: memberData, error: memberError } = await supabase
@@ -104,9 +105,10 @@ export async function verifyPaymentAndUpdateDatabase(paymentData) {
         member_id: memberData.id,
         amount: orderDetails.amount / 100, // Convert from paise back to rupees
         status: "paid",
-        order_id:razorpay_order_id, // Store these for reference
-        payment_id:razorpay_payment_id,
-        method:paymentDetails.method || "razorpay"
+        order_id: razorpay_order_id, // Store these for reference
+        payment_id: razorpay_payment_id,
+        method: "razorpay",
+        plan_id: plan_id || null
       })
   
       if (paymentError) {
@@ -114,10 +116,15 @@ export async function verifyPaymentAndUpdateDatabase(paymentData) {
         return { error: "Failed to save payment record" }
       }
   
-      // Update 'members' table to set membership_type to 'paid'
+      // Update 'members' table to set membership_type to 'paid' and attach the selected plan
+      const updatePayload = { membership_type: "paid" }
+      if (plan_id) {
+        updatePayload.plan_id = plan_id
+      }
+
       const { error: memberUpdateError, data: memberDataUpdated } = await supabase
         .from("members")
-        .update({ membership_type: "paid" })
+        .update(updatePayload)
         .eq("profile_id", user.id)
         .select()
         .maybeSingle();

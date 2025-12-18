@@ -11,6 +11,8 @@ import ArticlesTable from "./components/ArticlesTable";
 import PaymentsTable from "./components/PaymentsTable";
 import TeamManager from "./components/TeamManager";
 import SettingsPanel from "./components/SettingsPanel";
+import PlansTable from "./components/PlansTable";
+import ContactFormsTable from "./components/ContactFormsTable";
 import Sidebar from "./components/Sidebar";
 
 // Initialize Supabase Client
@@ -31,10 +33,12 @@ export default function AdminPanel() {
     paidUsers: 0,
     articles: 0,
     revenue: 0,
+    contactForms: 0,
   });
   const [members, setMembers] = useState([]);
   const [articles, setArticles] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [contactForms, setContactForms] = useState([]);
   const [team, setTeam] = useState([]);
   const [siteSettings, setSiteSettings] = useState({
     logo_url: "/logo1.jpeg",
@@ -46,27 +50,37 @@ export default function AdminPanel() {
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
     try {
-      const [{ data: users }, { data: posts }, { data: subs }, { data: members }] =
+      const [
+        { data: users },
+        { data: posts },
+        { data: subs },
+        { data: members },
+        { count: contactCount },
+      ] =
         await Promise.all([
           supabase.from("profiles").select("id, email, role, created_at, name"),
           // Ensure 'published' is included for consistency
           supabase
             .from("articles")
-            .select("id, title, is_paid, published, created_at, author_id"),
+            .select("id, title, is_paid, published, created_at, author_id, required_plan_name"),
           supabase
             .from("payments")
             .select("id, amount, profile_id, status, created_at, profiles(name, email)"),
-            supabase
+          supabase
             .from("members")
             .select("id, profile_id, membership_type, created_at"),
+          supabase
+            .from("contact_us")
+            .select("id", { count: "exact", head: true }),
         ]);
 
       const totalUsers = users?.length ?? 0;
       const paidUsers = members?.filter((u) => u.membership_type === "paid").length ?? 0;
       const articlesCount = posts?.length ?? 0;
       const revenue = subs?.reduce((s, p) => s + (p.amount ?? 0), 0) ?? 0;
+      const contactForms = contactCount ?? 0;
 
-      setStats({ totalUsers, paidUsers, articles: articlesCount, revenue });
+      setStats({ totalUsers, paidUsers, articles: articlesCount, revenue, contactForms });
       setMembers(users || []);
       setArticles(posts || []);
       setPayments(subs || []);
@@ -96,7 +110,7 @@ export default function AdminPanel() {
     try {
       const { data } = await supabase
         .from("articles")
-        .select("id, title, is_paid, published, created_at, author_id");
+        .select("id, title, is_paid, published, created_at, author_id, required_plan_name");
       setArticles(data || []);
     } catch (err) {
       console.error("loadArticles Error:", err);
@@ -114,6 +128,21 @@ export default function AdminPanel() {
       setPayments(data || []);
     } catch (err) {
       console.error("loadPayments Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadContactForms = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from("contact_us")
+        .select("id, name, email, phone, state, location, interested_to_connect, status, created_at")
+        .order("created_at", { ascending: false });
+      setContactForms(data || []);
+    } catch (err) {
+      console.error("loadContactForms Error:", err);
     } finally {
       setLoading(false);
     }
@@ -165,6 +194,7 @@ export default function AdminPanel() {
     else if (sec === "articles") loadArticles();
     else if (sec === "payments") loadPayments();
     else if (sec === "team") loadTeam();
+    else if (sec === "forms") loadContactForms();
   };
 
   const renderSection = () => {
@@ -189,6 +219,10 @@ export default function AdminPanel() {
         );
       case "payments":
         return <PaymentsTable payments={payments} refresh={loadPayments} supabase={supabase} />;
+      case "plans":
+        return <PlansTable supabase={supabase} />;
+      case "forms":
+        return <ContactFormsTable forms={contactForms} refresh={loadContactForms} />;
       case "team":
         return (
           <TeamManager team={team} refresh={loadTeam} supabase={supabase} />

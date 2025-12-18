@@ -36,11 +36,21 @@ export default function Home() {
     name: "",
     phone: "",
     email: "",
+    state: "",
     location: "",
     interestedToConnect: false,
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Banner images array
+  const bannerImages = [
+    "/banner-1.png",
+    "/banner-2.png",
+    "/banner-3.png",
+    "/banner-4.png"
+  ];
 
   useEffect(() => {
     const fetchHomeContent = async () => {
@@ -89,6 +99,15 @@ export default function Home() {
     fetchArticles();
   }, []);
 
+  // Auto-advance banner slider
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [bannerImages.length]);
+
   // Helper function to get description from content
   const getDescription = (content) => {
     if (!content) return 'No description available.';
@@ -102,18 +121,29 @@ export default function Home() {
     setFormSubmitting(true);
 
     try {
-      // Here you can add logic to save to database or send email
-      // For now, we'll just log and show success message
-      console.log("Form submitted:", formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save contact form to database
+      const { error } = await supabase.from("contact_us").insert({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        state: formData.state,
+        location: formData.location,
+        interested_to_connect: formData.interestedToConnect,
+        status: "new",
+      });
+
+      if (error) {
+        console.error("Error inserting contact form:", error);
+        alert("Failed to submit form. Please try again.");
+        return;
+      }
       
       setFormSubmitted(true);
       setFormData({
         name: "",
         phone: "",
         email: "",
+        state: "",
         location: "",
         interestedToConnect: false,
       });
@@ -139,25 +169,49 @@ export default function Home() {
                     py-28 px-4 sm:px-6 md:px-16 
                     overflow-hidden bg-zinc-950/90 dark:bg-black/90" // Stronger dark background
 >
-  {/* Background Image: Deeper Dark Overlay for Contrast */}
-  <div className="absolute inset-0 z-0">
-    <Image
-      src="/home.png"
-      alt="Community empowerment in action"
-      fill
-      sizes="100vw"
-      className="object-cover 
-                 opacity-20 dark:opacity-10 
-                 transition-transform duration-1000 ease-in-out 
-                 hover:scale-105" // Image slightly scales on hover for subtle motion
-      priority  
-    />
+  {/* Banner Slider Background */}
+  <div className="absolute inset-0 z-0 overflow-hidden">
+    {bannerImages.map((src, index) => (
+      <div
+        key={index}
+        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+        }`}
+      >
+        <Image
+          src={src}
+          alt={`Banner ${index + 1}`}
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority={index === 0}
+        />
+      </div>
+    ))}
+    {/* Dark overlay for text contrast */}
+    <div className="absolute inset-0 bg-zinc-950/70 dark:bg-black/70 z-20" />
+  </div>
+  
+  {/* Slider Navigation Dots */}
+  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
+    {bannerImages.map((_, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentSlide(index)}
+        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+          index === currentSlide
+            ? "bg-primary w-8"
+            : "bg-white/50 hover:bg-white/75"
+        }`}
+        aria-label={`Go to slide ${index + 1}`}
+      />
+    ))}
   </div>
 
-  <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
+  <div className="relative z-10 px-4 sm:px-0 max-w-5xl mx-auto w-full">
     {/* Animated Text */}
     <EntranceAnimation>
-      <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+      <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold max-w-4xl mx-auto leading-tight sm:leading-tight tracking-tight sm:tracking-tighter">
         <span className="bg-clip-text text-transparent 
                        bg-linear-to-r from-primary/90 to-orange-300 
                          transition-colors duration-300 ease-in-out">
@@ -270,7 +324,7 @@ export default function Home() {
             {/* Pulsating/Vibrating separator for subtle attention */}
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70 animate-pulse-slow" />
           </h2>
-          <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto px-4 sm:px-0 text-left sm:text-center">
+          <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto px-4 sm:px-0 text-center">
             <p>
               Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan (Regd.) is a New Delhi-based NGO dedicated to empowering rural women and adolescent girls by promoting health, education, and economic independence.
             </p>
@@ -685,7 +739,7 @@ export default function Home() {
 
       {/* Contact Form Section */}
       <section id="contact-form" className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">
               <span className=" bg-linear-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent">
@@ -697,111 +751,143 @@ export default function Home() {
             </p>
           </div>
 
-          <Card className="border-2 border-primary/20 shadow-xl">
-            <CardHeader>
-              <CardTitle className="text-2xl">Contact Us</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {formSubmitted ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl mb-4">✅</div>
-                  <h3 className="text-xl font-semibold text-primary mb-2">Thank You!</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400">
-                    We&apos;ve received your message and will get back to you soon.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleContactSubmit} className="space-y-6">
-                  {/* Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+            {/* Contact Image */}
+            <div className="mb-8 md:mb-0">
+              <div className="relative w-full h-[420px] md:h-full min-h-[460px]">
+                <Image
+                  src="/contact-us.png"
+                  alt="Contact us illustration"
+                  fill
+                  className="object-contain rounded-2xl"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                />
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <Card className="border-2 border-primary/20 shadow-xl h-full flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-2xl">Contact Us</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {formSubmitted ? (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-4">✅</div>
+                    <h3 className="text-xl font-semibold text-primary mb-2">Thank You!</h3>
+                    <p className="text-zinc-600 dark:text-zinc-400">
+                      We&apos;ve received your message and will get back to you soon.
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleContactSubmit} className="space-y-6">
+                    {/* Name */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name">
+                        Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="Enter your full name"
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Phone Number */}
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">
+                        Phone Number <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="Enter your phone number"
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div className="space-y-2">
+                      <Label htmlFor="email">
+                        Email <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="Enter your email address"
+                        className="w-full"
+                      />
+                    </div>
+
+                  {/* State */}
                   <div className="space-y-2">
-                    <Label htmlFor="name">
-                      Name <span className="text-destructive">*</span>
+                    <Label htmlFor="state">
+                      State <span className="text-destructive">*</span>
                     </Label>
                     <Input
-                      id="name"
+                      id="state"
                       type="text"
                       required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Enter your full name"
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      placeholder="Enter your state"
                       className="w-full"
                     />
                   </div>
 
-                  {/* Phone Number */}
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">
-                      Phone Number <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="Enter your phone number"
-                      className="w-full"
-                    />
-                  </div>
+                    {/* Location */}
+                    <div className="space-y-2">
+                      <Label htmlFor="address">
+                        Address <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="location"
+                        type="text"
+                        required
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        placeholder="Enter your Address"
+                        className="w-full"
+                      />
+                    </div>
 
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="email">
-                      Email <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="Enter your email address"
-                      className="w-full"
-                    />
-                  </div>
+                    {/* Interested to Connect (Checkbox) */}
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="interestedToConnect"
+                        checked={formData.interestedToConnect}
+                        onChange={(e) => setFormData({ ...formData, interestedToConnect: e.target.checked })}
+                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
+                      />
+                      <Label htmlFor="interestedToConnect" className="font-normal cursor-pointer">
+                        Interested to Connect
+                      </Label>
+                    </div>
 
-                  {/* Location */}
-                  <div className="space-y-2">
-                    <Label htmlFor="location">
-                      Location <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="location"
-                      type="text"
-                      required
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      placeholder="Enter your location"
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Interested to Connect (Checkbox) */}
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="interestedToConnect"
-                      checked={formData.interestedToConnect}
-                      onChange={(e) => setFormData({ ...formData, interestedToConnect: e.target.checked })}
-                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
-                    />
-                    <Label htmlFor="interestedToConnect" className="font-normal cursor-pointer">
-                      Interested to Connect
-                    </Label>
-                  </div>
-
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    disabled={formSubmitting}
-                    className="w-full bg-primary hover:bg-primary/90 text-white py-6 text-lg font-semibold"
-                  >
-                    {formSubmitting ? "Submitting..." : "Submit"}
-                  </Button>
-                </form>
-              )}
-            </CardContent>
-          </Card>
+                    {/* Submit Button */}
+                    <Button
+                      type="submit"
+                      disabled={formSubmitting}
+                      className="w-full bg-primary hover:bg-primary/90 text-white py-6 text-lg font-semibold"
+                    >
+                      {formSubmitting ? "Submitting..." : "Submit"}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 

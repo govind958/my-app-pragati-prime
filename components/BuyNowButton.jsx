@@ -25,7 +25,7 @@ const loadRazorpayScript = () => {
     })
   }
 
-  export default function BuyNowButton({ amount, userDetails }) {
+  export default function BuyNowButton({ amount, userDetails, planId }) {
     const [loading, setLoading] = useState(false)
     const [dialogOpen, setDialogOpen] = useState(false)
     const [dialogType, setDialogType] = useState("success") // "success" or "error"
@@ -72,6 +72,7 @@ const loadRazorpayScript = () => {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
+            plan_id: planId,
           })
   
           if (verification.error) {
