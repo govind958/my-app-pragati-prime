@@ -19,27 +19,30 @@ export default function About() {
     about_team_image_url: "",
     about_vision_image_url: ""
   });
+  const [bannerImage, setBannerImage] = useState("");
 
   useEffect(() => {
     const fetchAboutContent = async () => {
       try {
         const { data } = await supabase
           .from("site_settings")
-          .select("about_mission_paragraph1, about_mission_paragraph2, about_mission_paragraph3, about_vision_title, about_vision_description, about_team_image_url, about_vision_image_url")
+          .select("about_mission_paragraph1, about_mission_paragraph2, about_mission_paragraph3, about_vision_title, about_vision_description, about_team_image_url, about_vision_image_url, about_page_banner_image_url")
           .limit(1)
           .maybeSingle();
         
         if (data) {
-          setAboutContent({
-            about_mission_paragraph1: data.about_mission_paragraph1 || "",
-            about_mission_paragraph2: data.about_mission_paragraph2 || "",
-            about_mission_paragraph3: data.about_mission_paragraph3 || "",
-            about_vision_title: data.about_vision_title || "Vision for Rural Girls & Women",
-            about_vision_description: data.about_vision_description || "",
-            about_hero_image_url: data.about_hero_image_url || "",
-            about_team_image_url: data.about_team_image_url || "",
-            about_vision_image_url: data.about_vision_image_url || ""
-          });
+          const loadedContent = {
+            about_mission_paragraph1: data.about_mission_paragraph1 ?? "",
+            about_mission_paragraph2: data.about_mission_paragraph2 ?? "",
+            about_mission_paragraph3: data.about_mission_paragraph3 ?? "",
+            about_vision_title: data.about_vision_title ?? "Vision for Rural Girls & Women",
+            about_vision_description: data.about_vision_description ?? "",
+            about_team_image_url: data.about_team_image_url ?? "",
+            about_vision_image_url: data.about_vision_image_url ?? ""
+          };
+          
+          setAboutContent(loadedContent);
+          setBannerImage(data.about_page_banner_image_url ?? "");
         }
       } catch (error) {
         console.error("Error loading about content:", error);
@@ -62,7 +65,7 @@ export default function About() {
         {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/banner.png"
+            src={bannerImage || "/banner.png"}
             alt="About Pragati Prime"
             fill
             sizes="100vw"

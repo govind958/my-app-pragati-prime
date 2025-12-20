@@ -14,6 +14,7 @@ const supabase = createClient();
 export default function TeamPage() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bannerImage, setBannerImage] = useState("");
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -38,7 +39,24 @@ export default function TeamPage() {
       }
     };
 
+    const fetchBannerImage = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("team_page_banner_image_url")
+          .limit(1)
+          .maybeSingle();
+        
+        if (data?.team_page_banner_image_url) {
+          setBannerImage(data.team_page_banner_image_url);
+        }
+      } catch (error) {
+        console.error("Error loading team banner:", error);
+      }
+    };
+
     fetchTeamMembers();
+    fetchBannerImage();
   }, []);
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
@@ -53,7 +71,7 @@ export default function TeamPage() {
         {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/home.png"
+            src={bannerImage || "/home.png"}
             alt="Our Core Team"
             fill
             sizes="100vw"

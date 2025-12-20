@@ -39,6 +39,11 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
     about_team_image_url: "",
     about_vision_image_url: ""
   });
+  const [pageBanners, setPageBanners] = useState({
+    about_page_banner_image_url: "",
+    team_page_banner_image_url: "",
+    articles_page_banner_image_url: ""
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -84,6 +89,13 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
             about_vision_description: settingsResult.data.about_vision_description ?? "",
             about_team_image_url: settingsResult.data.about_team_image_url ?? "",
             about_vision_image_url: settingsResult.data.about_vision_image_url ?? ""
+          });
+          
+          // Load page banner images
+          setPageBanners({
+            about_page_banner_image_url: settingsResult.data.about_page_banner_image_url ?? "",
+            team_page_banner_image_url: settingsResult.data.team_page_banner_image_url ?? "",
+            articles_page_banner_image_url: settingsResult.data.articles_page_banner_image_url ?? ""
           });
         }
       }
@@ -143,7 +155,8 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       await supabase.from("site_settings").upsert({
         ...site,
         banner_images: bannerImages,
-        ...aboutContent
+        ...aboutContent,
+        ...pageBanners
       }, { onConflict: "id" });
       alert("Settings saved successfully!");
       loadSettings();
@@ -156,6 +169,78 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       alert("Failed to save settings.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handlePageBannerUpload(e, pageType) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, GIF, WebP)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('Image size must be less than 10MB');
+      return;
+    }
+
+    setUploadingAboutImage(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `page-banner-${pageType}-${Date.now()}.${fileExt}`;
+      const filePath = `page-banners/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("images")
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("Page banner upload failed:", uploadError);
+        let errorMessage = "Image upload failed. ";
+        
+        if (uploadError.message?.includes('Bucket not found')) {
+          errorMessage += "The 'images' bucket doesn't exist. Please create it in Supabase Storage first.";
+        } else if (uploadError.message?.includes('new row violates row-level security')) {
+          errorMessage += "Permission denied. Please run the storage policy migration in Supabase SQL Editor.";
+        } else {
+          errorMessage += uploadError.message || "Please try again.";
+        }
+        
+        alert(errorMessage);
+        setUploadingAboutImage(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("images")
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        if (pageType === "about") {
+          setPageBanners({ ...pageBanners, about_page_banner_image_url: urlData.publicUrl });
+        } else if (pageType === "team") {
+          setPageBanners({ ...pageBanners, team_page_banner_image_url: urlData.publicUrl });
+        } else if (pageType === "articles") {
+          setPageBanners({ ...pageBanners, articles_page_banner_image_url: urlData.publicUrl });
+        }
+        alert("Banner image uploaded successfully! Click 'Save Page Banner Images' to save.");
+      } else {
+        alert("Image uploaded but could not get public URL. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error uploading page banner:", error);
+      alert(`Failed to upload image: ${error.message || "Please try again."}`);
+    } finally {
+      setUploadingAboutImage(false);
+      e.target.value = '';
     }
   }
 
@@ -418,8 +503,14 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
           >
             About Page
           </button>
-        </div>
+          <button
+            onClick={() => setActiveTab("page-banners")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "page-banners" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            Page Banners
+          </button>
       </div>
+    </div>
 
       {/* General Tab */}
       {activeTab === "general" && (
@@ -950,6 +1041,167 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
           >
             {saving ? "Saving..." : "Save About Page Content"}
           </Button>
+        </div>
+      )}
+
+      {/* Page Banners Tab */}
+      {activeTab === "page-banners" && (
+        <div className="space-y-4 sm:space-y-6">
+          <Card>
+            <CardHeader className="px-3 sm:px-6">
+              <CardTitle className="text-base sm:text-lg">Page Banner Images</CardTitle>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+                Upload banner images for the hero sections of About Us, Team, and Articles pages.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6 px-3 sm:px-6 pt-4 sm:pt-6">
+              {/* About Us Page Banner */}
+              <div>
+                <Label className="text-sm sm:text-base">About Us Page Banner</Label>
+                <div className="mt-2 space-y-2">
+                  {pageBanners.about_page_banner_image_url && (
+                    <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
+                      <Image
+                        src={pageBanners.about_page_banner_image_url}
+                        alt="About Us Banner Preview"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handlePageBannerUpload(e, "about")}
+                        className="hidden"
+                        disabled={uploadingAboutImage}
+                        id="about-banner-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingAboutImage}
+                        className="flex items-center gap-2 w-full sm:w-auto text-sm"
+                        onClick={() => document.getElementById('about-banner-upload')?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        {uploadingAboutImage ? "Uploading..." : pageBanners.about_page_banner_image_url ? "Change Banner" : "Upload About Us Banner"}
+                      </Button>
+                    </label>
+                    <Input
+                      value={pageBanners.about_page_banner_image_url || ""}
+                      onChange={(e) => setPageBanners({ ...pageBanners, about_page_banner_image_url: e.target.value })}
+                      placeholder="Or enter image URL directly"
+                      className="w-full text-xs sm:text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Team Page Banner */}
+              <div>
+                <Label className="text-sm sm:text-base">Team Page Banner</Label>
+                <div className="mt-2 space-y-2">
+                  {pageBanners.team_page_banner_image_url && (
+                    <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
+                      <Image
+                        src={pageBanners.team_page_banner_image_url}
+                        alt="Team Page Banner Preview"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handlePageBannerUpload(e, "team")}
+                        className="hidden"
+                        disabled={uploadingAboutImage}
+                        id="team-banner-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingAboutImage}
+                        className="flex items-center gap-2 w-full sm:w-auto text-sm"
+                        onClick={() => document.getElementById('team-banner-upload')?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        {uploadingAboutImage ? "Uploading..." : pageBanners.team_page_banner_image_url ? "Change Banner" : "Upload Team Page Banner"}
+                      </Button>
+                    </label>
+                    <Input
+                      value={pageBanners.team_page_banner_image_url || ""}
+                      onChange={(e) => setPageBanners({ ...pageBanners, team_page_banner_image_url: e.target.value })}
+                      placeholder="Or enter image URL directly"
+                      className="w-full text-xs sm:text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Articles Page Banner */}
+              <div>
+                <Label className="text-sm sm:text-base">Articles Page Banner</Label>
+                <div className="mt-2 space-y-2">
+                  {pageBanners.articles_page_banner_image_url && (
+                    <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
+                      <Image
+                        src={pageBanners.articles_page_banner_image_url}
+                        alt="Articles Page Banner Preview"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handlePageBannerUpload(e, "articles")}
+                        className="hidden"
+                        disabled={uploadingAboutImage}
+                        id="articles-banner-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingAboutImage}
+                        className="flex items-center gap-2 w-full sm:w-auto text-sm"
+                        onClick={() => document.getElementById('articles-banner-upload')?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        {uploadingAboutImage ? "Uploading..." : pageBanners.articles_page_banner_image_url ? "Change Banner" : "Upload Articles Page Banner"}
+                      </Button>
+                    </label>
+                    <Input
+                      value={pageBanners.articles_page_banner_image_url || ""}
+                      onChange={(e) => setPageBanners({ ...pageBanners, articles_page_banner_image_url: e.target.value })}
+                      placeholder="Or enter image URL directly"
+                      className="w-full text-xs sm:text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                onClick={saveSiteSettings}
+                disabled={saving}
+                className="w-full sm:w-auto text-sm sm:text-base"
+              >
+                {saving ? "Saving..." : "Save Page Banner Images"}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

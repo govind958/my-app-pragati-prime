@@ -19,6 +19,7 @@ const supabase = createClient();
 export default function ArticlesPage() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true); // Start with loading=true
+  const [bannerImage, setBannerImage] = useState("");
 
   useEffect(() => {
     // Define an async function to fetch articles
@@ -39,8 +40,25 @@ export default function ArticlesPage() {
       setLoading(false);
     };
 
-    // Call the function
+    const fetchBannerImage = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("articles_page_banner_image_url")
+          .limit(1)
+          .maybeSingle();
+        
+        if (data?.articles_page_banner_image_url) {
+          setBannerImage(data.articles_page_banner_image_url);
+        }
+      } catch (error) {
+        console.error("Error loading articles banner:", error);
+      }
+    };
+
+    // Call the functions
     fetchArticles();
+    fetchBannerImage();
     
   }, []);
 
@@ -57,7 +75,7 @@ export default function ArticlesPage() {
         {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/banner.png"
+            src={bannerImage || "/banner.png"}
             alt="Articles & Updates"
             fill
             sizes="100vw"
