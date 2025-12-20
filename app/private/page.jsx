@@ -146,64 +146,67 @@ export default function MemberDashboard() {
   const loadArticles = useCallback(async () => {
     setLoading(true)
     try {
-      // Fetch published articles
-      // If user is premium, show only articles allowed for their plan; otherwise, filter out paid articles
-      let query = supabase
-        .from("articles")
-        .select("id, title, content, is_paid, published, created_at, image_url, required_plan_name")
-        .eq("published", true)
-        .order("created_at", { ascending: false })
+      // Fetch plan name first if premium (parallelize with articles query)
+      let planNamePromise = Promise.resolve(null)
+      if (isPremium && member?.plan_id) {
+        planNamePromise = supabase
+          .from("membership_plans")
+          .select("name")
+          .eq("id", member.plan_id)
+          .maybeSingle()
+          .then(({ data }) => data?.name || null)
+      }
 
-      const { data, error } = await query
+      // Fetch published articles in parallel
+      const [
+        { data, error },
+        planName
+      ] = await Promise.all([
+        supabase
+        .from("articles")
+          .select("id, title, content, is_paid, published, created_at, image_url, required_plan_name")
+        .eq("published", true)
+          .order("created_at", { ascending: false }),
+        planNamePromise
+      ])
 
       if (error) {
         console.error("Error fetching articles:", error)
-      } else {
-        let filteredArticles = data || []
-
-        // helper to check plan hierarchy
-        const canAccessForPlan = (memberPlan, requiredPlan) => {
-          if (!requiredPlan) return true // any paid member
-          if (!memberPlan) return false
-
-          const order = {
-            "Active Member": 1,
-            "Executive Member": 2,
-            "CSR Member": 3,
-          }
-
-          const memberLevel = order[memberPlan] || 0
-          const requiredLevel = order[requiredPlan] || 0
-
-          // higher or equal tier can see lower-tier content
-          return memberLevel >= requiredLevel
-        }
-
-        if (!isPremium) {
-          // Non‑paid members see only free articles
-          filteredArticles = filteredArticles.filter(article => !article.is_paid)
-        } else {
-          // Paid members: respect required_plan_name with hierarchy
-          let planName = null
-          if (member?.plan_id) {
-            const { data: planData, error: planError } = await supabase
-              .from("membership_plans")
-              .select("name")
-              .eq("id", member.plan_id)
-              .maybeSingle()
-
-            if (!planError) {
-              planName = planData?.name || null
-            }
-          }
-
-          filteredArticles = filteredArticles.filter(article => {
-            if (!article.is_paid) return true
-            return canAccessForPlan(planName, article.required_plan_name)
-          })
-        }
-        setArticles(filteredArticles)
+        setLoading(false)
+        return
       }
+
+      let filteredArticles = data || []
+
+      // helper to check plan hierarchy
+      const canAccessForPlan = (memberPlan, requiredPlan) => {
+        if (!requiredPlan) return true // any paid member
+        if (!memberPlan) return false
+
+        const order = {
+          "Active Member": 1,
+          "Executive Member": 2,
+          "CSR Member": 3,
+        }
+
+        const memberLevel = order[memberPlan] || 0
+        const requiredLevel = order[requiredPlan] || 0
+
+        // higher or equal tier can see lower-tier content
+        return memberLevel >= requiredLevel
+      }
+
+      if (!isPremium) {
+        // Non‑paid members see only free articles
+        filteredArticles = filteredArticles.filter(article => !article.is_paid)
+      } else {
+        // Paid members: respect required_plan_name with hierarchy
+        filteredArticles = filteredArticles.filter(article => {
+          if (!article.is_paid) return true
+          return canAccessForPlan(planName, article.required_plan_name)
+        })
+      }
+        setArticles(filteredArticles)
     } catch (error) {
       console.error("Error loading articles:", error)
     } finally {
@@ -228,29 +231,29 @@ export default function MemberDashboard() {
 
   const handleProfileUpdate = async (formData) => {
     // Do not toggle global `loading` here to avoid layout shifts in the dashboard.
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        name: formData.name,
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          name: formData.name,
         contact: formData.contact,
         address: formData.address || null,
         occupation: formData.occupation || null,
         description: formData.description || null,
-      })
-      .eq("id", user.id)
+        })
+        .eq("id", user.id)
 
-    if (error) throw error
+      if (error) throw error
 
     // Reload profile with extended fields
     const { data: profileData, error: reloadError } = await supabase
-      .from("profiles")
+        .from("profiles")
       .select("id, email, name, contact, role, profile_image_url, address, occupation, description")
-      .eq("id", user.id)
-      .single()
+        .eq("id", user.id)
+        .single()
 
     if (reloadError) throw reloadError
 
-    setProfile(profileData)
+      setProfile(profileData)
   }
 
   const renderSection = () => {
@@ -298,22 +301,22 @@ export default function MemberDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex relative flex-1 h-screen">
-        {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          ></div>
-        )}
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
 
-        {/* Sidebar */}
-        <aside
+      {/* Sidebar */}
+      <aside
           className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } flex flex-col h-screen`}
-        >
+      >
         <div className="p-4 overflow-y-auto flex-1 min-h-0">
-          <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <Image 
                 src="/logo1.jpeg" 
@@ -323,24 +326,24 @@ export default function MemberDashboard() {
                 className="rounded-full object-contain"
               />
               <h1 className="text-xl font-semibold text-primary">
-                Member Dashboard
-              </h1>
+            Member Dashboard
+          </h1>
             </div>
-            <Button
-              onClick={() => setSidebarOpen(false)}
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              aria-label="Close menu"
-            >
-              <X className="w-6 h-6" />
-            </Button>
-          </div>
+          <Button
+            onClick={() => setSidebarOpen(false)}
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            aria-label="Close menu"
+          >
+            <X className="w-6 h-6" />
+          </Button>
+        </div>
 
-          {/* User Info */}
-          <Card className="mb-4">
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3 mb-3">
+        {/* User Info */}
+        <Card className="mb-4">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3 mb-3">
                 {profile?.profile_image_url ? (
                   <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-primary">
                     <Image
@@ -351,58 +354,58 @@ export default function MemberDashboard() {
                     />
                   </div>
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                    {userInitials}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{userName}</p>
-                  <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
-                </div>
+              <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
+                {userInitials}
               </div>
-              <Badge variant={isPremium ? "default" : "secondary"} className="w-full justify-center">
-                {isPremium ? (
-                  <>
-                    <Crown className="mr-1 h-3 w-3" />
-                    Premium Member
-                  </>
-                ) : (
-                  "Free Member"
                 )}
-              </Badge>
-            </CardContent>
-          </Card>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{userName}</p>
+                <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+              </div>
+            </div>
+            <Badge variant={isPremium ? "default" : "secondary"} className="w-full justify-center">
+              {isPremium ? (
+                <>
+                  <Crown className="mr-1 h-3 w-3" />
+                  Premium Member
+                </>
+              ) : (
+                "Free Member"
+              )}
+            </Badge>
+          </CardContent>
+        </Card>
 
-          <nav className="space-y-2">
-            <NavButton
-              active={section === "dashboard"}
-              onClick={() => switchSection("dashboard")}
-              icon={LayoutDashboard}
-            >
-              Dashboard
-            </NavButton>
-            <NavButton
-              active={section === "articles"}
-              onClick={() => switchSection("articles")}
-              icon={BookOpen}
-            >
-              Articles
-            </NavButton>
-            <NavButton
-              active={section === "payment"}
-              onClick={() => switchSection("payment")}
-              icon={CreditCard}
-            >
-              Payment
-            </NavButton>
-            <NavButton
-              active={section === "profile"}
-              onClick={() => switchSection("profile")}
-              icon={User}
-            >
-              Profile
-            </NavButton>
-          </nav>
+        <nav className="space-y-2">
+          <NavButton
+            active={section === "dashboard"}
+            onClick={() => switchSection("dashboard")}
+            icon={LayoutDashboard}
+          >
+            Dashboard
+          </NavButton>
+          <NavButton
+            active={section === "articles"}
+            onClick={() => switchSection("articles")}
+            icon={BookOpen}
+          >
+            Articles
+          </NavButton>
+          <NavButton
+            active={section === "payment"}
+            onClick={() => switchSection("payment")}
+            icon={CreditCard}
+          >
+            Payment
+          </NavButton>
+          <NavButton
+            active={section === "profile"}
+            onClick={() => switchSection("profile")}
+            icon={User}
+          >
+            Profile
+          </NavButton>
+        </nav>
         </div>
 
         <div className="p-4 pt-4 border-t mt-auto shrink-0">
@@ -804,7 +807,7 @@ function PaymentSection({ profile, user, member, isPremium }) {
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-2 border-transparent border-t-orange-500 mx-auto" />
             <p className="mt-3 text-sm text-gray-600">Loading plans...</p>
-          </div>
+            </div>
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-6">
@@ -818,30 +821,30 @@ function PaymentSection({ profile, user, member, isPremium }) {
                 key={plan.id}
                 className={isPopular ? "border-primary shadow-lg" : ""}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
                       <CardTitle className="text-2xl">{plan.name}</CardTitle>
                       <CardDescription>
                         {plan.name === "Active Member" && "Best for individuals starting their journey"}
                         {plan.name === "Executive Member" && "For engaged supporters and leaders"}
                         {plan.name === "CSR Member" && "Ideal for corporate & institutional partners"}
                       </CardDescription>
-                    </div>
+              </div>
                     {isPopular && !isPremium && (
                       <Badge className="bg-primary">Popular</Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
                     <span className="text-4xl font-bold">₹{plan.price}</span>
                     <span className="text-muted-foreground">
                       {" "}
                       / {plan.billing_cycle || "year"}
                     </span>
-                  </div>
-                  <ul className="space-y-3 text-sm">
+            </div>
+            <ul className="space-y-3 text-sm">
                     {features.map((feature) => (
                       <li key={feature} className="flex items-start">
                         <svg
@@ -854,29 +857,29 @@ function PaymentSection({ profile, user, member, isPremium }) {
                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                             clipRule="evenodd"
                           />
-                        </svg>
+                </svg>
                         {feature}
-                      </li>
+              </li>
                     ))}
-                  </ul>
+            </ul>
 
                   {isCurrent ? (
-                    <Button variant="outline" className="w-full" disabled>
-                      <Crown className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full" disabled>
+                <Crown className="mr-2 h-4 w-4" />
                       Current Member
-                    </Button>
-                  ) : (
-                    <BuyNowButton
+              </Button>
+            ) : (
+              <BuyNowButton
                       amount={Number(plan.price)}
-                      userDetails={userDetails}
+                userDetails={userDetails}
                       planId={plan.id}
-                    />
-                  )}
-                </CardContent>
-              </Card>
+              />
+            )}
+          </CardContent>
+        </Card>
             )
           })}
-        </div>
+      </div>
       )}
     </div>
   )
@@ -1037,40 +1040,40 @@ function ProfileSection({ profile, user, onUpdate, supabase }) {
 
             {/* Main details in responsive grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={user?.email || ""}
-                  disabled
-                  className="mt-1 bg-muted"
-                />
-                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
-              </div>
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={user?.email || ""}
+                disabled
+                className="mt-1 bg-muted"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+            </div>
 
-              <div>
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="mt-1"
-                  placeholder="Enter your full name"
-                />
-              </div>
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                className="mt-1"
+                placeholder="Enter your full name"
+              />
+            </div>
 
-              <div>
+            <div>
                 <Label htmlFor="contact">Phone Number</Label>
-                <Input
-                  id="contact"
-                  type="tel"
-                  value={formData.contact}
-                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  required
-                  className="mt-1"
+              <Input
+                id="contact"
+                type="tel"
+                value={formData.contact}
+                onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                required
+                className="mt-1"
                   placeholder="Enter your phone number"
                 />
               </div>
@@ -1096,7 +1099,7 @@ function ProfileSection({ profile, user, onUpdate, supabase }) {
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   className="mt-1"
                   placeholder="Enter your full address"
-                />
+              />
               </div>
             </div>
 

@@ -58,7 +58,7 @@ export default function AdminPanel() {
         { count: contactCount },
       ] =
         await Promise.all([
-          supabase.from("profiles").select("id, email, role, created_at, name"),
+          supabase.from("profiles").select("id, email, role, created_at, name, contact"),
           // Ensure 'published' is included for consistency
           supabase
             .from("articles")
@@ -66,7 +66,7 @@ export default function AdminPanel() {
           supabase
             .from("payments")
             .select("id, amount, profile_id, status, created_at, profiles(name, email)"),
-          supabase
+            supabase
             .from("members")
             .select("id, profile_id, membership_type, created_at"),
           supabase
@@ -96,7 +96,7 @@ export default function AdminPanel() {
     try {
       const { data } = await supabase
         .from("profiles")
-        .select("id, email, name, role, created_at");
+        .select("id, email, name, role, created_at, contact");
       setMembers(data || []);
     } catch (err) {
       console.error("loadMembers Error:", err);
@@ -222,7 +222,7 @@ export default function AdminPanel() {
       case "plans":
         return <PlansTable supabase={supabase} />;
       case "forms":
-        return <ContactFormsTable forms={contactForms} refresh={loadContactForms} />;
+        return <ContactFormsTable forms={contactForms} refresh={loadContactForms} supabase={supabase} />;
       case "team":
         return (
           <TeamManager team={team} refresh={loadTeam} supabase={supabase} />

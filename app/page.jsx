@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button1";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Footer from "@/components/Footer";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import("@/components/Footer"), {
+  ssr: true,
+});
 import { createClient } from "@/utils/supabase/client";
 import { stripHTML } from "@/lib/htmlUtils";
 
@@ -43,21 +48,19 @@ export default function Home() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  
-  // Banner images array
-  const bannerImages = [
+  const [bannerImages, setBannerImages] = useState([
     "/banner-1.png",
     "/banner-2.png",
     "/banner-3.png",
     "/banner-4.png"
-  ];
+  ]);
 
   useEffect(() => {
     const fetchHomeContent = async () => {
       try {
         const { data } = await supabase
           .from("site_settings")
-          .select("hero_title_line1, hero_title_line2, mission_statement, tagline")
+          .select("hero_title_line1, hero_title_line2, mission_statement, tagline, banner_images")
           .limit(1)
           .maybeSingle();
         
@@ -68,6 +71,11 @@ export default function Home() {
             missionStatement: data.mission_statement || "Healthy, Educated, and Empowered Girls Build a Stronger Nation.",
             tagline: data.tagline || "Swasth, Shikshit aur Samarth Meri Beti."
           });
+          
+          // Load banner images from database
+          if (data.banner_images && Array.isArray(data.banner_images) && data.banner_images.length > 0) {
+            setBannerImages(data.banner_images);
+          }
         }
       } catch (error) {
         console.error("Error loading home content:", error);
@@ -75,45 +83,71 @@ export default function Home() {
     };
 
     fetchHomeContent();
-  }, []);
+  }, []); // Empty deps - only run once on mount
 
   useEffect(() => {
+    let cancelled = false;
+    
     const fetchArticles = async () => {
       setLoadingArticles(true);
       
-      const { data, error } = await supabase
-        .from("articles")
-        .select("id, title, content, is_paid, created_at, image_url")
-        .eq("published", true)
-        .order("created_at", { ascending: false })
-        .limit(3); // Show only 3 articles on home page
+      try {
+        const { data, error } = await supabase
+          .from("articles")
+          .select("id, title, content, is_paid, created_at, image_url")
+          .eq("published", true)
+          .order("created_at", { ascending: false })
+          .limit(3); // Show only 3 articles on home page
 
-      if (error) {
-        console.error("Error fetching articles:", error.message);
-      } else {
-        setArticles(data || []);
+        if (error) {
+          console.error("Error fetching articles:", error.message);
+        } else if (!cancelled) {
+          setArticles(data || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Error fetching articles:", err);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingArticles(false);
+        }
       }
-      setLoadingArticles(false);
     };
 
     fetchArticles();
+    
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  // Navigation functions
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
+  }, [bannerImages.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + bannerImages.length) % bannerImages.length);
+  }, [bannerImages.length]);
 
   // Auto-advance banner slider
   useEffect(() => {
+    if (bannerImages.length === 0) return;
+    
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
+      nextSlide();
     }, 5000); // Change slide every 5 seconds
 
     return () => clearInterval(interval);
-  }, [bannerImages.length]);
+  }, [bannerImages.length, nextSlide]);
 
-  // Helper function to get description from content
-  const getDescription = (content) => {
+  // Memoized helper function to get description from content
+  const getDescription = useCallback((content) => {
     if (!content) return 'No description available.';
     const text = stripHTML(content);
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
-  };
+  }, []);
 
   // Contact form handler
   const handleContactSubmit = async (e) => {
@@ -185,12 +219,34 @@ export default function Home() {
           sizes="100vw"
           className="object-cover"
           priority={index === 0}
+          loading={index === 0 ? "eager" : "lazy"}
+          quality={index === 0 ? 90 : 75}
         />
       </div>
     ))}
     {/* Dark overlay for text contrast */}
     <div className="absolute inset-0 bg-zinc-950/70 dark:bg-black/70 z-20" />
   </div>
+  
+  {/* Navigation Arrows */}
+  {bannerImages.length > 1 && (
+    <>
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-2 md:p-3 transition-all duration-300 hover:scale-110 group"
+        aria-label="Previous slide"
+      >
+        <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white group-hover:text-primary transition-colors" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-2 md:p-3 transition-all duration-300 hover:scale-110 group"
+        aria-label="Next slide"
+      >
+        <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-white group-hover:text-primary transition-colors" />
+      </button>
+    </>
+  )}
   
   {/* Slider Navigation Dots */}
   <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
@@ -666,7 +722,10 @@ export default function Home() {
                           src={article.image_url}
                           alt={article.title}
                           fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           className="object-cover"
+                          loading="lazy"
+                          quality={80}
                         />
                       </div>
                     )}
@@ -761,6 +820,8 @@ export default function Home() {
                   fill
                   className="object-contain rounded-2xl"
                   sizes="(min-width: 1024px) 50vw, 100vw"
+                  loading="lazy"
+                  quality={85}
                 />
               </div>
             </div>

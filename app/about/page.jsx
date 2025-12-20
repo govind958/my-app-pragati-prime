@@ -1,12 +1,53 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import Footer from "@/components/Footer";
 import AuthActionButton from "@/components/ui/AuthActionButton";
+import { createClient } from "@/utils/supabase/client";
 
+const supabase = createClient();
 
 export default function About() {
+  const [aboutContent, setAboutContent] = useState({
+    about_mission_paragraph1: "",
+    about_mission_paragraph2: "",
+    about_mission_paragraph3: "",
+    about_vision_title: "Vision for Rural Girls & Women",
+    about_vision_description: "",
+    about_team_image_url: "",
+    about_vision_image_url: ""
+  });
+
+  useEffect(() => {
+    const fetchAboutContent = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("about_mission_paragraph1, about_mission_paragraph2, about_mission_paragraph3, about_vision_title, about_vision_description, about_team_image_url, about_vision_image_url")
+          .limit(1)
+          .maybeSingle();
+        
+        if (data) {
+          setAboutContent({
+            about_mission_paragraph1: data.about_mission_paragraph1 || "",
+            about_mission_paragraph2: data.about_mission_paragraph2 || "",
+            about_mission_paragraph3: data.about_mission_paragraph3 || "",
+            about_vision_title: data.about_vision_title || "Vision for Rural Girls & Women",
+            about_vision_description: data.about_vision_description || "",
+            about_hero_image_url: data.about_hero_image_url || "",
+            about_team_image_url: data.about_team_image_url || "",
+            about_vision_image_url: data.about_vision_image_url || ""
+          });
+        }
+      } catch (error) {
+        console.error("Error loading about content:", error);
+      }
+    };
+
+    fetchAboutContent();
+  }, []);
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
 
@@ -86,7 +127,7 @@ export default function About() {
             </div>
             <div className="relative h-64 sm:h-80 md:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
               <Image
-                src="/team_image.png"
+                src={aboutContent.about_team_image_url || "/team_image.png"}
                 alt="Pragati Prime Team"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -139,18 +180,28 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-8 sm:gap-12">
             <div className="space-y-5 text-base sm:text-lg text-zinc-600 dark:text-zinc-300">
-              <p>
-                Pragati Prime is committed to empowering rural women and adolescent girls in Western Uttar
-                Pradesh and Delhi NCR through health, education, and economic independence.
-              </p>
-              <p>
-                We bridge the gap between communities and government schemes, ensuring women can easily access
-                healthcare services, social security benefits, and livelihood opportunities.
-              </p>
-              <p>
-                By partnering with local leaders, institutions, and CSR initiatives, we design programs that
-                are practical, culturally rooted, and focused on long-term impact.
-              </p>
+              {aboutContent.about_mission_paragraph1 ? (
+                <>
+                  {aboutContent.about_mission_paragraph1 && <p>{aboutContent.about_mission_paragraph1}</p>}
+                  {aboutContent.about_mission_paragraph2 && <p>{aboutContent.about_mission_paragraph2}</p>}
+                  {aboutContent.about_mission_paragraph3 && <p>{aboutContent.about_mission_paragraph3}</p>}
+                </>
+              ) : (
+                <>
+                  <p>
+                    Pragati Prime is committed to empowering rural women and adolescent girls in Western Uttar
+                    Pradesh and Delhi NCR through health, education, and economic independence.
+                  </p>
+                  <p>
+                    We bridge the gap between communities and government schemes, ensuring women can easily access
+                    healthcare services, social security benefits, and livelihood opportunities.
+                  </p>
+                  <p>
+                    By partnering with local leaders, institutions, and CSR initiatives, we design programs that
+                    are practical, culturally rooted, and focused on long-term impact.
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="rounded-2xl bg-primary/5 dark:bg-primary/10 border border-primary/30 p-6 sm:p-8 space-y-4">
@@ -197,11 +248,17 @@ export default function About() {
             <div className="space-y-6">
               <div className="rounded-2xl bg-white dark:bg-zinc-950 p-6 sm:p-8 shadow-lg border border-primary/20">
                 <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Vision for Rural Girls & Women
+                  {aboutContent.about_vision_title}
                 </h3>
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
-                  A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice.
-                </p>
+                {aboutContent.about_vision_description ? (
+                  <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
+                    {aboutContent.about_vision_description}
+                  </p>
+                ) : (
+                  <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
+                    A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice.
+                  </p>
+                )}
                 <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 dark:bg-primary/5">
                   <p className="font-semibold italic text-zinc-900 dark:text-zinc-100 text-lg">
                     &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo;
@@ -273,7 +330,7 @@ export default function About() {
 
             <div className="relative h-64 sm:h-80 md:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shadow-lg">
               <Image
-                src="/ai-imag.png"
+                src={aboutContent.about_vision_image_url || "/ai-imag.png"}
                 alt="Vision for Rural Girls & Women"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"

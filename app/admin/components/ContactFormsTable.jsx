@@ -2,8 +2,38 @@
 
 import { CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button1";
 
-export default function ContactFormsTable({ forms = [] }) {
+export default function ContactFormsTable({ forms = [], refresh, supabase }) {
+  async function deleteForm(form) {
+    if (
+      !confirm(
+        `Are you sure you want to delete the contact form submission from ${form.name}? This action cannot be undone.`
+      )
+    )
+      return;
+
+    try {
+      const { error } = await supabase
+        .from("contact_us")
+        .delete()
+        .eq("id", form.id);
+
+      if (error) {
+        console.error("Error deleting form:", error);
+        alert("Failed to delete form. Check RLS policies.");
+        return;
+      }
+
+      alert("Form deleted successfully!");
+      if (refresh) {
+        refresh();
+      }
+    } catch (error) {
+      console.error("Error deleting form:", error);
+      alert("Failed to delete form. Please try again.");
+    }
+  }
   return (
     <div>
       <CardTitle className="text-lg mb-4">
@@ -28,6 +58,9 @@ export default function ContactFormsTable({ forms = [] }) {
                 </th>
                 <th className="p-2 md:p-3 font-medium text-gray-600 hidden md:table-cell">
                   Date
+                </th>
+                <th className="p-2 md:p-3 font-medium text-gray-600 text-right">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -74,6 +107,16 @@ export default function ContactFormsTable({ forms = [] }) {
                   </td>
                   <td className="p-2 md:p-3 hidden md:table-cell text-gray-500">
                     {new Date(f.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="p-2 md:p-3 text-right whitespace-nowrap">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteForm(f)}
+                      className="text-xs sm:text-sm"
+                    >
+                      Delete
+                    </Button>
                   </td>
                 </tr>
               ))}

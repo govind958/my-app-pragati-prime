@@ -1,58 +1,45 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button1";
 import Footer from "@/components/Footer";
 import AuthActionButton from "@/components/ui/AuthActionButton";
+import { createClient } from "@/utils/supabase/client";
 
-const TEAM_MEMBERS = [
-  {
-    name: "Aarav Sharma",
-    role: "Founder & President",
-    bio: "Leads mission strategy and CSR alliances that fund rural women’s health, education, and livelihood cohorts.",
-    image: "/logo1.jpeg",
-    links: { linkedin: "#" },
-  },
-  {
-    name: "Neha Verma",
-    role: "Program Director",
-    bio: "Designs end-to-end interventions that link village girls to scholarships, health camps, and micro-enterprise training.",
-    image: "/logo1.jpeg",
-    links: { linkedin: "#" },
-  },
-  {
-    name: "Rahul Mehta",
-    role: "Head of Community Development",
-    bio: "Mobilizes self-help groups and grievance cells across Western UP to secure government schemes for families.",
-    image: "/logo1.jpeg",
-    links: { linkedin: "#" },
-  },
-  {
-    name: "Priya Iyer",
-    role: "Women Empowerment Lead",
-    bio: "Anchors entrepreneurship bootcamps, peer mentorship, and micro-loan pipelines for first-generation women earners.",
-    image: "/logo1.jpeg",
-    links: { linkedin: "#" },
-  },
-  {
-    name: "Vikram Singh",
-    role: "Health Initiatives Manager",
-    bio: "Runs mobile health units, menstrual health drives, and anemia screening campaigns in high-need blocks.",
-    image: "/logo1.jpeg",
-    links: { linkedin: "#" },
-  },
-  {
-    name: "Ananya Gupta",
-    role: "Monitoring & Evaluation",
-    bio: "Builds data systems that track girls’ retention, income gains, and grievance resolutions for accountability.",
-    image: "/logo1.jpeg",
-    links: { linkedin: "#" },
-  },
-];
+const supabase = createClient();
 
 export default function TeamPage() {
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("core_team")
+          .select("*")
+          .order("created_at", { ascending: true });
+
+        if (error) {
+          console.error("Error loading team members:", error);
+          // Fallback to empty array if error
+          setTeamMembers([]);
+        } else {
+          setTeamMembers(data || []);
+        }
+      } catch (error) {
+        console.error("Error loading team members:", error);
+        setTeamMembers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamMembers();
+  }, []);
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
       {/* Hero */}
@@ -107,12 +94,22 @@ export default function TeamPage() {
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
           </h2>
 
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : teamMembers.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {TEAM_MEMBERS.map((member) => (
-              <Card key={member.name} className="rounded-2xl overflow-hidden shadow-lg">
+              {teamMembers.map((member) => {
+                const links = typeof member.links === "string" 
+                  ? JSON.parse(member.links || "{}") 
+                  : (member.links || {});
+                
+                return (
+                  <Card key={member.id} className="rounded-2xl overflow-hidden shadow-lg">
                 <div className="relative h-56 w-full bg-zinc-100 dark:bg-zinc-800">
                   <Image
-                    src={member.image}
+                        src={member.image || "/logo1.jpeg"}
                     alt={member.name}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
@@ -121,16 +118,22 @@ export default function TeamPage() {
                 </div>
                 <CardHeader>
                   <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{member.name}</h3>
+                      {member.role && (
                   <p className="text-sm text-primary font-medium">{member.role}</p>
+                      )}
                 </CardHeader>
                 <CardContent>
+                      {member.bio && (
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">{member.bio}</p>
+                      )}
                   <div className="mt-4 flex items-center gap-4">
-                    {member.links?.linkedin && (
+                        {links?.linkedin && (
                       <Link
-                        href={member.links.linkedin}
+                            href={links.linkedin}
                         aria-label={`LinkedIn of ${member.name}`}
                         className="text-muted-foreground hover:text-primary transition-colors"
+                            target="_blank"
+                            rel="noopener noreferrer"
                       >
                         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                           <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.784 1.764-1.75 1.764zm13.5 11.268h-3v-5.604c0-1.337-.026-3.06-1.865-3.06-1.868 0-2.154 1.459-2.154 2.968v5.696h-3v-10h2.881v1.367h.041c.401-.762 1.379-1.565 2.839-1.565 3.036 0 3.6 2.001 3.6 4.604v5.594z" />
@@ -140,8 +143,14 @@ export default function TeamPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-zinc-600 dark:text-zinc-400">No team members found. Check back soon!</p>
           </div>
+          )}
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button1";
 import { Input } from "@/components/ui/input";
@@ -28,9 +29,21 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
   });
   const [footerLinks, setFooterLinks] = useState([]);
   const [socialIcons, setSocialIcons] = useState([]);
+  const [bannerImages, setBannerImages] = useState([]);
+  const [aboutContent, setAboutContent] = useState({
+    about_mission_paragraph1: "",
+    about_mission_paragraph2: "",
+    about_mission_paragraph3: "",
+    about_vision_title: "Vision for Rural Girls & Women",
+    about_vision_description: "",
+    about_team_image_url: "",
+    about_vision_image_url: ""
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingAboutImage, setUploadingAboutImage] = useState(false);
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
@@ -57,6 +70,22 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
           footer_address: settingsResult.data.footer_address || "",
           footer_copyright: settingsResult.data.footer_copyright || "© 2025 Pragati Prime. All rights reserved."
         });
+        // Load banner images
+        const banners = settingsResult.data.banner_images || [];
+        setBannerImages(Array.isArray(banners) ? banners : []);
+        
+        // Load about page content
+        if (settingsResult.data) {
+          setAboutContent({
+            about_mission_paragraph1: settingsResult.data.about_mission_paragraph1 ?? "",
+            about_mission_paragraph2: settingsResult.data.about_mission_paragraph2 ?? "",
+            about_mission_paragraph3: settingsResult.data.about_mission_paragraph3 ?? "",
+            about_vision_title: settingsResult.data.about_vision_title ?? "Vision for Rural Girls & Women",
+            about_vision_description: settingsResult.data.about_vision_description ?? "",
+            about_team_image_url: settingsResult.data.about_team_image_url ?? "",
+            about_vision_image_url: settingsResult.data.about_vision_image_url ?? ""
+          });
+        }
       }
       setFooterLinks(linksResult.data || []);
       setSocialIcons(iconsResult.data || []);
@@ -111,7 +140,11 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
   async function saveSiteSettings() {
     setSaving(true);
     try {
-      await supabase.from("site_settings").upsert(site, { onConflict: "id" });
+      await supabase.from("site_settings").upsert({
+        ...site,
+        banner_images: bannerImages,
+        ...aboutContent
+      }, { onConflict: "id" });
       alert("Settings saved successfully!");
       loadSettings();
       // Notify parent component to refresh site settings (for logo/title update)
@@ -123,6 +156,161 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       alert("Failed to save settings.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleAboutImageUpload(e, imageType) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, GIF, WebP)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('Image size must be less than 10MB');
+      return;
+    }
+
+    setUploadingAboutImage(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `about-${imageType}-${Date.now()}.${fileExt}`;
+      const filePath = `about/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("images")
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("About image upload failed:", uploadError);
+        let errorMessage = "Image upload failed. ";
+        
+        if (uploadError.message?.includes('Bucket not found')) {
+          errorMessage += "The 'images' bucket doesn't exist. Please create it in Supabase Storage first.";
+        } else if (uploadError.message?.includes('new row violates row-level security')) {
+          errorMessage += "Permission denied. Please run the storage policy migration in Supabase SQL Editor.";
+        } else if (uploadError.message?.includes('duplicate')) {
+          errorMessage += "An image with this name already exists. Please try again.";
+        } else {
+          errorMessage += uploadError.message || "Please try again.";
+        }
+        
+        alert(errorMessage);
+        setUploadingAboutImage(false);
+        return;
+      }
+
+      // Get the public URL of the uploaded file
+      const { data: urlData } = supabase.storage
+        .from("images")
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        if (imageType === "team") {
+          setAboutContent({ ...aboutContent, about_team_image_url: urlData.publicUrl });
+        } else if (imageType === "vision") {
+          setAboutContent({ ...aboutContent, about_vision_image_url: urlData.publicUrl });
+        }
+        alert("Image uploaded successfully! Click 'Save About Page Content' to save.");
+      } else {
+        alert("Image uploaded but could not get public URL. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error uploading about image:", error);
+      alert(`Failed to upload image: ${error.message || "Please try again."}`);
+    } finally {
+      setUploadingAboutImage(false);
+      // Reset the file input so the same file can be selected again if needed
+      e.target.value = '';
+    }
+  }
+
+  async function handleBannerUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, GIF, WebP)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('Image size must be less than 10MB');
+      return;
+    }
+
+    setUploadingBanner(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `banner-${Date.now()}.${fileExt}`;
+      const filePath = `banners/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("images")
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("Banner upload failed:", uploadError);
+        let errorMessage = "Banner upload failed. ";
+        
+        if (uploadError.message?.includes('Bucket not found')) {
+          errorMessage += "The 'images' bucket doesn't exist. Please create it in Supabase Storage first.";
+        } else if (uploadError.message?.includes('new row violates row-level security')) {
+          errorMessage += "Permission denied. Please run the storage policy migration in Supabase SQL Editor.";
+        } else {
+          errorMessage += uploadError.message || "Please try again.";
+        }
+        
+        alert(errorMessage);
+        setUploadingBanner(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("images")
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        setBannerImages([...bannerImages, urlData.publicUrl]);
+        alert("Banner uploaded successfully! Click 'Save Home Page Content' to save.");
+      } else {
+        alert("Banner uploaded but could not get public URL. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      alert(`Failed to upload banner: ${error.message || "Please try again."}`);
+    } finally {
+      setUploadingBanner(false);
+    }
+  }
+
+  function removeBannerImage(index) {
+    if (confirm("Are you sure you want to remove this banner image?")) {
+      const newBanners = bannerImages.filter((_, i) => i !== index);
+      setBannerImages(newBanners);
+    }
+  }
+
+  function moveBannerImage(index, direction) {
+    const newBanners = [...bannerImages];
+    const newIndex = index + direction;
+    if (newIndex >= 0 && newIndex < newBanners.length) {
+      [newBanners[index], newBanners[newIndex]] = [newBanners[newIndex], newBanners[index]];
+      setBannerImages(newBanners);
     }
   }
 
@@ -188,49 +376,57 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
     );
 
   return (
-    <div className="space-y-6">
-      <CardTitle className="text-lg mb-4">Site Content Management</CardTitle>
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <CardTitle className="text-base sm:text-lg mb-3 sm:mb-4">Site Content Management</CardTitle>
       
-      {/* Tabs */}
-      <div className="flex gap-2 border-b">
-        <button
-          onClick={() => setActiveTab("general")}
-          className={`px-4 py-2 font-medium ${activeTab === "general" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-        >
-          General
-        </button>
-        <button
-          onClick={() => setActiveTab("home")}
-          className={`px-4 py-2 font-medium ${activeTab === "home" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-        >
-          Home Page
-        </button>
-        <button
-          onClick={() => setActiveTab("footer")}
-          className={`px-4 py-2 font-medium ${activeTab === "footer" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-        >
-          Footer
-        </button>
-        <button
-          onClick={() => setActiveTab("footer-links")}
-          className={`px-4 py-2 font-medium ${activeTab === "footer-links" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-        >
-          Footer Links
-        </button>
-        <button
-          onClick={() => setActiveTab("social-media")}
-          className={`px-4 py-2 font-medium ${activeTab === "social-media" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-        >
-          Social Media
-        </button>
+      {/* Tabs - Scrollable on mobile */}
+      <div className="overflow-x-auto -mx-2 sm:mx-0">
+        <div className="flex gap-1 sm:gap-2 border-b min-w-max sm:min-w-0 px-2 sm:px-0">
+          <button
+            onClick={() => setActiveTab("general")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "general" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            General
+          </button>
+          <button
+            onClick={() => setActiveTab("home")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "home" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            Home Page
+          </button>
+          <button
+            onClick={() => setActiveTab("footer")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "footer" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            Footer
+          </button>
+          <button
+            onClick={() => setActiveTab("footer-links")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "footer-links" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            Footer Links
+          </button>
+          <button
+            onClick={() => setActiveTab("social-media")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "social-media" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            Social Media
+          </button>
+          <button
+            onClick={() => setActiveTab("about")}
+            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "about" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+          >
+            About Page
+          </button>
+        </div>
       </div>
 
       {/* General Tab */}
       {activeTab === "general" && (
         <Card>
-          <CardContent className="pt-6 space-y-4">
+          <CardContent className="pt-4 sm:pt-6 space-y-4 px-3 sm:px-6">
             <div>
-              <Label htmlFor="site-title">Organization Name (appears after logo in navbar)</Label>
+              <Label htmlFor="site-title" className="text-sm sm:text-base">Organization Name (appears after logo in navbar)</Label>
               <Input
                 id="site-title"
                 value={site.title}
@@ -292,47 +488,132 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* Home Page Tab */}
       {activeTab === "home" && (
         <Card>
-          <CardContent className="pt-6 space-y-4">
+          <CardContent className="pt-4 sm:pt-6 space-y-4 px-3 sm:px-6">
             <div>
-              <Label htmlFor="hero-line1">Hero Title Line 1</Label>
+              <Label htmlFor="hero-line1" className="text-sm sm:text-base">Hero Title Line 1</Label>
               <Input
                 id="hero-line1"
                 value={site.hero_title_line1 || ""}
                 onChange={(e) => setSite({ ...site, hero_title_line1: e.target.value })}
                 type="text"
-                className="mt-1"
+                className="mt-1 text-sm sm:text-base"
               />
             </div>
             <div>
-              <Label htmlFor="hero-line2">Hero Title Line 2</Label>
+              <Label htmlFor="hero-line2" className="text-sm sm:text-base">Hero Title Line 2</Label>
               <Input
                 id="hero-line2"
                 value={site.hero_title_line2 || ""}
                 onChange={(e) => setSite({ ...site, hero_title_line2: e.target.value })}
                 type="text"
-                className="mt-1"
+                className="mt-1 text-sm sm:text-base"
               />
             </div>
             <div>
-              <Label htmlFor="mission">Mission Statement</Label>
+              <Label htmlFor="mission" className="text-sm sm:text-base">Mission Statement</Label>
               <textarea
                 id="mission"
                 value={site.mission_statement || ""}
                 onChange={(e) => setSite({ ...site, mission_statement: e.target.value })}
                 rows={3}
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="tagline">Tagline</Label>
+              <Label htmlFor="tagline" className="text-sm sm:text-base">Tagline</Label>
               <Input
                 id="tagline"
                 value={site.tagline || ""}
                 onChange={(e) => setSite({ ...site, tagline: e.target.value })}
                 type="text"
-                className="mt-1"
+                className="mt-1 text-sm sm:text-base"
               />
             </div>
+
+            {/* Banner Images Section */}
+            <div className="border-t pt-4 sm:pt-6 mt-4 sm:mt-6">
+              <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">Banner Images</Label>
+              <p className="text-xs text-muted-foreground mb-3 sm:mb-4">
+                Upload banner images for the hero section slider. Images will be displayed in the order shown below.
+              </p>
+              
+              <div className="mb-3 sm:mb-4">
+                <input
+                  type="file"
+                  id="banner-upload"
+                  accept="image/*"
+                  onChange={handleBannerUpload}
+                  disabled={uploadingBanner}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploadingBanner}
+                  className="w-full sm:w-auto text-sm"
+                  onClick={() => document.getElementById('banner-upload')?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploadingBanner ? "Uploading..." : "Add Banner Image"}
+                </Button>
+              </div>
+
+              {bannerImages.length > 0 && (
+                <div className="space-y-2 sm:space-y-3 mt-3 sm:mt-4">
+                  {bannerImages.map((banner, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg">
+                      <div className="relative w-full sm:w-20 h-32 sm:h-12 rounded overflow-hidden">
+                        <Image 
+                          src={banner} 
+                          alt={`Banner ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, 80px"
+                        />
+                      </div>
+                      <div className="flex-1 w-full sm:w-auto min-w-0">
+                        <p className="text-xs sm:text-sm font-medium">Banner {index + 1}</p>
+                        <p className="text-xs text-gray-500 truncate">{banner}</p>
+                      </div>
+                      <div className="flex gap-1 sm:gap-2 w-full sm:w-auto">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => moveBannerImage(index, -1)}
+                          disabled={index === 0}
+                          className="flex-1 sm:flex-none text-xs"
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => moveBannerImage(index, 1)}
+                          disabled={index === bannerImages.length - 1}
+                        >
+                          ↓
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeBannerImage(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {bannerImages.length === 0 && (
+                <p className="text-sm text-gray-500 italic">No banner images uploaded. Default images will be used.</p>
+              )}
+            </div>
+
             <Button
               onClick={saveSiteSettings}
               disabled={saving}
@@ -347,64 +628,64 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* Footer Tab */}
       {activeTab === "footer" && (
         <Card>
-          <CardHeader>
-            <CardTitle>Footer Text Content</CardTitle>
+          <CardHeader className="px-3 sm:px-6">
+            <CardTitle className="text-base sm:text-lg">Footer Text Content</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-3 sm:px-6 pt-4 sm:pt-6">
             <div>
-              <Label htmlFor="footer-desc">Footer Description</Label>
+              <Label htmlFor="footer-desc" className="text-sm sm:text-base">Footer Description</Label>
               <textarea
                 id="footer-desc"
                 value={site.footer_description || ""}
                 onChange={(e) => setSite({ ...site, footer_description: e.target.value })}
                 rows={3}
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="footer-email">Footer Email</Label>
+              <Label htmlFor="footer-email" className="text-sm sm:text-base">Footer Email</Label>
               <Input
                 id="footer-email"
                 value={site.footer_email || ""}
                 onChange={(e) => setSite({ ...site, footer_email: e.target.value })}
                 type="email"
-                className="mt-1"
+                className="mt-1 text-sm sm:text-base"
               />
             </div>
             <div>
-              <Label htmlFor="footer-phone">Footer Phone</Label>
+              <Label htmlFor="footer-phone" className="text-sm sm:text-base">Footer Phone</Label>
               <Input
                 id="footer-phone"
                 value={site.footer_phone || ""}
                 onChange={(e) => setSite({ ...site, footer_phone: e.target.value })}
                 type="tel"
-                className="mt-1"
+                className="mt-1 text-sm sm:text-base"
               />
             </div>
             <div>
-              <Label htmlFor="footer-address">Footer Address</Label>
+              <Label htmlFor="footer-address" className="text-sm sm:text-base">Footer Address</Label>
               <textarea
                 id="footer-address"
                 value={site.footer_address || ""}
                 onChange={(e) => setSite({ ...site, footer_address: e.target.value })}
                 rows={2}
-                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="footer-copyright">Copyright Text</Label>
+              <Label htmlFor="footer-copyright" className="text-sm sm:text-base">Copyright Text</Label>
               <Input
                 id="footer-copyright"
                 value={site.footer_copyright || ""}
                 onChange={(e) => setSite({ ...site, footer_copyright: e.target.value })}
                 type="text"
-                className="mt-1"
+                className="mt-1 text-sm sm:text-base"
               />
             </div>
             <Button
               onClick={saveSiteSettings}
               disabled={saving}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               {saving ? "Saving..." : "Save Footer Content"}
             </Button>
@@ -415,9 +696,9 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* Footer Links Tab */}
       {activeTab === "footer-links" && (
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Footer Links</CardTitle>
+          <CardHeader className="px-3 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <CardTitle className="text-base sm:text-lg">Footer Links</CardTitle>
               <Button
                 size="sm"
                 onClick={() => {
@@ -429,12 +710,13 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                   };
                   saveFooterLink(newLink);
                 }}
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
                 Add Link
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
             <div className="space-y-3">
               {footerLinks.map((link) => (
                 <FooterLinkEditor
@@ -452,9 +734,9 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* Social Media Tab */}
       {activeTab === "social-media" && (
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Social Media Icons</CardTitle>
+          <CardHeader className="px-3 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <CardTitle className="text-base sm:text-lg">Social Media Icons</CardTitle>
               <Button
                 size="sm"
                 onClick={() => {
@@ -484,6 +766,191 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* About Page Tab */}
+      {activeTab === "about" && (
+        <div className="space-y-4 sm:space-y-6">
+          {/* Mission Section */}
+          <Card>
+            <CardHeader className="px-3 sm:px-6">
+              <CardTitle className="text-base sm:text-lg">Mission Section</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 px-3 sm:px-6 pt-4 sm:pt-6">
+              <div>
+                <Label htmlFor="about-mission-p1" className="text-sm sm:text-base">Mission Paragraph 1</Label>
+                <textarea
+                  id="about-mission-p1"
+                  value={aboutContent.about_mission_paragraph1 || ""}
+                  onChange={(e) => setAboutContent({ ...aboutContent, about_mission_paragraph1: e.target.value })}
+                  rows={3}
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
+                  placeholder="Pragati Prime is committed to empowering rural women and adolescent girls in Western Uttar Pradesh and Delhi NCR through health, education, and economic independence."
+                />
+              </div>
+              <div>
+                <Label htmlFor="about-mission-p2" className="text-sm sm:text-base">Mission Paragraph 2</Label>
+                <textarea
+                  id="about-mission-p2"
+                  value={aboutContent.about_mission_paragraph2 || ""}
+                  onChange={(e) => setAboutContent({ ...aboutContent, about_mission_paragraph2: e.target.value })}
+                  rows={3}
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
+                  placeholder="We bridge the gap between communities and government schemes, ensuring women can easily access healthcare services, social security benefits, and livelihood opportunities."
+                />
+              </div>
+              <div>
+                <Label htmlFor="about-mission-p3" className="text-sm sm:text-base">Mission Paragraph 3</Label>
+                <textarea
+                  id="about-mission-p3"
+                  value={aboutContent.about_mission_paragraph3 || ""}
+                  onChange={(e) => setAboutContent({ ...aboutContent, about_mission_paragraph3: e.target.value })}
+                  rows={3}
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
+                  placeholder="By partnering with local leaders, institutions, and CSR initiatives, we design programs that are practical, culturally rooted, and focused on long-term impact."
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Vision Section */}
+          <Card>
+            <CardHeader className="px-3 sm:px-6">
+              <CardTitle className="text-base sm:text-lg">Vision Section</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 px-3 sm:px-6 pt-4 sm:pt-6">
+              <div>
+                <Label htmlFor="about-vision-title" className="text-sm sm:text-base">Vision Title</Label>
+                <Input
+                  id="about-vision-title"
+                  value={aboutContent.about_vision_title || ""}
+                  onChange={(e) => setAboutContent({ ...aboutContent, about_vision_title: e.target.value })}
+                  className="mt-1 text-sm sm:text-base"
+                  placeholder="Vision for Rural Girls & Women"
+                />
+              </div>
+              <div>
+                <Label htmlFor="about-vision-description" className="text-sm sm:text-base">Vision Description</Label>
+                <textarea
+                  id="about-vision-description"
+                  value={aboutContent.about_vision_description || ""}
+                  onChange={(e) => setAboutContent({ ...aboutContent, about_vision_description: e.target.value })}
+                  rows={4}
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
+                  placeholder="A Western Uttar Pradesh and Delhi NCR where every girl is healthy, educated, and economically confident—and every woman can claim government entitlements, livelihoods, and her own voice."
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Images Section */}
+          <Card>
+            <CardHeader className="px-3 sm:px-6">
+              <CardTitle className="text-base sm:text-lg">About Page Images</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 sm:space-y-6 px-3 sm:px-6 pt-4 sm:pt-6">
+              {/* Team Image */}
+              <div>
+                <Label className="text-sm sm:text-base">About Us Section Image (Team Image)</Label>
+                <div className="mt-2 space-y-2">
+                  {aboutContent.about_team_image_url && (
+                    <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
+                      <Image
+                        src={aboutContent.about_team_image_url}
+                        alt="Team Image Preview"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleAboutImageUpload(e, "team")}
+                        className="hidden"
+                        disabled={uploadingAboutImage}
+                        id="team-image-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingAboutImage}
+                        className="flex items-center gap-2 w-full sm:w-auto text-sm"
+                        onClick={() => document.getElementById('team-image-upload')?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        {uploadingAboutImage ? "Uploading..." : aboutContent.about_team_image_url ? "Change Image" : "Upload Team Image"}
+                      </Button>
+                    </label>
+                    <Input
+                      value={aboutContent.about_team_image_url || ""}
+                      onChange={(e) => setAboutContent({ ...aboutContent, about_team_image_url: e.target.value })}
+                      placeholder="Or enter image URL directly"
+                      className="w-full text-xs sm:text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Vision Image */}
+              <div>
+                <Label className="text-sm sm:text-base">Vision Section Image</Label>
+                <div className="mt-2 space-y-2">
+                  {aboutContent.about_vision_image_url && (
+                    <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
+                      <Image
+                        src={aboutContent.about_vision_image_url}
+                        alt="Vision Image Preview"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleAboutImageUpload(e, "vision")}
+                        className="hidden"
+                        disabled={uploadingAboutImage}
+                        id="vision-image-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingAboutImage}
+                        className="flex items-center gap-2 w-full sm:w-auto text-sm"
+                        onClick={() => document.getElementById('vision-image-upload')?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        {uploadingAboutImage ? "Uploading..." : aboutContent.about_vision_image_url ? "Change Image" : "Upload Vision Image"}
+                      </Button>
+                    </label>
+                    <Input
+                      value={aboutContent.about_vision_image_url || ""}
+                      onChange={(e) => setAboutContent({ ...aboutContent, about_vision_image_url: e.target.value })}
+                      placeholder="Or enter image URL directly"
+                      className="w-full text-xs sm:text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Button
+            onClick={saveSiteSettings}
+            disabled={saving}
+            className="w-full sm:w-auto text-sm sm:text-base"
+          >
+            {saving ? "Saving..." : "Save About Page Content"}
+          </Button>
+        </div>
       )}
     </div>
   );

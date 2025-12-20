@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card"; // Assuming these exist
 import { Button } from "@/components/ui/button1"; // Assuming this exists
-import Footer from "@/components/Footer"; // Assuming this exists
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import("@/components/Footer"), {
+  ssr: true,
+});
 import { createClient } from "@/utils/supabase/client"; // Import Supabase client
 import { stripHTML } from "@/lib/htmlUtils";
 
@@ -62,6 +66,7 @@ export default function ArticlesPage() {
                      transition-transform duration-1000 ease-in-out 
                      hover:scale-105"
             priority
+            quality={85}
             onError={(e) => e.currentTarget.style.display = 'none'} // Hide on error
           />
         </div>
@@ -119,7 +124,10 @@ export default function ArticlesPage() {
                         src={article.image_url}
                         alt={article.title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
+                        loading="lazy"
+                        quality={80}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">

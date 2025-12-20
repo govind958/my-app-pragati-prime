@@ -4,7 +4,11 @@ import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Footer from "@/components/Footer"; 
+import dynamic from "next/dynamic";
+
+const Footer = dynamic(() => import("@/components/Footer"), {
+  ssr: true,
+}); 
 import { createClient } from "@/utils/supabase/client"; 
 import { Button } from "@/components/ui/button1";
 import { sanitizeHTML } from "@/lib/htmlUtils";
@@ -30,6 +34,8 @@ export default function ArticleDetailPage() {
   }, [article])
 
   useEffect(() => {
+    let cancelled = false;
+    
     const fetchArticle = async () => {
       if (!id) return; 
 
@@ -37,17 +43,40 @@ export default function ArticleDetailPage() {
       setError(null);
 
       try {
-        // Check if viewer is a paid member
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        // Parallelize queries for better performance
+        const [
+          { data: { user } },
+          { data: articleData, error: articleError }
+        ] = await Promise.all([
+          supabase.auth.getUser(),
+          supabase
+        .from("articles")
+            .select("id, title, content, is_paid, created_at, published, image_url, required_plan_name")
+        .eq("id", id)
+        .eq("published", true)
+            .single()
+        ]);
 
+        if (cancelled) return;
+
+        if (articleError) {
+          console.error("Error fetching article:", articleError.message);
+        setError("Article not found or you do not have permission to view it.");
+          setLoading(false);
+          return;
+        }
+
+        setArticle(articleData);
+
+        // Check membership status if user is logged in
         if (user) {
           const { data: memberData } = await supabase
             .from("members")
             .select("membership_type, plan_id")
             .eq("profile_id", user.id)
             .maybeSingle();
+
+          if (cancelled) return;
 
           if (memberData?.membership_type === "paid") {
             setIsPremiumMember(true);
@@ -59,36 +88,29 @@ export default function ArticleDetailPage() {
                 .eq("id", memberData.plan_id)
                 .maybeSingle();
 
-              if (planData?.name) {
+              if (!cancelled && planData?.name) {
                 setPlanName(planData.name);
-              }
+      }
             }
           }
         }
-
-        // Fetch the single article.
-        const { data, error } = await supabase
-          .from("articles")
-          .select("id, title, content, is_paid, created_at, published, image_url, required_plan_name")
-          .eq("id", id)
-          .eq("published", true)
-          .single();
-
-        if (error) {
-          console.error("Error fetching article:", error.message);
-          setError("Article not found or you do not have permission to view it.");
-        } else {
-          setArticle(data);
-        }
       } catch (err) {
-        console.error("Unexpected error loading article:", err);
-        setError("Something went wrong while loading the article.");
+        if (!cancelled) {
+          console.error("Unexpected error loading article:", err);
+          setError("Something went wrong while loading the article.");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchArticle();
+    
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   // Loading State
@@ -149,8 +171,10 @@ export default function ArticleDetailPage() {
               src={article.image_url}
               alt={article.title}
               fill
+              sizes="(max-width: 768px) 100vw, 768px"
               className="object-cover"
-              priority // Prioritize loading the main article image
+              priority
+              quality={90}
             />
           ) : (
             <div className="flex items-center justify-center h-full">
@@ -207,10 +231,10 @@ export default function ArticleDetailPage() {
             </div>
           </div>
         ) : (
-          <article 
-            className="prose prose-lg dark:prose-invert max-w-none article-content"
-            dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-          />
+        <article 
+          className="prose prose-lg dark:prose-invert max-w-none article-content"
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+        />
         )}
 
         {/* Back Button */}
