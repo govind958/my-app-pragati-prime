@@ -15,6 +15,7 @@ export default function TeamPage() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [bannerImage, setBannerImage] = useState("");
+  const [bannerLoading, setBannerLoading] = useState(true);
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -52,6 +53,8 @@ export default function TeamPage() {
         }
       } catch (error) {
         console.error("Error loading team banner:", error);
+      } finally {
+        setBannerLoading(false);
       }
     };
 
@@ -70,17 +73,21 @@ export default function TeamPage() {
       >
         {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src={bannerImage || "/home.png"}
-            alt="Our Core Team"
-            fill
-            sizes="100vw"
-            className="object-cover 
-                     opacity-20 dark:opacity-10 
-                     transition-transform duration-1000 ease-in-out 
-                     hover:scale-105"
-            priority
-          />
+          {bannerLoading ? (
+            <div className="w-full h-full bg-zinc-900 animate-pulse" />
+          ) : bannerImage ? (
+            <Image
+              src={bannerImage}
+              alt="Our Core Team"
+              fill
+              sizes="100vw"
+              className="object-cover 
+                       opacity-20 dark:opacity-10 
+                       transition-transform duration-1000 ease-in-out 
+                       hover:scale-105"
+              priority
+            />
+          ) : null}
         </div>
         <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">

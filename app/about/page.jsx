@@ -20,6 +20,7 @@ export default function About() {
     about_vision_image_url: ""
   });
   const [bannerImage, setBannerImage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAboutContent = async () => {
@@ -46,6 +47,8 @@ export default function About() {
         }
       } catch (error) {
         console.error("Error loading about content:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -64,17 +67,21 @@ export default function About() {
       >
         {/* Background Image: Deeper Dark Overlay for Contrast */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src={bannerImage || "/banner.png"}
-            alt="About Pragati Prime"
-            fill
-            sizes="100vw"
-            className="object-cover 
-                     opacity-20 dark:opacity-10 
-                     transition-transform duration-1000 ease-in-out 
-                     hover:scale-105"
-            priority  
-          />
+          {loading ? (
+            <div className="w-full h-full bg-zinc-900 animate-pulse" />
+          ) : bannerImage ? (
+            <Image
+              src={bannerImage}
+              alt="About Pragati Prime"
+              fill
+              sizes="100vw"
+              className="object-cover 
+                       opacity-20 dark:opacity-10 
+                       transition-transform duration-1000 ease-in-out 
+                       hover:scale-105"
+              priority  
+            />
+          ) : null}
         </div>
         <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
@@ -129,13 +136,21 @@ export default function About() {
               </div>
             </div>
             <div className="relative h-64 sm:h-80 md:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-              <Image
-                src={aboutContent.about_team_image_url || "/team_image.png"}
-                alt="Pragati Prime Team"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-contain"
-              />
+              {loading ? (
+                <div className="w-full h-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+              ) : aboutContent.about_team_image_url ? (
+                <Image
+                  src={aboutContent.about_team_image_url}
+                  alt="Pragati Prime Team"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-contain"
+                />
+              ) : (
+                <div className="w-full h-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                  <p className="text-zinc-500 dark:text-zinc-400">No image available</p>
+                </div>
+              )}
             </div>
           </div>
           <div className="mt-12 rounded-3xl border border-primary/20 bg-rose-50/80 p-6 sm:p-10 text-base sm:text-lg text-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-300">
@@ -332,13 +347,21 @@ export default function About() {
             </div>
 
             <div className="relative h-64 sm:h-80 md:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shadow-lg">
-              <Image
-                src={aboutContent.about_vision_image_url || "/ai-imag.png"}
-                alt="Vision for Rural Girls & Women"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-fit"
-              />
+              {loading ? (
+                <div className="w-full h-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+              ) : aboutContent.about_vision_image_url ? (
+                <Image
+                  src={aboutContent.about_vision_image_url}
+                  alt="Vision for Rural Girls & Women"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-fit"
+                />
+              ) : (
+                <div className="w-full h-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                  <p className="text-zinc-500 dark:text-zinc-400">No image available</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
