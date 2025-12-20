@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button1";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
+import { Upload, ExternalLink, Info } from "lucide-react";
 import FooterLinkEditor from "./shared/FooterLinkEditor";
 import SocialIconEditor from "./shared/SocialIconEditor";
 
@@ -579,9 +579,26 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* Home Page Tab */}
       {activeTab === "home" && (
         <Card>
+          <CardHeader className="px-3 sm:px-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base sm:text-lg">Home Page Content</CardTitle>
+              <a 
+                href="/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                View Homepage
+              </a>
+            </div>
+          </CardHeader>
           <CardContent className="pt-4 sm:pt-6 space-y-4 px-3 sm:px-6">
             <div>
-              <Label htmlFor="hero-line1" className="text-sm sm:text-base">Hero Title Line 1</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="hero-line1" className="text-sm sm:text-base">Hero Title Line 1</Label>
+                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded">Hero Section</span>
+              </div>
               <Input
                 id="hero-line1"
                 value={site.hero_title_line1 || ""}
@@ -589,9 +606,16 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 type="text"
                 className="mt-1 text-sm sm:text-base"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                First line of the main heading in the hero section
+              </p>
             </div>
             <div>
-              <Label htmlFor="hero-line2" className="text-sm sm:text-base">Hero Title Line 2</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="hero-line2" className="text-sm sm:text-base">Hero Title Line 2</Label>
+                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded">Hero Section</span>
+              </div>
               <Input
                 id="hero-line2"
                 value={site.hero_title_line2 || ""}
@@ -599,9 +623,16 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 type="text"
                 className="mt-1 text-sm sm:text-base"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Second line of the main heading in the hero section
+              </p>
             </div>
             <div>
-              <Label htmlFor="mission" className="text-sm sm:text-base">Mission Statement</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="mission" className="text-sm sm:text-base">Mission Statement</Label>
+                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Mission Section</span>
+              </div>
               <textarea
                 id="mission"
                 value={site.mission_statement || ""}
@@ -609,9 +640,16 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 rows={3}
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Displayed in the &quot;Our Mission&quot; section on the homepage
+              </p>
             </div>
             <div>
-              <Label htmlFor="tagline" className="text-sm sm:text-base">Tagline</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="tagline" className="text-sm sm:text-base">Tagline</Label>
+                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Mission Section</span>
+              </div>
               <Input
                 id="tagline"
                 value={site.tagline || ""}
@@ -619,6 +657,10 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 type="text"
                 className="mt-1 text-sm sm:text-base"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Shown below the mission statement in the &quot;Our Mission&quot; section
+              </p>
             </div>
 
             {/* Banner Images Section */}
@@ -720,11 +762,25 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {activeTab === "footer" && (
         <Card>
           <CardHeader className="px-3 sm:px-6">
-            <CardTitle className="text-base sm:text-lg">Footer Text Content</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base sm:text-lg">Footer Text Content</CardTitle>
+              <a 
+                href="/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                View Footer
+              </a>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4 px-3 sm:px-6 pt-4 sm:pt-6">
             <div>
-              <Label htmlFor="footer-desc" className="text-sm sm:text-base">Footer Description</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="footer-desc" className="text-sm sm:text-base">Footer Description</Label>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
+              </div>
               <textarea
                 id="footer-desc"
                 value={site.footer_description || ""}
@@ -732,9 +788,16 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 rows={3}
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Description text shown at the top of the footer on all pages
+              </p>
             </div>
             <div>
-              <Label htmlFor="footer-email" className="text-sm sm:text-base">Footer Email</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="footer-email" className="text-sm sm:text-base">Footer Email</Label>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
+              </div>
               <Input
                 id="footer-email"
                 value={site.footer_email || ""}
@@ -742,9 +805,16 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 type="email"
                 className="mt-1 text-sm sm:text-base"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Contact email displayed in the footer
+              </p>
             </div>
             <div>
-              <Label htmlFor="footer-phone" className="text-sm sm:text-base">Footer Phone</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="footer-phone" className="text-sm sm:text-base">Footer Phone</Label>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
+              </div>
               <Input
                 id="footer-phone"
                 value={site.footer_phone || ""}
@@ -752,9 +822,16 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
                 type="tel"
                 className="mt-1 text-sm sm:text-base"
               />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Contact phone number displayed in the footer
+              </p>
             </div>
             <div>
-              <Label htmlFor="footer-address" className="text-sm sm:text-base">Footer Address</Label>
+              <div className="flex items-center gap-2 mb-1">
+                <Label htmlFor="footer-address" className="text-sm sm:text-base">Footer Address</Label>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
+              </div>
               <textarea
                 id="footer-address"
                 value={site.footer_address || ""}
@@ -827,22 +904,38 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
         <Card>
           <CardHeader className="px-3 sm:px-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <CardTitle className="text-base sm:text-lg">Social Media Icons</CardTitle>
-              <Button
-                size="sm"
-                onClick={() => {
-                  const newIcon = {
-                    platform: "facebook",
-                    url: "#",
-                    icon_name: "facebook",
-                    display_order: socialIcons.length
-                  };
-                  saveSocialIcon(newIcon);
-                }}
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base sm:text-lg">Social Media Icons</CardTitle>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
+              </div>
+              <a 
+                href="/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
               >
-                Add Icon
-              </Button>
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                View Footer
+              </a>
             </div>
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+              <Info className="w-3 h-3" />
+              Social media icons displayed in the footer on all pages
+            </p>
+            <Button
+              size="sm"
+              onClick={() => {
+                const newIcon = {
+                  platform: "facebook",
+                  url: "#",
+                  icon_name: "facebook",
+                  display_order: socialIcons.length
+                };
+                saveSocialIcon(newIcon);
+              }}
+            >
+              Add Icon
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -862,10 +955,29 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* About Page Tab */}
       {activeTab === "about" && (
         <div className="space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base sm:text-lg font-semibold">About Page Content</h3>
+            <a 
+              href="/about" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+            >
+              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+              View About Page
+            </a>
+          </div>
           {/* Mission Section */}
           <Card>
             <CardHeader className="px-3 sm:px-6">
-              <CardTitle className="text-base sm:text-lg">Mission Section</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base sm:text-lg">Mission Section</CardTitle>
+                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">About Page</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Content displayed in the Mission section on the About Us page
+              </p>
             </CardHeader>
             <CardContent className="space-y-4 px-3 sm:px-6 pt-4 sm:pt-6">
               <div>
@@ -1047,17 +1159,57 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
       {/* Page Banners Tab */}
       {activeTab === "page-banners" && (
         <div className="space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base sm:text-lg font-semibold">Page Banner Images</h3>
+            <div className="flex gap-2">
+              <a 
+                href="/about" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                About
+              </a>
+              <a 
+                href="/team" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                Team
+              </a>
+              <a 
+                href="/articles" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                Articles
+              </a>
+            </div>
+          </div>
           <Card>
             <CardHeader className="px-3 sm:px-6">
               <CardTitle className="text-base sm:text-lg">Page Banner Images</CardTitle>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-                Upload banner images for the hero sections of About Us, Team, and Articles pages.
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Background images for the hero sections of About Us, Team, and Articles pages
               </p>
             </CardHeader>
             <CardContent className="space-y-6 px-3 sm:px-6 pt-4 sm:pt-6">
               {/* About Us Page Banner */}
               <div>
-                <Label className="text-sm sm:text-base">About Us Page Banner</Label>
+                <div className="flex items-center gap-2 mb-1">
+                  <Label className="text-sm sm:text-base">About Us Page Banner</Label>
+                  <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">About Page</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Background image for the hero section on the About Us page
+                </p>
                 <div className="mt-2 space-y-2">
                   {pageBanners.about_page_banner_image_url && (
                     <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
@@ -1103,7 +1255,14 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
 
               {/* Team Page Banner */}
               <div>
-                <Label className="text-sm sm:text-base">Team Page Banner</Label>
+                <div className="flex items-center gap-2 mb-1">
+                  <Label className="text-sm sm:text-base">Team Page Banner</Label>
+                  <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Team Page</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Background image for the hero section on the Team page
+                </p>
                 <div className="mt-2 space-y-2">
                   {pageBanners.team_page_banner_image_url && (
                     <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
@@ -1149,7 +1308,14 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
 
               {/* Articles Page Banner */}
               <div>
-                <Label className="text-sm sm:text-base">Articles Page Banner</Label>
+                <div className="flex items-center gap-2 mb-1">
+                  <Label className="text-sm sm:text-base">Articles Page Banner</Label>
+                  <span className="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 px-2 py-0.5 rounded">Articles Page</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Background image for the hero section on the Articles page
+                </p>
                 <div className="mt-2 space-y-2">
                   {pageBanners.articles_page_banner_image_url && (
                     <div className="relative w-full h-40 sm:h-48 rounded-md overflow-hidden border border-input">
