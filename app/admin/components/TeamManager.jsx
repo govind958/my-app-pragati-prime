@@ -59,6 +59,19 @@ export default function TeamManager({ team = [], refresh, supabase }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, GIF, WebP)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('Image size must be less than 10MB');
+      return;
+    }
+
     setUploading(true);
     try {
       const fileExt = file.name.split(".").pop();
@@ -67,13 +80,24 @@ export default function TeamManager({ team = [], refresh, supabase }) {
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
-        // If storage bucket doesn't exist or fails, use file URL directly
-        console.warn("Storage upload failed, using file object:", uploadError);
-        // For now, we'll just use the file name - you may want to handle this differently
-        alert("Image upload failed. Please use a direct image URL instead.");
+        console.error("Storage upload failed:", uploadError);
+        let errorMessage = "Image upload failed. ";
+        
+        if (uploadError.message?.includes('Bucket not found')) {
+          errorMessage += "The 'images' bucket doesn't exist. Please create it in Supabase Storage first.";
+        } else if (uploadError.message?.includes('new row violates row-level security')) {
+          errorMessage += "Permission denied. Please run the storage policy migration in Supabase SQL Editor.";
+        } else {
+          errorMessage += uploadError.message || "Please try again or use a direct image URL.";
+        }
+        
+        alert(errorMessage);
         setUploading(false);
         return;
       }
@@ -82,12 +106,19 @@ export default function TeamManager({ team = [], refresh, supabase }) {
         .from("images")
         .getPublicUrl(filePath);
 
-      setFormData({ ...formData, image: urlData.publicUrl });
+      if (urlData?.publicUrl) {
+        setFormData({ ...formData, image: urlData.publicUrl });
+        alert("Image uploaded successfully!");
+      } else {
+        alert("Image uploaded but could not get public URL. Please try again.");
+      }
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Failed to upload image. Please use a direct image URL instead.");
+      alert(`Failed to upload image: ${error.message || "Please try again or use a direct image URL."}`);
     } finally {
       setUploading(false);
+      // Reset file input
+      e.target.value = '';
     }
   };
 

@@ -35,6 +35,7 @@ export default function MembersTable({ members = [], refresh, supabase }) {
               <tr className="text-left bg-gray-50 border-b border-gray-200">
                 <th className="p-2 md:p-3 font-medium text-gray-600">Email</th>
                 <th className="p-2 md:p-3 font-medium text-gray-600 hidden sm:table-cell">Name</th>
+                <th className="p-2 md:p-3 font-medium text-gray-600 hidden sm:table-cell">Phone</th>
                 <th className="p-2 md:p-3 font-medium text-gray-600">Role</th>
                 <th className="p-2 md:p-3 font-medium text-gray-600 hidden md:table-cell">Joined</th>
                 <th className="p-2 md:p-3 font-medium text-gray-600 text-right">
@@ -46,16 +47,30 @@ export default function MembersTable({ members = [], refresh, supabase }) {
               {members.map((m) => (
                 <tr key={m.id} className="border-b hover:bg-gray-50">
                   <td className="p-2 md:p-3">
-                    <div className="font-medium">{m.email}</div>
-                    <div className="text-gray-500 text-xs sm:hidden">{m.name}</div>
+                    <div className="font-medium text-xs sm:text-sm">{m.email}</div>
+                    <div className="text-gray-500 text-xs sm:hidden mt-1">{m.name}</div>
+                    {m.contact && (
+                      <div className="text-gray-500 text-xs sm:hidden mt-1">
+                        📞 {m.contact}
+                      </div>
+                    )}
                   </td>
-                  <td className="p-2 md:p-3 hidden sm:table-cell">{m.name}</td>
+                  <td className="p-2 md:p-3 hidden sm:table-cell text-xs sm:text-sm">{m.name}</td>
+                  <td className="p-2 md:p-3 text-gray-600 hidden sm:table-cell text-xs sm:text-sm">
+                    {m.contact ? (
+                      <a href={`tel:${m.contact}`} className="hover:text-primary transition-colors">
+                        {m.contact}
+                      </a>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                   <td className="p-2 md:p-3">
                     <RoleSelector member={m} supabase={supabase} refresh={refresh} />
                   </td>
 
                   {/* Joined */}
-                  <td className="p-2 md:p-3 text-gray-500 hidden md:table-cell">
+                  <td className="p-2 md:p-3 text-gray-500 hidden md:table-cell text-xs sm:text-sm">
                     {m.created_at ? new Date(m.created_at).toLocaleDateString() : "-"}
                   </td>
 
@@ -65,6 +80,7 @@ export default function MembersTable({ members = [], refresh, supabase }) {
                       variant="destructive"
                       size="sm"
                       onClick={() => deleteMember(m)}
+                      className="text-xs sm:text-sm"
                     >
                       Delete
                     </Button>
