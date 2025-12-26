@@ -37,6 +37,12 @@ export default function Home() {
     missionStatement: "Healthy, Educated, and Empowered Girls Build a Stronger Nation.",
     tagline: "Swasth, Shikshit aur Samarth Meri Beti."
   });
+  const [whatWeDoContent, setWhatWeDoContent] = useState([]);
+  const [impactStories, setImpactStories] = useState([]);
+  const [loadingStories, setLoadingStories] = useState(true);
+  const [recentUpdates, setRecentUpdates] = useState([]);
+  const [loadingUpdates, setLoadingUpdates] = useState(true);
+  const [missionTexts, setMissionTexts] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -60,7 +66,7 @@ export default function Home() {
       try {
         const { data } = await supabase
           .from("site_settings")
-          .select("hero_title_line1, hero_title_line2, mission_statement, tagline, banner_images")
+          .select("hero_title_line1, hero_title_line2, mission_statement, tagline, banner_images, what_we_do_paragraphs")
           .limit(1)
           .maybeSingle();
         
@@ -74,8 +80,33 @@ export default function Home() {
           
           // Load banner images from database
           if (data.banner_images && Array.isArray(data.banner_images) && data.banner_images.length > 0) {
-            setBannerImages(data.banner_images);
+            // Handle both old string format and new object format
+            const processedBanners = data.banner_images.map(banner => {
+              if (typeof banner === 'string') {
+                // Old format: just image URL string
+                return {
+                  image: banner,
+                  titleLine1: homeContent.heroTitleLine1,
+                  titleLine2: homeContent.heroTitleLine2
+                };
+              } else {
+                // New format: object with image, titleLine1, titleLine2
+                return {
+                  image: banner.image || banner,
+                  titleLine1: banner.titleLine1 || homeContent.heroTitleLine1,
+                  titleLine2: banner.titleLine2 || homeContent.heroTitleLine2
+                };
+              }
+            });
+            setBannerImages(processedBanners);
           }
+          
+          // Load What We Do content
+          setWhatWeDoContent(
+            Array.isArray(data.what_we_do_paragraphs)
+              ? data.what_we_do_paragraphs.filter(item => item && item.content && item.content.trim() !== "")
+              : []
+          );
         }
       } catch (error) {
         console.error("Error loading home content:", error);
@@ -122,6 +153,57 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchImpactStories = async () => {
+      setLoadingStories(true);
+      try {
+        const { data, error } = await supabase
+          .from("impact_stories")
+          .select("*")
+          .order("display_order", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching impact stories:", error.message);
+          setImpactStories([]);
+        } else {
+          setImpactStories(data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching impact stories:", err);
+        setImpactStories([]);
+      } finally {
+        setLoadingStories(false);
+      }
+    };
+
+    const fetchRecentUpdates = async () => {
+      setLoadingUpdates(true);
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("recent_updates, mission_texts")
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching recent updates:", error.message);
+          setRecentUpdates([]);
+        } else {
+          setRecentUpdates(data?.recent_updates || []);
+          setMissionTexts(data?.mission_texts || []);
+        }
+      } catch (err) {
+        console.error("Error fetching recent updates:", err);
+        setRecentUpdates([]);
+      } finally {
+        setLoadingUpdates(false);
+      }
+    };
+
+    fetchImpactStories();
+    fetchRecentUpdates();
+  }, []);
+
   // Navigation functions
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
@@ -160,8 +242,7 @@ export default function Home() {
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
-        state: formData.state,
-        location: formData.location,
+        location: formData.state + (formData.location ? ', ' + formData.location : ''), // Combine state and location
         interested_to_connect: formData.interestedToConnect,
         status: "new",
       });
@@ -205,7 +286,7 @@ export default function Home() {
 >
   {/* Banner Slider Background */}
   <div className="absolute inset-0 z-0 overflow-hidden">
-    {bannerImages.map((src, index) => (
+    {bannerImages.map((banner, index) => (
       <div
         key={index}
         className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -213,7 +294,7 @@ export default function Home() {
         }`}
       >
         <Image
-          src={src}
+          src={banner.image}
           alt={`Banner ${index + 1}`}
           fill
           sizes="100vw"
@@ -268,13 +349,13 @@ export default function Home() {
     {/* Animated Text */}
     <EntranceAnimation>
       <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold max-w-4xl mx-auto leading-tight sm:leading-tight tracking-tight sm:tracking-tighter">
-        <span className="bg-clip-text text-transparent 
-                       bg-linear-to-r from-primary/90 to-orange-300 
+        <span className="bg-clip-text text-transparent
+                       bg-linear-to-r from-primary/90 to-orange-300
                          transition-colors duration-300 ease-in-out">
-          {homeContent.heroTitleLine1}
+          {bannerImages[currentSlide]?.titleLine1 || homeContent.heroTitleLine1}
         </span>
         <span className="text-white dark:text-zinc-50 block mt-2">
-          {homeContent.heroTitleLine2}
+          {bannerImages[currentSlide]?.titleLine2 || homeContent.heroTitleLine2}
         </span>
       </h1>
     </EntranceAnimation>
@@ -381,15 +462,14 @@ export default function Home() {
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70 animate-pulse-slow" />
           </h2>
           <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto px-4 sm:px-0 text-center">
-            <p>
+            {/* <p>
               Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan (Regd.) is a New Delhi-based NGO dedicated to empowering rural women and adolescent girls by promoting health, education, and economic independence.
-            </p>
-            <p>
-              Our mission is to uplift women from rural communities, especially in Western Uttar Pradesh and Delhi, by connecting them with government welfare schemes, enhancing health awareness, and opening pathways for skill development and financial growth.
-            </p>
-            <p>
-              We collaborate closely with villages to run health camps, awareness drives, livelihood training, education support, and grievance redressal for rural women, while CSR partnerships help us deliver sustainable assistance and long-term development opportunities.
-            </p>
+            </p> */}
+            {missionTexts.map((text, index) => (
+              <p key={index} className="mb-4">
+                {text}
+              </p>
+            ))}
             <div className="rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4 text-center text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               &ldquo;{homeContent.missionStatement}&rdquo;
               <div className="mt-2 text-sm uppercase tracking-wide text-primary">
@@ -400,9 +480,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* What We Do - Feature Cards */}
+      {/* What We Do - Simple Paragraphs */}
       <section className="py-16 sm:py-20 bg-linear-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-4 sm:px-6 md:px-16">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
               <span className="bg-linear-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent dark:from-zinc-100 dark:to-zinc-400">
@@ -410,114 +490,17 @@ export default function Home() {
               </span>
               <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
             </h2>
-            <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-              We combine health, education, livelihood, and protection services so rural women and girls can lead self-reliant, dignified lives.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {/* Education Card */}
-            <Card className="rounded-2xl border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-xl bg-white dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Education</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Scholarships, bridge courses, and digital learning labs keep rural girls in school and open new futures in Western Uttar Pradesh and Delhi.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Healthcare Card */}
-            <Card className="rounded-2xl border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-xl bg-white dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Healthcare</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Mobile health camps, screenings, and menstrual health awareness ensure women receive timely care and trusted information close to home.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Empowerment Card */}
-            <Card className="rounded-2xl border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-xl bg-white dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Empowerment</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Entrepreneurship cohorts, micro-loans, and mentorship circles help women launch enterprises and gain financial independence.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Infrastructure Card */}
-            <Card className="rounded-2xl border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-xl bg-white dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Infrastructure</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Safe community hubs, water systems, and digital kiosks connect families to government welfare schemes and essential services.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Environment Card */}
-            <Card className="rounded-2xl border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-xl bg-white dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Environment</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Climate-smart farming demos and water conservation drives protect village livelihoods and the environment women depend on.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Community Development Card */}
-            <Card className="rounded-2xl border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover:shadow-xl bg-white dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Community Development</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Women-led collectives, grievance cells, and youth clubs nurture leadership and collective action across hamlets.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Bullet Points */}
+          <ul className="space-y-4 text-base sm:text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed list-none">
+            {Array.isArray(whatWeDoContent) && whatWeDoContent.map((paragraph, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <span className="text-primary mt-2 shrink-0">•</span>
+                <span className="flex-1">{paragraph.content}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -536,153 +519,82 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Story 1 - Education */}
-          <div className="mb-10 sm:mb-16 rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all duration-300 hover:shadow-2xl bg-white dark:bg-zinc-900">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-              <div className="relative w-full h-[400px] md:h-full order-1 md:order-1">
-                <Image
-                  src="/new-1.png"
-                  alt="Education for Every Child"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
-              </div>
-              <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center order-2 md:order-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Education</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Keeping Girls in School
-                </h3>
-                <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                  Learning labs, bicycles, and mentoring circles ensure adolescent girls from rural blocks can continue their education, delay early marriage, and dream bigger.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">500+</div>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">Students Supported</div>
-                  </div>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">120</div>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">Teachers Trained</div>
-                  </div>
-                </div>
-                <Link href="/articles" className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group">
-                  Learn More
-                  <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
+          {/* Impact Stories from Database */}
+          {loadingStories ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">Loading stories...</p>
               </div>
             </div>
-          </div>
-
-          {/* Story 2 - Women Empowerment */}
-          <div className="mb-10 sm:mb-16 rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all duration-300 hover:shadow-2xl bg-white dark:bg-zinc-900">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-              <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center order-2 md:order-1">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide">Empowerment</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Women-Led Enterprises
-                </h3>
-                <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                  SHG federations, product design labs, and CSR-backed seed funding are helping first-generation women entrepreneurs earn steady incomes and employ their peers.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">200+</div>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">Women Entrepreneurs</div>
-                  </div>
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">₹5L+</div>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">Micro-loans Disbursed</div>
-                  </div>
-                </div>
-                <Link href="/articles" className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group">
-                  Learn More
-                  <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              </div>
-              <div className="relative w-full h-[400px] md:h-full order-1 md:order-2">
-                <Image
-                  src="/new-2.png"
-                  alt="Empowering Women Entrepreneurs"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
-              </div>
+          ) : impactStories.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-zinc-600 dark:text-zinc-400">No impact stories available at the moment.</p>
             </div>
-          </div>
-
-          {/* Story 3 - Clean Water */}
-          <div className="mb-10 sm:mb-16 rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all duration-300 hover:shadow-2xl bg-white dark:bg-zinc-900">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-              <div className="relative w-full h-[400px] md:h-full order-1 md:order-1">
-                <Image
-                  src="/new-3.png"
-                  alt="Clean Water Initiative"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
-              </div>
-              <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center order-2 md:order-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
+          ) : (
+            impactStories.map((story, index) => {
+              const isEven = index % 2 === 0;
+              const colorClasses = [
+                { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-600 dark:text-blue-400" },
+                { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-600 dark:text-purple-400" },
+                { bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-600 dark:text-cyan-400" }
+              ];
+              const colors = colorClasses[index % colorClasses.length];
+              
+              return (
+                <div key={story.id} className="mb-10 sm:mb-16 rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all duration-300 hover:shadow-2xl bg-white dark:bg-zinc-900">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+                    {/* Image */}
+                    <div className={`relative w-full h-[400px] md:h-full ${isEven ? 'order-1 md:order-1' : 'order-1 md:order-2'}`}>
+                      {story.image_url ? (
+                        <Image
+                          src={story.image_url}
+                          alt={story.main_title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          priority={index === 0}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
+                          <span className="text-zinc-400">No image</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className={`p-6 sm:p-8 md:p-10 flex flex-col justify-center ${isEven ? 'order-2 md:order-2' : 'order-2 md:order-1'}`}>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className={`w-10 h-10 rounded-lg ${colors.bg} flex items-center justify-center`}>
+                          <svg className={`w-5 h-5 ${colors.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                        </div>
+                        <span className={`text-sm font-semibold ${colors.text} uppercase tracking-wide`}>
+                          {story.title}
+                        </span>
+                      </div>
+                      <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+                        {story.main_title}
+                      </h3>
+                      <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+                        {story.description}
+                      </p>
+                      <Link href="/articles" className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group">
+                        Learn More
+                        <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </Link>
+                    </div>
                   </div>
-                  <span className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wide">Infrastructure</span>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                  Clean Water, Safer Villages
-                </h3>
-                <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                  Women water stewards maintain hand pumps, lead hygiene sessions, and advocate for government repairs so families spend less time fetching water and stay healthier year-round.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">50+</div>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">Water Wells Built</div>
-                  </div>
-                  <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">10K+</div>
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">People Served</div>
-                  </div>
-                </div>
-                <Link href="/articles" className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group">
-                  Learn More
-                  <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          </div>
+              );
+            })
+          )}
         </div>
       </section>
-
 
       {/* Articles */}
       <section className="py-16 sm:py-20 bg-white dark:bg-zinc-950 px-4 sm:px-6 md:px-16">
@@ -768,31 +680,31 @@ export default function Home() {
             <Link href="/articles" className="text-sm text-primary hover:underline self-start sm:self-auto transition-colors duration-300 hover:text-primary/70">View all</Link>
           </div>
           {/* Animated Update Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                title: "Baghpat Health & Nutrition Camp",
-                desc: "412 women screened for anemia, BP, and maternal health support.",
-              },
-              {
-                title: "Skill Bridge Cohort Graduates",
-                desc: "60 adolescent girls completed tailoring and digital literacy modules.",
-              },
-              {
-                title: "New CSR Partner Onboarded",
-                desc: "Corporate allies expand micro-loan pool for rural entrepreneurs.",
-              },
-            ].map((u, i) => (
-              <Card key={i} className="rounded-2xl transition-all duration-300 hover:shadow-xl hover:border-blue-500/20 hover:bg-white dark:hover:bg-zinc-800 cursor-default">
-                <CardHeader>
-                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{u.title}</h3>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-zinc-600 dark:text-zinc-400">{u.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {loadingUpdates ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">Loading updates...</p>
+              </div>
+            </div>
+          ) : recentUpdates.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+              {recentUpdates.map((update, index) => (
+                <Card key={index} className="rounded-2xl transition-all duration-300 hover:shadow-xl hover:border-blue-500/20 hover:bg-white dark:hover:bg-zinc-800 cursor-default">
+                  <CardHeader>
+                    <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{update.heading}</h3>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-zinc-600 dark:text-zinc-400">{update.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-zinc-600 dark:text-zinc-400">No recent updates available. Check back soon!</p>
+            </div>
+          )}
         </div>
       </section>
 

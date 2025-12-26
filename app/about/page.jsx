@@ -11,15 +11,31 @@ const supabase = createClient();
 
 export default function About() {
   const [aboutContent, setAboutContent] = useState({
-    about_mission_paragraph1: "",
-    about_mission_paragraph2: "",
-    about_mission_paragraph3: "",
     about_vision_title: "Vision for Rural Girls & Women",
     about_vision_description: "",
     about_team_image_url: "",
-    about_vision_image_url: ""
+    about_vision_image_url: "",
+    about_us_paragraph1: "",
+    about_us_paragraph2: "",
+    impact_area_education_paragraph: "",
+    impact_area_healthcare_paragraph: "",
+    impact_area_empowerment_paragraph: "",
+    impact_area_community_paragraph: "",
+    our_approach_paragraph: "",
+    why_pragati_paragraph1: "",
+    why_pragati_paragraph2: "",
+    why_pragati_paragraph3: "",
+    why_pragati_paragraph4: "",
+    why_pragati_paragraph5: "",
+    why_pragati_paragraph6: "",
+    mission_paragraphs: []
   });
   const [bannerImage, setBannerImage] = useState("");
+  const [bannerText, setBannerText] = useState({
+    title: "",
+    subtitle: "",
+    description: ""
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,23 +43,38 @@ export default function About() {
       try {
         const { data } = await supabase
           .from("site_settings")
-          .select("about_mission_paragraph1, about_mission_paragraph2, about_mission_paragraph3, about_vision_title, about_vision_description, about_team_image_url, about_vision_image_url, about_page_banner_image_url")
+          .select("about_vision_title, about_vision_description, about_team_image_url, about_vision_image_url, about_page_banner_image_url, about_us_paragraph1, about_us_paragraph2, impact_areas, our_approach_paragraph, why_pragati_paragraphs, mission_paragraphs, banner_texts")
           .limit(1)
           .maybeSingle();
         
         if (data) {
           const loadedContent = {
-            about_mission_paragraph1: data.about_mission_paragraph1 ?? "",
-            about_mission_paragraph2: data.about_mission_paragraph2 ?? "",
-            about_mission_paragraph3: data.about_mission_paragraph3 ?? "",
             about_vision_title: data.about_vision_title ?? "Vision for Rural Girls & Women",
             about_vision_description: data.about_vision_description ?? "",
             about_team_image_url: data.about_team_image_url ?? "",
-            about_vision_image_url: data.about_vision_image_url ?? ""
+            about_vision_image_url: data.about_vision_image_url ?? "",
+            about_us_paragraph1: data.about_us_paragraph1 ?? "",
+            about_us_paragraph2: data.about_us_paragraph2 ?? "",
+            impact_areas: data.impact_areas ?? [],
+            our_approach_paragraph: data.our_approach_paragraph ?? "",
+            why_pragati_paragraphs: data.why_pragati_paragraphs ?? [],
+            mission_paragraphs: data.mission_paragraphs ?? []
           };
           
           setAboutContent(loadedContent);
           setBannerImage(data.about_page_banner_image_url ?? "");
+
+          // Extract banner text for about page
+          if (data.banner_texts && Array.isArray(data.banner_texts)) {
+            const aboutBannerText = data.banner_texts.find(item => item.page === 'about');
+            if (aboutBannerText) {
+              setBannerText({
+                title: aboutBannerText.title || "",
+                subtitle: aboutBannerText.subtitle || "",
+                description: aboutBannerText.description || ""
+              });
+            }
+          }
         }
       } catch (error) {
         console.error("Error loading about content:", error);
@@ -84,19 +115,25 @@ export default function About() {
           ) : null}
         </div>
         <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
-            <span className="bg-clip-text text-transparent 
-                           bg-linear-to-r from-primary/90 to-orange-300 
-                             transition-colors duration-300 ease-in-out">
-              About Pragati Prime
-            </span>
-            <span className="text-white dark:text-zinc-50 block mt-2">
-              Empowering Communities Through Action
-            </span>
-          </h1>
-          <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
-            Empowering communities through education, healthcare, and sustainable development initiatives.
-          </p>
+          {bannerText.title && (
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+              <span className="bg-clip-text text-transparent
+                             bg-linear-to-r from-primary/90 to-orange-300
+                               transition-colors duration-300 ease-in-out">
+                {bannerText.title}
+              </span>
+              {bannerText.subtitle && (
+                <span className="text-white dark:text-zinc-50 block mt-2">
+                  {bannerText.subtitle}
+                </span>
+              )}
+            </h1>
+          )}
+          {bannerText.description && (
+            <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
+              {bannerText.description}
+            </p>
+          )}
         </div>
       </section>
 
@@ -113,19 +150,13 @@ export default function About() {
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 sm:gap-12 mb-8 sm:mb-12">
-            <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400">
-              <p>
-                Pragati Prime – Meri Beti Mera Abhiman Mahila Sangathan (Regd.) is a New Delhi-based NGO dedicated to empowering rural women and adolescent girls by promoting health, education, and economic independence.
-              </p>
-              <p>
-                Our mission is to uplift women from rural communities, especially in Western Uttar Pradesh and Delhi, by connecting them with government welfare schemes, creating awareness about health, and providing opportunities for skill development and financial growth.
-              </p>
-              <p>
-                We work closely with local communities to organize health camps, awareness programs, livelihood training, education support, and grievance resolution for rural women.
-              </p>
-              <p>
-                Through CSR partnerships and collaborative initiatives, we aim to provide sustainable support, financial assistance, and long-term development opportunities for women and girls.
-              </p>
+            <div className="space-y-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              {aboutContent.about_us_paragraph1 && (
+                <p>{aboutContent.about_us_paragraph1}</p>
+              )}
+              {aboutContent.about_us_paragraph2 && (
+                <p>{aboutContent.about_us_paragraph2}</p>
+              )}
               <div className="rounded-2xl bg-primary/5 border border-primary/20 p-5 dark:bg-primary/5">
                 <p className="font-semibold italic text-zinc-900 dark:text-zinc-100">
                   &ldquo;Healthy, Educated, and Empowered Girls Build a Stronger Nation.&rdquo;
@@ -196,54 +227,13 @@ export default function About() {
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-8 sm:gap-12">
+          <div className="max-w-4xl mx-auto">
             <div className="space-y-5 text-base sm:text-lg text-zinc-600 dark:text-zinc-300">
-              {aboutContent.about_mission_paragraph1 ? (
-                <>
-                  {aboutContent.about_mission_paragraph1 && <p>{aboutContent.about_mission_paragraph1}</p>}
-                  {aboutContent.about_mission_paragraph2 && <p>{aboutContent.about_mission_paragraph2}</p>}
-                  {aboutContent.about_mission_paragraph3 && <p>{aboutContent.about_mission_paragraph3}</p>}
-                </>
-              ) : (
-                <>
-                  <p>
-                    Pragati Prime is committed to empowering rural women and adolescent girls in Western Uttar
-                    Pradesh and Delhi NCR through health, education, and economic independence.
-                  </p>
-                  <p>
-                    We bridge the gap between communities and government schemes, ensuring women can easily access
-                    healthcare services, social security benefits, and livelihood opportunities.
-                  </p>
-                  <p>
-                    By partnering with local leaders, institutions, and CSR initiatives, we design programs that
-                    are practical, culturally rooted, and focused on long-term impact.
-                  </p>
-                </>
+              {aboutContent.mission_paragraphs && aboutContent.mission_paragraphs.length > 0 && (
+                aboutContent.mission_paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph.content}</p>
+                ))
               )}
-            </div>
-
-            <div className="rounded-2xl bg-primary/5 dark:bg-primary/10 border border-primary/30 p-6 sm:p-8 space-y-4">
-              <h3 className="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-                We focus on:
-              </h3>
-              <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                  <span>Strengthening mother–child health and menstrual hygiene awareness.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                  <span>Supporting girls&apos; education, digital learning, and life-skills training.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                  <span>Creating income-generation avenues through skilling, SHGs, and entrepreneurship.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                  <span>Helping women raise their voices, access grievance redressal, and claim their rights.</span>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
@@ -380,137 +370,58 @@ export default function About() {
             <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-14">
-            {/* Education */}
-            <div className="bg-white dark:bg-zinc-950 rounded-2xl p-6 sm:p-8 shadow-lg">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Education</h3>
-              </div>
-              <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                We believe education is the cornerstone of empowerment. Our education programs focus on:
-              </p>
-              <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Scholarships for underprivileged students</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Educational infrastructure development</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Teacher training and capacity building</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Digital learning resources and technology access</span>
-                </li>
-              </ul>
-            </div>
+            {aboutContent.impact_areas && aboutContent.impact_areas.length > 0 ? (
+              aboutContent.impact_areas.map((area, index) => {
+                const getIcon = (title) => {
+                  const lowerTitle = title.toLowerCase();
+                  if (lowerTitle.includes('education')) {
+                    return (
+                      <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    );
+                  } else if (lowerTitle.includes('health') || lowerTitle.includes('care')) {
+                    return (
+                      <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    );
+                  } else if (lowerTitle.includes('women') || lowerTitle.includes('empowerment')) {
+                    return (
+                      <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    );
+                  } else if (lowerTitle.includes('community') || lowerTitle.includes('development')) {
+                    return (
+                      <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    );
+                  }
+                  // Default icon
+                  return (
+                    <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  );
+                };
 
-            {/* Healthcare */}
-            <div className="bg-white dark:bg-zinc-950 rounded-2xl p-6 sm:p-8 shadow-lg">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Healthcare</h3>
-              </div>
-              <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                Access to healthcare is a fundamental right. Our healthcare initiatives include:
-              </p>
-              <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Free health camps and medical checkups</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Vaccination drives and preventive care</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Health awareness and hygiene programs</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Mental health support and counseling</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Women Empowerment */}
-            <div className="bg-white dark:bg-zinc-950 rounded-2xl p-6 sm:p-8 shadow-lg">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Women Empowerment</h3>
-              </div>
-              <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                Empowering women creates stronger communities. Our programs support:
-              </p>
-              <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Entrepreneurship training and mentorship</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Micro-loan programs for small businesses</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Financial literacy workshops</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Leadership development programs</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Community Development */}
-            <div className="bg-white dark:bg-zinc-950 rounded-2xl p-6 sm:p-8 shadow-lg">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Community Development</h3>
-              </div>
-              <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                Building resilient communities through infrastructure and capacity building:
-              </p>
-              <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Clean water initiatives and well construction</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Community centers and learning hubs</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Skill development and vocational training</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Environmental sustainability programs</span>
-                </li>
-              </ul>
-            </div>
+                return (
+                  <div key={index} className="bg-white dark:bg-zinc-950 rounded-2xl p-6 sm:p-8 shadow-lg">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                        {getIcon(area.title)}
+                      </div>
+                      <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{area.title}</h3>
+                    </div>
+                    <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                      {area.content}
+                    </p>
+                  </div>
+                );
+              })
+            ) : null}
           </div>
         </div>
       </section>
@@ -528,185 +439,11 @@ export default function About() {
               </span>
               <span className="mt-3 block h-1 w-16 sm:w-24 mx-auto rounded-full bg-primary/70" />
             </h2>
-            <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-              Our methodology combines community engagement, data-driven solutions, and sustainable practices to create lasting impact
-            </p>
-          </div>
-
-          <div className="space-y-8 sm:space-y-12">
-            {/* Step 1: Community Engagement */}
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-              <div className="flex-shrink-0 w-full md:w-1/4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 mb-4">
-                  <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">01</span>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Community Engagement</h3>
-              </div>
-              <div className="flex-1">
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  We begin by building strong relationships with local communities. Through dialogue, needs assessments, and participatory planning, we ensure that our programs are designed with and for the people we serve, not imposed upon them.
-                </p>
-                <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Regular community meetings and consultations</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Participatory needs assessment and planning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Local leadership involvement and capacity building</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Step 2: Needs Assessment */}
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-              <div className="flex-shrink-0 w-full md:w-1/4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-100 dark:bg-green-900/30 mb-4">
-                  <span className="text-3xl font-bold text-green-600 dark:text-green-400">02</span>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Needs Assessment</h3>
-              </div>
-              <div className="flex-1">
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  Comprehensive data collection and analysis help us understand the root causes of challenges. We use evidence-based approaches to identify priorities and design targeted interventions that address real needs.
-                </p>
-                <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Comprehensive baseline surveys and data collection</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Stakeholder mapping and analysis</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Evidence-based priority setting</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Step 3: Program Design */}
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-              <div className="flex-shrink-0 w-full md:w-1/4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-900/30 mb-4">
-                  <span className="text-3xl font-bold text-purple-600 dark:text-purple-400">03</span>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Program Design</h3>
-              </div>
-              <div className="flex-1">
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  We design holistic programs that integrate multiple interventions. Our approach connects education, healthcare, economic empowerment, and infrastructure development to create synergistic effects and maximize impact.
-                </p>
-                <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Integrated multi-sectoral program design</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Cultural sensitivity and local adaptation</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Scalable and replicable model development</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Step 4: Implementation */}
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-              <div className="flex-shrink-0 w-full md:w-1/4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 mb-4">
-                  <span className="text-3xl font-bold text-orange-600 dark:text-orange-400">04</span>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Implementation</h3>
-              </div>
-              <div className="flex-1">
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  With strong community partnerships and local ownership, we implement programs through trained local teams. Regular monitoring ensures quality delivery and allows for adaptive management based on real-time feedback.
-                </p>
-                <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Local team training and capacity building</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Continuous monitoring and quality assurance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Adaptive management and course correction</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Step 5: Impact Measurement */}
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-              <div className="flex-shrink-0 w-full md:w-1/4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 mb-4">
-                  <span className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">05</span>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Impact Measurement</h3>
-              </div>
-              <div className="flex-1">
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  We track progress using clear indicators and metrics. Regular evaluations help us understand what works, what doesn&apos;t, and how to improve. This data-driven approach ensures accountability and continuous improvement.
-                </p>
-                <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Regular progress tracking and reporting</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Impact evaluations and outcome assessments</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Learning documentation and knowledge sharing</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Step 6: Sustainability */}
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-              <div className="flex-shrink-0 w-full md:w-1/4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 mb-4">
-                  <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">06</span>
-                </div>
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Sustainability</h3>
-              </div>
-              <div className="flex-1">
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  From the start, we build local capacity and ownership. Our programs are designed to become self-sustaining, with communities taking full responsibility for continued operation and growth long after our direct involvement.
-                </p>
-                <ul className="space-y-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Local ownership and governance structures</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Resource mobilization and financial sustainability</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary mr-2 mt-1">✓</span>
-                    <span>Long-term partnership and support networks</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            {aboutContent.our_approach_paragraph && (
+              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+                {aboutContent.our_approach_paragraph}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -730,108 +467,96 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {/* Proven Track Record */}
-            <Card className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Proven Track Record</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  With over 10,000+ lives touched, we have a demonstrated history of creating meaningful impact through our comprehensive programs and community partnerships.
-                </p>
-              </CardContent>
-            </Card>
+            {aboutContent.why_pragati_paragraphs && aboutContent.why_pragati_paragraphs.length > 0 ? (
+              aboutContent.why_pragati_paragraphs.map((item, index) => {
+                const getIconAndColor = (title) => {
+                  const lowerTitle = title.toLowerCase();
+                  if (lowerTitle.includes('proven') || lowerTitle.includes('track record')) {
+                    return {
+                      icon: (
+                        <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                      ),
+                      bgColor: "bg-blue-100 dark:bg-blue-900/30"
+                    };
+                  } else if (lowerTitle.includes('community') || lowerTitle.includes('centered')) {
+                    return {
+                      icon: (
+                        <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      ),
+                      bgColor: "bg-green-100 dark:bg-green-900/30"
+                    };
+                  } else if (lowerTitle.includes('transparent') || lowerTitle.includes('accountable')) {
+                    return {
+                      icon: (
+                        <svg className="w-7 h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      ),
+                      bgColor: "bg-purple-100 dark:bg-purple-900/30"
+                    };
+                  } else if (lowerTitle.includes('holistic') || lowerTitle.includes('solutions')) {
+                    return {
+                      icon: (
+                        <svg className="w-7 h-7 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                      ),
+                      bgColor: "bg-orange-100 dark:bg-orange-900/30"
+                    };
+                  } else if (lowerTitle.includes('experienced') || lowerTitle.includes('team')) {
+                    return {
+                      icon: (
+                        <svg className="w-7 h-7 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                      ),
+                      bgColor: "bg-indigo-100 dark:bg-indigo-900/30"
+                    };
+                  } else if (lowerTitle.includes('sustainable') || lowerTitle.includes('impact')) {
+                    return {
+                      icon: (
+                        <svg className="w-7 h-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      ),
+                      bgColor: "bg-emerald-100 dark:bg-emerald-900/30"
+                    };
+                  }
+                  // Default icon
+                  return {
+                    icon: (
+                      <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    ),
+                    bgColor: "bg-primary/20"
+                  };
+                };
 
-            {/* Community-Centered Approach */}
-            <Card className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Community-Centered</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  We work directly with local communities, understanding their unique needs and co-creating solutions that are sustainable and culturally appropriate.
-                </p>
-              </CardContent>
-            </Card>
+                const { icon, bgColor } = getIconAndColor(item.title);
 
-            {/* Transparent & Accountable */}
-            <Card className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Transparent & Accountable</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  We maintain complete transparency in our operations, regularly sharing impact reports and ensuring every contribution directly benefits the communities we serve.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Holistic Solutions */}
-            <Card className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Holistic Solutions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Our integrated approach addresses education, healthcare, empowerment, and infrastructure together, creating comprehensive and lasting transformation.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Experienced Team */}
-            <Card className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Experienced Team</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  Our dedicated team of professionals brings years of experience in development work, ensuring effective program implementation and maximum impact.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Sustainable Impact */}
-            <Card className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-                  <svg className="w-7 h-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <CardTitle className="text-xl mb-2">Sustainable Impact</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-zinc-600 dark:text-zinc-400">
-                  We focus on building capacity and creating self-sustaining programs that continue to benefit communities long after our direct involvement.
-                </p>
-              </CardContent>
-            </Card>
+                return (
+                  <Card key={index} className="rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-zinc-50 dark:bg-zinc-900">
+                    <CardHeader>
+                      <div className={`w-14 h-14 rounded-xl ${bgColor} flex items-center justify-center mb-4`}>
+                        {icon}
+                      </div>
+                      <CardTitle className="text-xl mb-2">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        {item.content}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            ) : null}
           </div>
         </div>
       </section>

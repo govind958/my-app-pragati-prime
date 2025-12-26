@@ -47,43 +47,52 @@ export default function AuthPage() {
 
     // 2. Send OTP email
     let error = null;
-    
-    // First, try based on the tab (login or signup)
-    let result = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: tab === "signup",
-        // Use email OTP instead of magic link
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
-      },
-    });
 
-    error = result.error;
-
-    // If login fails with "signups not allowed" or user doesn't exist, try signup
-    if (error && tab === "login" && (
-      error.message.includes("Signups not allowed") || 
-      error.message.includes("signup") ||
-      error.message.includes("User not found") ||
-      error.message.includes("Invalid login credentials")
-    )) {
-      // No account exists for this email - automatically create one (signup)
-      result = await supabase.auth.signInWithOtp({
+    if (tab === "login") {
+      // For login, try to sign in without creating user
+      const result = await supabase.auth.signInWithOtp({
         email,
         options: {
-          shouldCreateUser: true, // Create new account
+          shouldCreateUser: false, // Don't create user for login
           emailRedirectTo: `${window.location.origin}/auth/confirm`,
         },
       });
+
       error = result.error;
-      
-      // If it's now a signup, store any provided data
+
+      // If user doesn't exist, show signup required message
+      if (error && (
+        error.message.includes("User not found") ||
+        error.message.includes("Invalid login credentials") ||
+        error.message.includes("Email not confirmed") ||
+        error.message.includes("signup") ||
+        error.message.includes("Signups not allowed")
+      )) {
+        setMessage("❌ First signup - no account found with this email.");
+        setLoading(false);
+        return;
+      }
+
+    } else if (tab === "signup") {
+      // For signup, try to sign in with user creation allowed
+      const result = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        },
+      });
+
+      error = result.error;
+
+      // Store signup data
       if (!error && (name || phone)) {
         try {
-          localStorage.setItem("signup_name", name || "");
-          localStorage.setItem("signup_phone", phone || "");
+          localStorage.setItem("signup_name", name);
+          localStorage.setItem("signup_phone", phone);
         } catch (err) {
           console.error("Failed to save to local storage:", err);
+          setMessage("Warning: Could not save profile data. You may need to enter it later.");
         }
       }
     }
@@ -248,8 +257,8 @@ export default function AuthPage() {
         {otpSent
           ? `Enter the 6-digit code sent to ${email}`
           : tab === "login"
-          ? "Enter your email to receive a secure OTP code."
-          : "Sign up is fast and simple. No credit card required."}
+          ? "Enter your registered email to receive a secure OTP code."
+          : "Create your account first. Signup is required before you can login."}
       </p>
 
       {/* OTP Verification Form */}

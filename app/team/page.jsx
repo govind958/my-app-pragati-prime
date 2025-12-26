@@ -16,6 +16,18 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
   const [bannerImage, setBannerImage] = useState("");
   const [bannerLoading, setBannerLoading] = useState(true);
+  const [bannerText, setBannerText] = useState({
+    title: "",
+    subtitle: "",
+    description: ""
+  });
+  const [volunteerContent, setVolunteerContent] = useState({
+    volunteer_info: { paragraph1: "", paragraph2: "" },
+    volunteer_opportunities: [],
+    internship_info: { paragraph1: "", paragraph2: "" },
+    internship_opportunities: [],
+    career_positions: []
+  });
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -44,12 +56,24 @@ export default function TeamPage() {
       try {
         const { data } = await supabase
           .from("site_settings")
-          .select("team_page_banner_image_url")
+          .select("team_page_banner_image_url, banner_texts")
           .limit(1)
           .maybeSingle();
-        
+
         if (data?.team_page_banner_image_url) {
           setBannerImage(data.team_page_banner_image_url);
+        }
+
+        // Extract banner text for team page
+        if (data.banner_texts && Array.isArray(data.banner_texts)) {
+          const teamBannerText = data.banner_texts.find(item => item.page === 'team');
+          if (teamBannerText) {
+            setBannerText({
+              title: teamBannerText.title || "",
+              subtitle: teamBannerText.subtitle || "",
+              description: teamBannerText.description || ""
+            });
+          }
         }
       } catch (error) {
         console.error("Error loading team banner:", error);
@@ -58,8 +82,37 @@ export default function TeamPage() {
       }
     };
 
+    const fetchVolunteerContent = async () => {
+      try {
+        // Load volunteer content from site_settings (already migrated)
+        const { data: volunteerData } = await supabase
+          .from("site_settings")
+          .select("volunteer_info, volunteer_opportunities")
+          .limit(1)
+          .maybeSingle();
+
+        // Load internship content and career positions from team_page_content (new table)
+        const { data: internshipData } = await supabase
+          .from("team_page_content")
+          .select("internship_info, internship_opportunities, career_positions")
+          .eq("section", "content")
+          .single();
+
+        setVolunteerContent({
+          volunteer_info: volunteerData?.volunteer_info || { paragraph1: "", paragraph2: "" },
+          volunteer_opportunities: volunteerData?.volunteer_opportunities || [],
+          internship_info: internshipData?.internship_info || { paragraph1: "", paragraph2: "" },
+          internship_opportunities: internshipData?.internship_opportunities || [],
+          career_positions: internshipData?.career_positions || []
+        });
+      } catch (error) {
+        console.error("Error loading content:", error);
+      }
+    };
+
     fetchTeamMembers();
     fetchBannerImage();
+    fetchVolunteerContent();
   }, []);
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans">
@@ -90,19 +143,25 @@ export default function TeamPage() {
           ) : null}
         </div>
         <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
-            <span className="bg-clip-text text-transparent 
-                           bg-linear-to-r from-primary/90 to-orange-300 
-                             transition-colors duration-300 ease-in-out">
-              People Powering Meri Beti Mission
-            </span>
-            <span className="text-white dark:text-zinc-50 block mt-2">
-              Meet Our Dedicated Team
-            </span>
-          </h1>
-          <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
-            Meet the Pragati Prime leaders partnering with rural women and girls to deliver health camps, bridge education, and income pathways across Western Uttar Pradesh and Delhi.
-          </p>
+          {bannerText.title && (
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+              <span className="bg-clip-text text-transparent
+                             bg-linear-to-r from-primary/90 to-orange-300
+                               transition-colors duration-300 ease-in-out">
+                {bannerText.title}
+              </span>
+              {bannerText.subtitle && (
+                <span className="text-white dark:text-zinc-50 block mt-2">
+                  {bannerText.subtitle}
+                </span>
+              )}
+            </h1>
+          )}
+          {bannerText.description && (
+            <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
+              {bannerText.description}
+            </p>
+          )}
         </div>
       </section>
 
@@ -194,36 +253,32 @@ export default function TeamPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center mb-8">
             <div>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Volunteer with us to host health camps, mentor adolescent girls, and help families enroll in government schemes—the support that keeps rural daughters safe in school.
-              </p>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Whether you can translate awareness materials into Hindi, teach digital literacy, or document impact stories, your skills strengthen the Meri Beti Mera Abhiman movement.
-              </p>
+              {volunteerContent.volunteer_info.paragraph1 && (
+                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+                  {volunteerContent.volunteer_info.paragraph1}
+                </p>
+              )}
+              {volunteerContent.volunteer_info.paragraph2 && (
+                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+                  {volunteerContent.volunteer_info.paragraph2}
+                </p>
+              )}
             </div>
             <Card className="rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800">
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">Volunteer Opportunities</h3>
               <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Education bridges: Mentor board exam cohorts, run STEM clubs, or help with scholarship paperwork</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Healthcare camps: Support screenings, menstrual health workshops, and referral follow-ups</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Community outreach: Map high-risk villages, collect beneficiary stories, and spread scheme awareness</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Digital ops: Manage case-tracking dashboards, WhatsApp helplines, and donor updates</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Skills training: Coach women entrepreneurs on pricing, packaging, and online marketplaces</span>
-                </li>
+                {volunteerContent.volunteer_opportunities && volunteerContent.volunteer_opportunities.length > 0 ? (
+                  volunteerContent.volunteer_opportunities.map((opportunity, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>{opportunity.content}</span>
+                    </li>
+                  ))
+                ) : (
+                  <>
+ 
+                  </>
+                )}
               </ul>
             </Card>
           </div>
@@ -255,76 +310,56 @@ export default function TeamPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center mb-8">
+            <div>
+              {volunteerContent.internship_info.paragraph1 && (
+                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+                  {volunteerContent.internship_info.paragraph1}
+                </p>
+              )}
+              {volunteerContent.internship_info.paragraph2 && (
+                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+                  {volunteerContent.internship_info.paragraph2}
+                </p>
+              )}
+            </div>
             <Card className="rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200 dark:border-purple-800">
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">What You&apos;ll Gain</h3>
               <ul className="space-y-3 text-sm sm:text-base text-zinc-700 dark:text-zinc-300">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Hands-on experience in development work</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Mentorship from experienced professionals</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Networking opportunities with industry leaders</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Certificate of completion and recommendation letters</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2 mt-1">✓</span>
-                  <span>Real-world project experience for your portfolio</span>
-                </li>
+                {volunteerContent.internship_opportunities && volunteerContent.internship_opportunities.length > 0 ? (
+                  volunteerContent.internship_opportunities.map((opportunity, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>{opportunity.content}</span>
+                    </li>
+                  ))
+                ) : (
+                  <>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>Hands-on experience in development work</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>Mentorship from experienced professionals</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>Networking opportunities with industry leaders</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>Certificate of completion and recommendation letters</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2 mt-1">✓</span>
+                      <span>Real-world project experience for your portfolio</span>
+                    </li>
+                  </>
+                )}
               </ul>
             </Card>
-            <div>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Interns co-create field toolkits, visualize impact data, and shadow frontline teams as they connect rural households to health, education, and financial services.
-              </p>
-              <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
-                Roles span program design, storytelling, fundraising, and research; most last 12-24 weeks with hybrid options from Delhi NCR plus immersive village visits.
-              </p>
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="rounded-2xl p-6 bg-white dark:bg-zinc-950">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Program Management</h4>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Learn to design, implement, and monitor women-centered development cohorts
-              </p>
-            </Card>
-            <Card className="rounded-2xl p-6 bg-white dark:bg-zinc-950">
-              <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Communications</h4>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Craft bilingual storytelling that spotlights rural girls’ progress
-              </p>
-            </Card>
-            <Card className="rounded-2xl p-6 bg-white dark:bg-zinc-950">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Research & Evaluation</h4>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Conduct research, analyze gendered data, and measure program impact
-              </p>
-            </Card>
-          </div>
 
           <div className="text-center">
             <Link href="/#contact-form">
@@ -459,84 +494,25 @@ export default function TeamPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 mb-12">
-            <div>
-              <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">Why Work With Us?</h3>
-              <ul className="space-y-4 text-base text-zinc-600 dark:text-zinc-400">
-                <li className="flex items-start">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center mr-4 shrink-0">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Meaningful Work:</strong> Design and scale programs that keep thousands of girls in school and women in business.
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center mr-4 shrink-0">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Professional Growth:</strong> Receive mentorship from experts in gender, public health, and impact finance.
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center mr-4 shrink-0">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Collaborative Culture:</strong> Co-create with field leaders, SHG federations, and youth volunteers.
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center mr-4 shrink-0">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-zinc-100">Work-Life Balance:</strong> Flexible, purpose-driven schedules with periodic village immersions.
-                  </div>
-                </li>
-              </ul>
-            </div>
-
+          <div className="max-w-2xl mx-auto mb-12">
             <Card className="rounded-2xl p-6 sm:p-8 bg-white dark:bg-zinc-950">
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">Open Positions</h3>
               <div className="space-y-4">
-                <div className="border-l-4 border-primary pl-4 py-2">
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Program Manager</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Full-time • Remote/Hybrid</p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Lead program design and implementation across education and healthcare verticals.
-                  </p>
-                </div>
-                <div className="border-l-4 border-primary pl-4 py-2">
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Community Outreach Coordinator</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Full-time • Field-based</p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Build relationships with communities and coordinate grassroots initiatives.
-                  </p>
-                </div>
-                <div className="border-l-4 border-primary pl-4 py-2">
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Fundraising Manager</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Full-time • Hybrid</p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Develop and execute fundraising strategies to support our programs.
-                  </p>
-                </div>
-                <div className="border-l-4 border-primary pl-4 py-2">
-                  <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Communications Specialist</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Full-time • Remote</p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Create compelling content and manage our digital presence and storytelling.
-                  </p>
-                </div>
+                {volunteerContent.career_positions && volunteerContent.career_positions.length > 0 ? (
+                  volunteerContent.career_positions.map((position, index) => (
+                    <div key={index} className="border-l-4 border-primary pl-4 py-2">
+                      <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">{position.title}</h4>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">{position.type}</p>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {position.description}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-zinc-500 dark:text-zinc-400">No open positions available at this time.</p>
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -546,14 +522,6 @@ export default function TeamPage() {
               Don&apos;t see a role yet? Share how you can advance rural women’s health, education, or economic independence—we&apos;re always scouting aligned talent.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-              <Link href="/login">
-                <Button
-                  size="lg"
-                  className="rounded-full px-8 py-6 bg-primary hover:bg-primary/90 text-white"
-                >
-                  View All Openings
-                </Button>
-              </Link>
               <Link href="/#contact-form">
                 <Button
                   size="lg"
