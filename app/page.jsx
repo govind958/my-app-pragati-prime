@@ -242,8 +242,7 @@ export default function Home() {
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
-        state: formData.state,
-        location: formData.location,
+        location: formData.state + (formData.location ? ', ' + formData.location : ''), // Combine state and location
         interested_to_connect: formData.interestedToConnect,
         status: "new",
       });

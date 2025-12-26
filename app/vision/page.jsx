@@ -241,7 +241,7 @@ export default function Vision() {
 
       {/* Child-Related Initiatives Section */}
       {childInitiativesParagraph && childInitiativesParagraph.length > 0 && (
-        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-50 dark:bg-zinc-900">
+        <section id="child-initiatives" className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-50 dark:bg-zinc-900">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
@@ -268,7 +268,7 @@ export default function Vision() {
 
       {/* Women Empowerment Vision Section */}
       {womenEmpowermentVision && womenEmpowermentVision.length > 0 && (
-        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-100 dark:bg-zinc-800">
+        <section id="women-empowerment" className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-100 dark:bg-zinc-800">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
@@ -295,7 +295,7 @@ export default function Vision() {
 
       {/* Protection Initiatives Section */}
       {protectionInitiatives && protectionInitiatives.length > 0 && (
-        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-50 dark:bg-zinc-900">
+        <section id="protection-initiatives" className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-50 dark:bg-zinc-900">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
@@ -322,7 +322,7 @@ export default function Vision() {
 
       {/* CTA to Join the Mission Section */}
       {ctaJoinMission && ctaJoinMission.length > 0 && (
-        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-100 dark:bg-zinc-800">
+        <section id="cta-join-mission" className="py-16 sm:py-20 px-4 sm:px-6 md:px-16 bg-zinc-100 dark:bg-zinc-800">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="relative text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">

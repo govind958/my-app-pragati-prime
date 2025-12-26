@@ -15,12 +15,10 @@ export const NAV_LINKS = [
     label: "We Provide",
     href: "/vision",
     sections: [
-      { label: "Child Education", href: "/vision#child-education" },
-      { label: "Child Health & Nutrition", href: "/vision#child-health" },
-      { label: "Stop Child Labour", href: "/vision#stop-child-labour" },
-      { label: "Support Girl Child", href: "/vision#support-girl-child" },
-      { label: "Stop Child Marriage", href: "/vision#stop-child-marriage" },
-      { label: "Women Empowerment", href: "/vision#women-health-empowerment" },
+      { label: "Child-Related Initiatives", href: "/vision#child-initiatives" },
+      { label: "Women Empowerment Vision", href: "/vision#women-empowerment" },
+      { label: "Protection Initiatives", href: "/vision#protection-initiatives" },
+      { label: "CTA to Join the Mission", href: "/vision#cta-join-mission" },
     ],
   },
   {
