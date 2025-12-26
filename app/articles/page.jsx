@@ -21,6 +21,11 @@ export default function ArticlesPage() {
   const [loading, setLoading] = useState(true); // Start with loading=true
   const [bannerImage, setBannerImage] = useState("");
   const [bannerLoading, setBannerLoading] = useState(true);
+  const [bannerText, setBannerText] = useState({
+    title: "",
+    subtitle: "",
+    description: ""
+  });
 
   useEffect(() => {
     // Define an async function to fetch articles
@@ -45,12 +50,24 @@ export default function ArticlesPage() {
       try {
         const { data } = await supabase
           .from("site_settings")
-          .select("articles_page_banner_image_url")
+          .select("articles_page_banner_image_url, banner_texts")
           .limit(1)
           .maybeSingle();
-        
+
         if (data?.articles_page_banner_image_url) {
           setBannerImage(data.articles_page_banner_image_url);
+        }
+
+        // Extract banner text for articles page
+        if (data.banner_texts && Array.isArray(data.banner_texts)) {
+          const articlesBannerText = data.banner_texts.find(item => item.page === 'articles');
+          if (articlesBannerText) {
+            setBannerText({
+              title: articlesBannerText.title || "",
+              subtitle: articlesBannerText.subtitle || "",
+              description: articlesBannerText.description || ""
+            });
+          }
         }
       } catch (error) {
         console.error("Error loading articles banner:", error);
@@ -95,19 +112,25 @@ export default function ArticlesPage() {
           ) : null}
         </div>
         <div className="relative z-10 px-4 sm:px-0 max-w-5xl">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
-            <span className="bg-clip-text text-transparent 
-                           bg-linear-to-r from-primary/90 to-orange-300 
-                             transition-colors duration-300 ease-in-out">
-              Articles & Updates
-            </span>
-            <span className="text-white dark:text-zinc-50 block mt-2">
-              Stay Informed About Our Impact
-            </span>
-          </h1>
-          <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
-            Stay informed about our latest initiatives, impact stories, and community updates.
-          </p>
+          {bannerText.title && (
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold max-w-4xl leading-tight tracking-tighter">
+              <span className="bg-clip-text text-transparent
+                             bg-linear-to-r from-primary/90 to-orange-300
+                               transition-colors duration-300 ease-in-out">
+                {bannerText.title}
+              </span>
+              {bannerText.subtitle && (
+                <span className="text-white dark:text-zinc-50 block mt-2">
+                  {bannerText.subtitle}
+                </span>
+              )}
+            </h1>
+          )}
+          {bannerText.description && (
+            <p className="mt-6 sm:mt-8 max-w-3xl text-lg sm:text-xl text-zinc-300 dark:text-zinc-400 mx-auto">
+              {bannerText.description}
+            </p>
+          )}
         </div>
       </section>
 
