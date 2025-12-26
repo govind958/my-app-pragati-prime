@@ -86,15 +86,15 @@ export default function Home() {
                 // Old format: just image URL string
                 return {
                   image: banner,
-                  titleLine1: homeContent.heroTitleLine1,
-                  titleLine2: homeContent.heroTitleLine2
+                  titleLine1: data.hero_title_line1 || "Empowering Rural Women.",
+                  titleLine2: data.hero_title_line2 || "Health. Education. Economic Independence."
                 };
               } else {
                 // New format: object with image, titleLine1, titleLine2
                 return {
                   image: banner.image || banner,
-                  titleLine1: banner.titleLine1 || homeContent.heroTitleLine1,
-                  titleLine2: banner.titleLine2 || homeContent.heroTitleLine2
+                  titleLine1: banner.titleLine1 || data.hero_title_line1 || "Empowering Rural Women.",
+                  titleLine2: banner.titleLine2 || data.hero_title_line2 || "Health. Education. Economic Independence."
                 };
               }
             });

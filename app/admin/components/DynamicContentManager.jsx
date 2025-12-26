@@ -30,12 +30,6 @@ const DynamicContentManager = ({
     onChange(newItems);
   };
 
-  const moveItem = (fromIndex, toIndex) => {
-    const newItems = [...items];
-    const [movedItem] = newItems.splice(fromIndex, 1);
-    newItems.splice(toIndex, 0, movedItem);
-    onChange(newItems);
-  };
 
   return (
     <Card>
