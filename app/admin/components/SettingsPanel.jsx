@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button1";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, ExternalLink, Info, Trash2, Plus } from "lucide-react";
+import { Upload, ExternalLink, Info, Trash2, Plus, ChevronDown } from "lucide-react";
 import FooterLinkEditor from "./shared/FooterLinkEditor";
 import SocialIconEditor from "./shared/SocialIconEditor";
 import ImpactStoriesManager from "./ImpactStoriesManager";
@@ -15,6 +15,33 @@ import DynamicContentManager from "./DynamicContentManager";
 
 export default function SettingsPanel({ supabase, onSettingsSaved }) {
   const [activeTab, setActiveTab] = useState("general");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMobileMenu && !event.target.closest('.mobile-menu-container')) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMobileMenu]);
+
+  const tabs = [
+    { id: "general", label: "General" },
+    { id: "home", label: "Home Page" },
+    { id: "footer", label: "Footer" },
+    { id: "footer-links", label: "Footer Links" },
+    { id: "about", label: "About Page" },
+    { id: "team", label: "Team Page" },
+    { id: "page-banners", label: "Page Banners" },
+    { id: "banner-texts", label: "Banner Texts" },
+    { id: "impact-stories", label: "Impact Stories" },
+    { id: "what-we-do", label: "What We Do" },
+    { id: "focus-areas", label: "We Provide Page" },
+  ];
   const [site, setSite] = useState({ 
     id: 1, 
     title: "NGO", 
@@ -644,77 +671,55 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <h1 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Site Content Management</h1>
       
-      {/* Tabs - Scrollable on mobile */}
-      <div className="overflow-x-auto -mx-2 sm:mx-0">
-        <div className="flex gap-1 sm:gap-2 border-b min-w-max sm:min-w-0 px-2 sm:px-0">
+      {/* Responsive Tabs Navigation */}
+      <div className="relative">
+        {/* Mobile Dropdown */}
+        <div className="md:hidden mobile-menu-container">
           <button
-            onClick={() => setActiveTab("general")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "general" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            General
+            {tabs.find(tab => tab.id === activeTab)?.label || "Select Tab"}
+            <ChevronDown className={`w-4 h-4 transition-transform ${showMobileMenu ? "rotate-180" : ""}`} />
           </button>
-          <button
-            onClick={() => setActiveTab("home")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "home" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Home Page
-          </button>
-          <button
-            onClick={() => setActiveTab("footer")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "footer" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Footer
-          </button>
-          <button
-            onClick={() => setActiveTab("footer-links")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "footer-links" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Footer Links
-          </button>
-          <button
-            onClick={() => setActiveTab("about")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "about" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            About Page
-          </button>
-          <button
-            onClick={() => setActiveTab("team")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "team" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Team Page
-          </button>
-          <button
-            onClick={() => setActiveTab("page-banners")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "page-banners" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Page Banners
-          </button>
-          <button
-            onClick={() => setActiveTab("banner-texts")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "banner-texts" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Banner Texts
-          </button>
-          <button
-            onClick={() => setActiveTab("impact-stories")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "impact-stories" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            Impact Stories
-          </button>
-          <button
-            onClick={() => setActiveTab("what-we-do")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "what-we-do" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            What We Do
-          </button>
-          <button
-            onClick={() => setActiveTab("focus-areas")}
-            className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === "focus-areas" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
-          >
-            We Provide Page
-          </button>
+
+          {showMobileMenu && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setShowMobileMenu(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                    activeTab === tab.id ? "bg-primary/10 text-primary font-medium" : "text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Tabs - Scrollable */}
+        <div className="hidden md:block overflow-x-auto -mx-2 lg:mx-0">
+          <div className="flex gap-1 lg:gap-2 border-b min-w-max lg:min-w-0 px-2 lg:px-0">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3 lg:px-4 py-2 text-xs lg:text-sm font-medium whitespace-nowrap ${
+                  activeTab === tab.id ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
 
       {/* General Tab */}
       {activeTab === "general" && (
