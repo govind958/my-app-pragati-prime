@@ -12,11 +12,12 @@ export default function Sidebar({ section, onSectionChange, siteSettings, onClos
   return (
     <>
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } flex flex-col h-screen`}
+        } h-screen flex flex-col`}
       >
-        <div className="p-4 overflow-y-auto flex-1 min-h-0">
+        {/* Scrollable content area */}
+        <div className="p-4 flex-1 overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <Image 
@@ -99,7 +100,9 @@ export default function Sidebar({ section, onSectionChange, siteSettings, onClos
             </NavButton>
           </nav>
         </div>
-        <div className="p-4 pt-4 border-t mt-auto shrink-0">
+        
+        {/* Sign Out Button - Fixed at bottom */}
+        <div className="p-4 border-t bg-white shrink-0">
           <Button
             className="w-full bg-primary hover:bg-primary/90 text-white"
             onClick={async () => {

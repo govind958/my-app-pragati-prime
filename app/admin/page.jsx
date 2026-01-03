@@ -235,7 +235,7 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex relative h-screen">
+    <div className="min-h-screen bg-gray-50 lg:pl-72">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
@@ -254,7 +254,7 @@ export default function AdminPanel() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-6 lg:p-8 w-full lg:w-auto">
+      <main className="p-4 md:p-6 lg:p-8 w-full">
         <header className="mb-4 md:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <Button

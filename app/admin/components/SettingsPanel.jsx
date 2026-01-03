@@ -33,13 +33,10 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
     { id: "general", label: "General" },
     { id: "home", label: "Home Page" },
     { id: "footer", label: "Footer" },
-    { id: "footer-links", label: "Footer Links" },
     { id: "about", label: "About Page" },
     { id: "team", label: "Team Page" },
     { id: "page-banners", label: "Page Banners" },
     { id: "banner-texts", label: "Banner Texts" },
-    { id: "impact-stories", label: "Impact Stories" },
-    { id: "what-we-do", label: "What We Do" },
     { id: "focus-areas", label: "We Provide Page" },
   ];
   const [site, setSite] = useState({ 
@@ -1101,6 +1098,94 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
               </div>
             </div>
 
+            {/* Footer Links */}
+            <Card className="mt-6">
+              <CardHeader className="px-3 sm:px-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <CardTitle className="text-base sm:text-lg">Footer Links</CardTitle>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const newLink = {
+                        section: "quick_links",
+                        label: "New Link",
+                        href: "#",
+                        display_order: footerLinks.length
+                      };
+                      saveFooterLink(newLink);
+                    }}
+                    className="w-full sm:w-auto text-xs sm:text-sm"
+                  >
+                    Add Link
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {footerLinks.map((link) => (
+                    <FooterLinkEditor
+                      key={link.id}
+                      link={link}
+                      onSave={saveFooterLink}
+                      onDelete={deleteFooterLink}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Social Media Icons */}
+            <Card className="mt-6">
+              <CardHeader className="px-3 sm:px-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base sm:text-lg">Social Media Icons</CardTitle>
+                    <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
+                  </div>
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                    View Footer
+                  </a>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Social media icons displayed in the footer on all pages
+                </p>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const newIcon = {
+                      platform: "facebook",
+                      url: "#",
+                      icon_name: "facebook",
+                      display_order: socialIcons.length
+                    };
+                    saveSocialIcon(newIcon);
+                  }}
+                  className="w-full sm:w-auto text-xs sm:text-sm mt-2"
+                >
+                  Add Icon
+                </Button>
+              </CardHeader>
+              <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {socialIcons.map((icon) => (
+                    <SocialIconEditor
+                      key={icon.id}
+                      icon={icon}
+                      onSave={saveSocialIcon}
+                      onDelete={deleteSocialIcon}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="border-t pt-4 sm:pt-6 mt-4 sm:mt-6">
               <Button
                 onClick={saveSiteSettings}
@@ -1114,98 +1199,6 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
         </Card>
       )}
 
-      {/* Footer Links Tab */}
-      {activeTab === "footer-links" && (
-        <div className="space-y-4 sm:space-y-6">
-          {/* Footer Links */}
-          <Card>
-            <CardHeader className="px-3 sm:px-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <CardTitle className="text-base sm:text-lg">Footer Links</CardTitle>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const newLink = {
-                      section: "quick_links",
-                      label: "New Link",
-                      href: "#",
-                      display_order: footerLinks.length
-                    };
-                    saveFooterLink(newLink);
-                  }}
-                  className="w-full sm:w-auto text-xs sm:text-sm"
-                >
-                  Add Link
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
-              <div className="space-y-3">
-                {footerLinks.map((link) => (
-                  <FooterLinkEditor
-                    key={link.id}
-                    link={link}
-                    onSave={saveFooterLink}
-                    onDelete={deleteFooterLink}
-                  />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Social Media Icons */}
-          <Card>
-          <CardHeader className="px-3 sm:px-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-base sm:text-lg">Social Media Icons</CardTitle>
-                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">Footer</span>
-              </div>
-              <a
-                href="/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
-              >
-                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                View Footer
-              </a>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-              <Info className="w-3 h-3" />
-              Social media icons displayed in the footer on all pages
-            </p>
-            <Button
-              size="sm"
-              onClick={() => {
-                const newIcon = {
-                  platform: "facebook",
-                  url: "#",
-                  icon_name: "facebook",
-                  display_order: socialIcons.length
-                };
-                saveSocialIcon(newIcon);
-              }}
-              className="w-full sm:w-auto text-xs sm:text-sm mt-2"
-            >
-              Add Icon
-            </Button>
-          </CardHeader>
-          <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
-            <div className="space-y-3">
-              {socialIcons.map((icon) => (
-                <SocialIconEditor
-                  key={icon.id}
-                  icon={icon}
-                  onSave={saveSocialIcon}
-                  onDelete={deleteSocialIcon}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        </div>
-      )}
 
 
       {/* Mission Texts Section */}
@@ -1358,6 +1351,70 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
             >
               {saving ? "Saving..." : "Save Home Page Content"}
             </Button>
+        </Card>
+      )}
+
+      {/* Impact Stories Section */}
+      {activeTab === "home" && (
+        <Card>
+          <CardHeader className="px-3 sm:px-6">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base sm:text-lg">Manage Impact Stories</CardTitle>
+              <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Home Page</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+              <Info className="w-3 h-3" />
+              Manage the 3 Key Impact Stories displayed on the homepage. Each story requires a title, main title, description, and image.
+            </p>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
+            <ImpactStoriesManager
+              stories={impactStories}
+              refresh={loadSettings}
+              supabase={supabase}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* What We Do Section */}
+      {activeTab === "home" && (
+        <Card>
+          <CardHeader className="px-3 sm:px-6">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base sm:text-lg">What We Do Content</CardTitle>
+              <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Home Page</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+              <Info className="w-3 h-3" />
+              Manage the paragraphs for the &ldquo;What We Do&rdquo; section on the homepage. Each paragraph will be displayed as a bullet point.
+            </p>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
+            <DynamicContentManager
+              title="What We Do Paragraphs"
+              description="Add paragraphs that will be displayed as bullet points in the What We Do section on the homepage."
+              items={Array.isArray(aboutContent.what_we_do_paragraphs) ? aboutContent.what_we_do_paragraphs : []}
+              onChange={(items) => setAboutContent({ ...aboutContent, what_we_do_paragraphs: items })}
+              itemTemplate={{ content: "" }}
+              placeholder={{ content: 'Enter a paragraph for the What We Do section...' }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Save Home Page Content Button */}
+      {activeTab === "home" && (
+        <Card>
+          <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
+            <Button
+              onClick={saveSiteSettings}
+              disabled={saving}
+              className="w-full sm:w-auto"
+            >
+              {saving ? "Saving..." : "Save Home Page Content"}
+            </Button>
+          </CardContent>
         </Card>
       )}
 
@@ -1634,7 +1691,7 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
             <Button
               onClick={saveSiteSettings}
               disabled={saving}
-              className="w-full sm:w-auto text-sm sm:text-base"
+              className="w-full sm:w-auto text-sm sm:text-base mt-4"
             >
               {saving ? "Saving..." : "Save About Page Content"}
             </Button>
@@ -2331,92 +2388,7 @@ export default function SettingsPanel({ supabase, onSettingsSaved }) {
         </div>
       )}
 
-      {/* What We Do Tab */}
-      {activeTab === "what-we-do" && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-base sm:text-lg font-semibold">What We Do Section</h3>
-            <a 
-              href="/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
-            >
-              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-              View Homepage
-            </a>
-          </div>
-          
-          <Card>
-            <CardHeader className="px-3 sm:px-6">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-base sm:text-lg">What We Do Content</CardTitle>
-                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Home Page</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <Info className="w-3 h-3" />
-                Manage the paragraphs for the &ldquo;What We Do&rdquo; section on the homepage. Each paragraph will be displayed as a bullet point.
-              </p>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
-              <DynamicContentManager
-                title="What We Do Paragraphs"
-                description="Add paragraphs that will be displayed as bullet points in the What We Do section on the homepage."
-                items={Array.isArray(aboutContent.what_we_do_paragraphs) ? aboutContent.what_we_do_paragraphs : []}
-                onChange={(items) => setAboutContent({ ...aboutContent, what_we_do_paragraphs: items })}
-                itemTemplate={{ content: "" }}
-                placeholder={{ content: 'Enter a paragraph for the What We Do section...' }}
-              />
-            </CardContent>
-          </Card>
 
-          <Button
-            onClick={saveSiteSettings}
-            disabled={saving}
-            className="w-full sm:w-auto text-sm sm:text-base"
-          >
-            {saving ? "Saving..." : "Save What We Do Content"}
-          </Button>
-        </div>
-      )}
-
-      {/* Impact Stories Tab */}
-      {activeTab === "impact-stories" && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-base sm:text-lg font-semibold">Key Impact Stories</h3>
-            <a 
-              href="/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs sm:text-sm text-primary hover:underline flex items-center gap-1"
-            >
-              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-              View Homepage
-            </a>
-          </div>
-          
-          <Card>
-            <CardHeader className="px-3 sm:px-6">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-base sm:text-lg">Manage Impact Stories</CardTitle>
-                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded">Home Page</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <Info className="w-3 h-3" />
-                Manage the 3 Key Impact Stories displayed on the homepage. Each story requires a title, main title, description, and image.
-              </p>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6 pt-4 sm:pt-6">
-              <ImpactStoriesManager
-                stories={impactStories}
-                refresh={loadSettings}
-                supabase={supabase}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       {/* Focus Areas Tab */}
       {activeTab === "focus-areas" && (
