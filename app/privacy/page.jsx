@@ -184,15 +184,21 @@ export default function PrivacyPolicy() {
                 If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-6 mt-4">
-                <p className="text-zinc-900 dark:text-zinc-100 font-semibold mb-2">Pragati Prime</p>
-                <p className="text-zinc-700 dark:text-zinc-300">
-                  Email: <a href="mailto:info@pragatiprime.org" className="text-primary hover:underline">info@pragatiprime.org</a>
+                <p className="text-zinc-900 dark:text-zinc-100 font-semibold mb-3">Pragati Prime</p>
+                <p className="text-zinc-700 dark:text-zinc-300 mb-2">
+                  <strong>Email:</strong> <a href="mailto:info@pragatiprime.org" className="text-primary hover:underline">info@pragatiprime.org</a>
+                </p>
+                <p className="text-zinc-700 dark:text-zinc-300 mb-2">
+                  <strong>Phone:</strong> +91-7006527696
+                </p>
+                <p className="text-zinc-700 dark:text-zinc-300 mb-2">
+                  <strong>WhatsApp:</strong> +91-7006527696
+                </p>
+                <p className="text-zinc-700 dark:text-zinc-300 mb-2">
+                  <strong>Registered Address:</strong> D-318, Flat No.8, Third Floor, Krishna Park, Devli Road, Khanpur, South Delhi, New Delhi-110062
                 </p>
                 <p className="text-zinc-700 dark:text-zinc-300">
-                  Phone: +1 (555) 123-4567
-                </p>
-                <p className="text-zinc-700 dark:text-zinc-300">
-                  Address: 123 Community Street, City, State 12345
+                  <strong>Correspondence Address:</strong> A-3, Indra Enclave, Neb Sarai, Near IGNOU, South Delhi, New Delhi-110068
                 </p>
               </div>
             </div>
