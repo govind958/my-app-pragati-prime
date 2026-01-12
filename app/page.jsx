@@ -280,9 +280,9 @@ export default function Home() {
       {/* Hero Section */}
      {/* Hero Section - ENHANCED for Modern UI/UX */}
 <section className="relative flex flex-col items-center justify-center text-center 
-                    min-h-[70vh] lg:min-h-screen 
-                    py-28 px-4 sm:px-6 md:px-16 
-                    overflow-hidden bg-zinc-950/90 dark:bg-black/90" // Stronger dark background
+                    min-h-[60vh] sm:min-h-[70vh] lg:min-h-screen 
+                    py-20 sm:py-28 px-4 sm:px-6 md:px-16 
+                    overflow-hidden bg-zinc-950/90 dark:bg-black/90"
 >
   {/* Banner Slider Background */}
   <div className="absolute inset-0 z-0 overflow-hidden">
@@ -298,7 +298,7 @@ export default function Home() {
           alt={`Banner ${index + 1}`}
           fill
           sizes="100vw"
-          className="object-cover"
+          className="object-contain sm:object-cover object-center"
           priority={index === 0}
           loading={index === 0 ? "eager" : "lazy"}
           quality={index === 0 ? 90 : 75}
@@ -345,10 +345,10 @@ export default function Home() {
     ))}
   </div>
 
-  <div className="relative z-10 px-4 sm:px-0 max-w-5xl mx-auto w-full">
-    {/* Animated Text */}
+  <div className="relative z-10 px-4 sm:px-0 max-w-5xl mx-auto w-full flex flex-col justify-between h-full">
+    {/* Animated Text - Shifted upward */}
     <EntranceAnimation>
-      <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold max-w-4xl mx-auto leading-tight sm:leading-tight tracking-tight sm:tracking-tighter">
+      <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold max-w-4xl mx-auto leading-tight sm:leading-tight tracking-tight sm:tracking-tighter -mt-8 sm:-mt-12 md:-mt-16">
         <span className="bg-clip-text text-transparent
                        bg-linear-to-r from-primary/90 to-orange-300
                          transition-colors duration-300 ease-in-out">
@@ -401,10 +401,10 @@ export default function Home() {
       </div>
     </div>
 
-    {/* **IMPACT / CREDIBILITY ROW** */}
+    {/* **IMPACT / CREDIBILITY ROW** - Shifted downward */}
     <EntranceAnimation>
-      <div className="mt-8 mb-10 text-center animate-delay-400">
-          <p className="text-xl font-bold text-primary/80 tracking-wide uppercase">
+      <div className="mt-16 sm:mt-20 md:mt-24 mb-6 text-center animate-delay-400">
+          <p className="text-xl font-bold text-primary/80 tracking-wide uppercase ">
               <span className="inline-block relative">
                 10,000+ Rural Women Supported
                 {/* Subtle pulse effect on a dot for focus */}
@@ -414,8 +414,8 @@ export default function Home() {
       </div>
     </EntranceAnimation>
 
-    {/* Animated Button Group (Conversion Focus) */}
-    <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center justify-center animate-delay-500">
+    {/* Animated Button Group (Conversion Focus) - Shifted downward */}
+    <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-4 items-center justify-center animate-delay-500">
       
       {/* Primary CTA: Magnetic, High-Contrast */}
       <Link href="/login">

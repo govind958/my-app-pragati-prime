@@ -129,6 +129,13 @@ export default function Footer() {
                 </a>
               ))}
             </div>
+            <br></br>
+            <div><span className="text-sm font-semibold text-foreground">Disclaimer :</span>
+            <p className="mt-4 text-sm text-muted-foreground max-w-md">
+              हम वित्तीय / तकनीकी संस्थान नहीं हैं, बल्कि मार्गदर्शन और सुविधा प्रदान करने वाली संस्था हैं।
+              We are not a financial / technical institution; we facilitate awareness and access.
+            </p>
+            </div>
           </div>
 
           {/* Quick Links */}
