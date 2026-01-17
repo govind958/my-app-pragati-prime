@@ -449,15 +449,15 @@ export default function TeamPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
             <Card className="rounded-2xl p-6 text-center bg-zinc-50 dark:bg-zinc-900">
-              <div className="text-3xl font-bold text-primary mb-2">50+</div>
+              <div className="text-3xl font-bold text-primary mb-2">3+</div>
               <div className="text-sm text-zinc-600 dark:text-zinc-400">Corporate Partners</div>
             </Card>
             <Card className="rounded-2xl p-6 text-center bg-zinc-50 dark:bg-zinc-900">
-              <div className="text-3xl font-bold text-primary mb-2">₹2Cr+</div>
+              <div className="text-3xl font-bold text-primary mb-2">₹10L+</div>
               <div className="text-sm text-zinc-600 dark:text-zinc-400">Total Partnership Value</div>
             </Card>
             <Card className="rounded-2xl p-6 text-center bg-zinc-50 dark:bg-zinc-900">
-              <div className="text-3xl font-bold text-primary mb-2">1000+</div>
+              <div className="text-3xl font-bold text-primary mb-2">100+</div>
               <div className="text-sm text-zinc-600 dark:text-zinc-400">Employee Volunteers</div>
             </Card>
           </div>
